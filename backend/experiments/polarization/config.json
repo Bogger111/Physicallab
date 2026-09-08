@@ -1,0 +1,84 @@
+{
+  "id": "polarization",
+  "name": "偏振光与双折射",
+  "category": "光学",
+  "description": "验证马吕斯定律、研究半波片和四分之一波片的光学特性、分析圆偏振光",
+  "processingTime": "~30秒",
+  "recordSheet": "/record-sheets/polarization_lab.pdf",
+  "measurements": [
+    {"key": "theta", "label": "偏振片角度 θ", "unit": "°"},
+    {"key": "intensity", "label": "光强 I", "unit": "μW"},
+    {"key": "phi", "label": "波片方位角 φ", "unit": "°"},
+    {"key": "delta_c", "label": "波片转角 ΔC", "unit": "°"},
+    {"key": "delta_p2", "label": "检偏器转角 ΔP2", "unit": "°"}
+  ],
+  "recordedData": [
+    "θ (偏振片角度)",
+    "I (透射光强)",
+    "φ (方位角)",
+    "ΔC (半波片转角)",
+    "ΔP2 (检偏器转角)"
+  ],
+  "setupFields": [
+    {"key": "bg_uw", "label": "背景光强", "unit": "μW", "default": 0, "type": "number"},
+    {"key": "theta_qwp", "label": "θ_qwp (1/4波片角度)", "unit": "°", "default": 30, "type": "select", "options": [30, 60]}
+  ],
+  "subExperiments": [
+    {
+      "id": "malus",
+      "name": "马吕斯定律",
+      "required": true,
+      "description": "测量不同偏振角下的透射光强，验证 I = I₀cos²θ",
+      "resultFields": [
+        {"key": "slope", "label": "斜率 (I₀)", "unit": "μW"},
+        {"key": "intercept", "label": "截距", "unit": "μW"},
+        {"key": "r_squared", "label": "R²", "unit": ""},
+        {"key": "extinction_ratio", "label": "消光比", "unit": ":1"},
+        {"key": "degree_of_polarization", "label": "偏振度", "unit": ""}
+      ]
+    },
+    {
+      "id": "halfwave",
+      "name": "半波片",
+      "required": true,
+      "description": "验证半波片使偏振方向旋转 2θ",
+      "resultFields": [
+        {"key": "slope", "label": "斜率", "unit": ""},
+        {"key": "r_squared", "label": "R²", "unit": ""},
+        {"key": "theory_slope", "label": "理论斜率", "unit": ""},
+        {"key": "slope_deviation_pct", "label": "斜率偏差", "unit": "%"}
+      ]
+    },
+    {
+      "id": "quarterwave",
+      "name": "四分之一波片",
+      "required": true,
+      "description": "测量椭圆偏振光的光强分布，确定振幅参数 A",
+      "resultFields": [
+        {"key": "I_max_exp", "label": "I_max (实验)", "unit": "μW"},
+        {"key": "I_min_exp", "label": "I_min (实验)", "unit": "μW"},
+        {"key": "ratio_exp", "label": "Imax/Imin (实验)", "unit": ""},
+        {"key": "ratio_theory", "label": "Imax/Imin (理论)", "unit": ""},
+        {"key": "A_avg", "label": "振幅参数 A", "unit": ""},
+        {"key": "relative_diff_pct", "label": "相对偏差", "unit": "%"}
+      ]
+    },
+    {
+      "id": "circular",
+      "name": "圆偏振光",
+      "required": false,
+      "description": "验证圆偏振光通过检偏器后光强恒定",
+      "resultFields": [
+        {"key": "I_mean", "label": "平均光强", "unit": "μW"},
+        {"key": "ratio", "label": "Imax/Imin", "unit": ""},
+        {"key": "cv_pct", "label": "变异系数 CV", "unit": "%"}
+      ]
+    }
+  ],
+  "plotRequirements": {
+    "malus": "I vs cos²θ 散点图 + 线性拟合线",
+    "halfwave": "ΔP2 vs ΔC 散点图 + 理论线 + 拟合线",
+    "quarterwave": "极坐标 I(φ) 散点图 + 理论曲线 + 非线性拟合",
+    "circular": "极坐标 I(φ) 散点图 + 均值线"
+  }
+}

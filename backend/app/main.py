@@ -1,0 +1,209 @@
+"""PhysicsLab FastAPI backend."""
+
+import os
+import json
+from pathlib import Path
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
+
+# Reliable base paths
+BACKEND_ROOT = Path(os.path.dirname(os.path.abspath(__file__))).parent
+
+app = FastAPI(title="PhysicsLab API", version="1.0.0")
+
+# CORS for Next.js dev server
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Serve record sheet PDFs
+RECORD_SHEETS_DIR = BACKEND_ROOT / "record-sheets"
+if not RECORD_SHEETS_DIR.exists():
+    alt = BACKEND_ROOT.parent / "frontend" / "public" / "record-sheets"
+    if alt.exists():
+        RECORD_SHEETS_DIR = alt
+
+
+# ─── Pydantic Models ────────────────────────────────────────
+
+class DMSAngle(BaseModel):
+    deg: float
+    min: float = 0.0
+
+class MalusRow(BaseModel):
+    theta: float
+    i_left: Optional[float] = None
+    i_right: Optional[float] = None
+
+class MalusData(BaseModel):
+    rows: List[MalusRow]
+
+class HalfWaveInitial(BaseModel):
+    c_deg: float
+    c_min: float = 0.0
+    p2_deg: float
+    p2_min: float = 0.0
+
+class HalfWaveRow(BaseModel):
+    offset: float
+    c_deg: float
+    c_min: float = 0.0
+    p2_deg: float
+    p2_min: float = 0.0
+
+class HalfWaveData(BaseModel):
+    initial: HalfWaveInitial
+    rows: List[HalfWaveRow]
+
+class QuarterWaveRow(BaseModel):
+    phi: float
+    i_raw: Optional[float] = None
+
+class QuarterWaveData(BaseModel):
+    rows: List[QuarterWaveRow]
+
+class CircularRow(BaseModel):
+    angle: float
+    i_raw: Optional[float] = None
+
+class CircularData(BaseModel):
+    rows: List[CircularRow]
+
+class ProcessRequest(BaseModel):
+    bg_uw: float = 0.0
+    theta_qwp: float = 30.0
+    malus: Optional[MalusData] = None
+    halfwave: Optional[HalfWaveData] = None
+    quarterwave: Optional[QuarterWaveData] = None
+    circular: Optional[CircularData] = None
+
+
+# ─── Routes ──────────────────────────────────────────────────
+
+@app.get("/")
+async def root():
+    return {"message": "PhysicsLab API", "version": "1.0.0"}
+
+
+@app.get("/api/experiments")
+async def list_experiments():
+    """List all available experiments."""
+    return {
+        "experiments": [
+            {
+                "id": "polarization",
+                "name": "偏振光与双折射",
+                "category": "光学",
+                "description": "马吕斯定律验证、半波片/四分之一波片特性、圆偏振光分析",
+                "sub_experiments": [
+                    {"id": "malus", "name": "马吕斯定律", "required": True},
+                    {"id": "halfwave", "name": "半波片", "required": True},
+                    {"id": "quarterwave", "name": "四分之一波片", "required": True},
+                    {"id": "circular", "name": "圆偏振光", "required": False},
+                ],
+                "measurements": [
+                    {"key": "theta", "label": "角度 θ", "unit": "°"},
+                    {"key": "intensity", "label": "光强 I", "unit": "μW"},
+                    {"key": "phi", "label": "方位角 φ", "unit": "°"},
+                ],
+                "record_sheet": "/api/record-sheets/polarization",
+                "processing_time": "~30秒",
+            }
+        ]
+    }
+
+
+@app.get("/api/record-sheets/polarization")
+async def get_polarization_record_sheet():
+    """Download the polarization lab record sheet PDF."""
+    pdf_path = RECORD_SHEETS_DIR / "polarization_lab.pdf"
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail="记录表文件未找到")
+    return FileResponse(
+        path=str(pdf_path),
+        media_type="application/pdf",
+        filename="偏振光实验数据记录表.pdf",
+    )
+
+
+@app.post("/api/experiments/polarization/process")
+async def process_polarization(req: ProcessRequest):
+    """Process polarization experiment data and return results + plots."""
+    from experiments.polarization.adapter import PolarizationAdapter
+
+    adapter = PolarizationAdapter(bg_uw=req.bg_uw, theta_qwp=req.theta_qwp)
+
+    data = {}
+    validation_errors = []
+
+    if req.malus:
+        malus_dict = {'rows': [r.model_dump() for r in req.malus.rows]}
+        # Validate
+        for i, row in enumerate(req.malus.rows):
+            if row.theta is None:
+                validation_errors.append(f"马吕斯定律: 第 {i+1} 行角度数据为空")
+            if row.i_left is None and row.i_right is None:
+                validation_errors.append(f"马吕斯定律: 第 {i+1} 行光强数据为空")
+        data['malus'] = malus_dict
+
+    if req.halfwave:
+        hw_dict = {
+            'initial': req.halfwave.initial.model_dump(),
+            'rows': [r.model_dump() for r in req.halfwave.rows],
+        }
+        for i, row in enumerate(req.halfwave.rows):
+            if row.c_deg is None or row.p2_deg is None:
+                validation_errors.append(f"半波片: 第 {i+1} 行数据不完整")
+        data['halfwave'] = hw_dict
+
+    if req.quarterwave:
+        qw_dict = {'rows': [r.model_dump() for r in req.quarterwave.rows]}
+        filled = sum(1 for r in req.quarterwave.rows if r.i_raw is not None)
+        if filled < 10:
+            validation_errors.append(f"四分之一波片: 需要至少10个有效光强数据，当前仅有 {filled} 个")
+        data['quarterwave'] = qw_dict
+
+    if req.circular:
+        circ_dict = {'rows': [r.model_dump() for r in req.circular.rows]}
+        data['circular'] = circ_dict
+
+    if validation_errors:
+        return {
+            "status": "validation_error",
+            "errors": validation_errors,
+            "results": {},
+            "plots": {},
+        }
+
+    if not data:
+        raise HTTPException(status_code=400, detail="未提供任何实验数据")
+
+    try:
+        result = adapter.process_all(data)
+        result['status'] = 'success'
+        return result
+    except Exception as e:
+        return {
+            "status": "calculation_error",
+            "error": str(e),
+            "results": {},
+            "plots": {},
+        }
+
+
+@app.get("/api/experiments/polarization/config")
+async def get_polarization_config():
+    """Return the experiment configuration for the frontend."""
+    config_path = BACKEND_ROOT / "experiments" / "polarization" / "config.json"
+    if config_path.exists():
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    raise HTTPException(status_code=404, detail="Config not found")
