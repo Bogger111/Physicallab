@@ -1,26 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", "Roboto Mono", monospace;
 
-  --animate-fade-in: fadeIn 200ms ease-out;
-  --animate-slide-up: slideUp 200ms ease-out;
+  --animate-fade-in: fade-in 300ms ease-out both;
+  --animate-rise-in: rise-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-float: float 7s ease-in-out infinite;
 
-  @keyframes fadeIn {
+  @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
   }
 
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(8px); }
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
   }
-}
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
 }
 
 html {
@@ -28,13 +30,100 @@ html {
 }
 
 body {
-  background-color: #fafafa;
-  color: #111827;
+  background-color: #fafaf9; /* stone-50 */
+  color: #1c1917; /* stone-900 */
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-.animate-in {
-  animation: fadeIn 200ms ease-out;
+::selection {
+  background: rgb(79 70 229 / 0.16);
+}
+
+/* ---------- layout primitives ---------- */
+
+.container-x {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 76rem;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .container-x {
+    padding-inline: 2rem;
+  }
+}
+
+/* ---------- surfaces & elevation ---------- */
+
+.card {
+  background: #ffffff;
+  border: 1px solid rgb(28 25 23 / 0.07);
+  border-radius: 1.125rem;
+}
+
+.shadow-soft {
+  box-shadow:
+    0 1px 2px rgb(28 25 23 / 0.04),
+    0 10px 30px -14px rgb(28 25 23 / 0.14);
+}
+
+.shadow-lift {
+  box-shadow:
+    0 2px 4px rgb(28 25 23 / 0.05),
+    0 20px 44px -18px rgb(28 25 23 / 0.22);
+}
+
+/* ---------- decorative helpers ---------- */
+
+.text-gradient {
+  background: linear-gradient(96deg, #4f46e5 10%, #7c3aed 55%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-dots {
+  background-image: radial-gradient(circle, rgb(28 25 23 / 0.06) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+
+.bg-dots-white {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.14) 1px, transparent 1.4px);
+  background-size: 20px 20px;
+}
+
+.bg-hero-glow {
+  background:
+    radial-gradient(46rem 30rem at 50% -14rem, rgb(99 102 241 / 0.10), transparent 62%),
+    radial-gradient(30rem 20rem at 90% 4%, rgb(168 85 247 / 0.07), transparent 60%),
+    radial-gradient(24rem 16rem at 6% 26%, rgb(56 189 248 / 0.07), transparent 60%);
+}
+
+.bg-panel-dark {
+  background:
+    radial-gradient(40rem 26rem at 78% -30%, rgb(129 140 248 / 0.28), transparent 62%),
+    linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #1e1b4b 100%);
+}
+
+/* ---------- focus & misc ---------- */
+
+*:focus-visible {
+  outline: 2px solid rgb(79 70 229 / 0.65);
+  outline-offset: 2px;
+}
+
+/* hide native number spinners — data-entry tables are cleaner without them */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

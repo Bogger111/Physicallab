@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
+import { cn } from "@/lib/utils";
 
 interface Header {
   label: string;
@@ -82,51 +83,79 @@ export default function DataInputTable({
   );
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
-      <table className="w-full text-sm">
-        <thead>
-          <tr>
-            {headers.map((h, i) => (
-              <th
-                key={i}
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-400 bg-gray-50/80 border-b border-gray-100 whitespace-nowrap"
-              >
-                {h.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, ri) => (
-            <tr key={ri} className="hover:bg-blue-50/30 transition-colors">
-              {row.map((cell, ci) => (
-                <td key={ci} className="border-b border-gray-50">
-                  <input
-                    ref={(el) => {
-                      if (!inputRefs.current[ri]) inputRefs.current[ri] = [];
-                      inputRefs.current[ri][ci] = el;
-                    }}
-                    type={headers[ci]?.readOnly ? "text" : "number"}
-                    step="any"
-                    readOnly={headers[ci]?.readOnly}
-                    value={cell}
-                    onChange={(e) => handleChange(ri, ci, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(e, ri, ci)}
-                    onPaste={(e) => handlePaste(e, ri, ci)}
-                    className={`w-full border-0 bg-transparent px-4 outline-none ${
-                      compact ? "py-2 text-xs" : "py-2.5 text-sm"
-                    } ${
-                      headers[ci]?.readOnly
-                        ? "text-gray-300 bg-gray-50/50 font-mono"
-                        : "text-gray-900 focus:bg-blue-50/50"
-                    }`}
-                  />
-                </td>
+    <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr>
+              {headers.map((h, i) => (
+                <th
+                  key={i}
+                  scope="col"
+                  className={cn(
+                    "whitespace-nowrap border-b border-stone-200 bg-stone-50 text-left text-xs font-bold text-stone-500",
+                    compact ? "px-3 py-2.5" : "px-4 py-3",
+                    i === 0 && "pl-5"
+                  )}
+                >
+                  {h.label}
+                  {h.readOnly && (
+                    <span className="ml-1.5 font-normal text-stone-300" aria-hidden>
+                      · 自动
+                    </span>
+                  )}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((row, ri) => (
+              <tr
+                key={ri}
+                className="transition-colors hover:bg-indigo-50/40"
+              >
+                {row.map((cell, ci) => {
+                  const readonly = headers[ci]?.readOnly;
+                  return (
+                    <td
+                      key={ci}
+                      className={cn(
+                        "border-b border-stone-100 p-0 last:border-b-0",
+                        ri === data.length - 1 && "border-b-0"
+                      )}
+                    >
+                      <input
+                        ref={(el) => {
+                          if (!inputRefs.current[ri]) inputRefs.current[ri] = [];
+                          inputRefs.current[ri][ci] = el;
+                        }}
+                        type={readonly ? "text" : "number"}
+                        step="any"
+                        inputMode={readonly ? undefined : "decimal"}
+                        readOnly={readonly}
+                        aria-readonly={readonly || undefined}
+                        value={cell}
+                        onChange={(e) => handleChange(ri, ci, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(e, ri, ci)}
+                        onPaste={(e) => handlePaste(e, ri, ci)}
+                        className={cn(
+                          "w-full border-0 bg-transparent outline-none transition-colors",
+                          compact ? "py-1.5 text-[13px]" : "py-2.5 text-sm",
+                          readonly
+                            ? "cursor-default bg-stone-50/70 text-center font-mono font-medium text-stone-400"
+                            : "px-3.5 text-right font-medium tabular-nums text-stone-800 focus:bg-indigo-50/70",
+                          !readonly && compact && "px-2.5",
+                          readonly && (compact ? "px-1 text-xs" : "px-1")
+                        )}
+                      />
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
