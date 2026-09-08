@@ -6,7 +6,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
@@ -197,6 +197,74 @@ async def process_polarization(req: ProcessRequest):
             "results": {},
             "plots": {},
         }
+
+
+@app.get("/api/record-sheets/polarization.docx")
+async def get_polarization_record_sheet_docx():
+    """Blank record sheet as an editable Word file (compact, no fills)."""
+    from experiments.polarization import docbuild
+    content = docbuild.record_sheet_bytes("docx")
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": _attachment("偏振光与双折射实验-数据记录表.docx")},
+    )
+
+
+@app.get("/api/record-sheets/polarization.pdf")
+async def get_polarization_record_sheet_pdf():
+    """Blank record sheet as a compact printable PDF (no fills)."""
+    from experiments.polarization import docbuild
+    content = docbuild.record_sheet_bytes("pdf")
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": _attachment("偏振光与双折射实验-数据记录表.pdf")},
+    )
+
+
+@app.post("/api/experiments/polarization/report")
+async def polarization_report(req: ProcessRequest, part: str = "basic", fmt: str = "docx"):
+    """Generate a part report (basic | advanced) as Word or compact PDF."""
+    from experiments.polarization import docbuild
+
+    data = _request_to_data(req)
+    if not data:
+        raise HTTPException(status_code=400, detail="未提供任何实验数据")
+    if part not in ("basic", "advanced"):
+        raise HTTPException(status_code=400, detail="part 必须是 basic 或 advanced")
+    if fmt not in ("docx", "pdf"):
+        raise HTTPException(status_code=400, detail="fmt 必须是 docx 或 pdf")
+    try:
+        content = docbuild.part_bytes(part, data, bg_uw=req.bg_uw,
+                                      theta_qwp=req.theta_qwp, fmt=fmt)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"报告生成失败: {e}")
+    label = "基准部分" if part == "basic" else "拓展部分"
+    fname = f"偏振光与双折射实验-报告-{label}.{'docx' if fmt == 'docx' else 'pdf'}"
+    mime = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            if fmt == "docx" else "application/pdf")
+    return Response(content=content, media_type=mime,
+                    headers={"Content-Disposition": _attachment(fname)})
+
+
+def _request_to_data(req: ProcessRequest) -> dict:
+    data = {}
+    if req.malus:
+        data["malus"] = {"rows": [r.model_dump() for r in req.malus.rows]}
+    if req.halfwave:
+        data["halfwave"] = {"initial": req.halfwave.initial.model_dump(),
+                            "rows": [r.model_dump() for r in req.halfwave.rows]}
+    if req.quarterwave:
+        data["quarterwave"] = {"rows": [r.model_dump() for r in req.quarterwave.rows]}
+    if req.circular:
+        data["circular"] = {"rows": [r.model_dump() for r in req.circular.rows]}
+    return data
+
+
+def _attachment(filename: str) -> str:
+    from urllib.parse import quote
+    return f"attachment; filename*=UTF-8''{quote(filename)}"
 
 
 @app.get("/api/experiments/polarization/config")

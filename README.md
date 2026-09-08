@@ -91,3 +91,13 @@ cd backend
 - 图表和数据是视觉中心
 - PC/Mac/iPad 好用，手机可查看
 - 不做 AI 魔法按钮
+
+## 运行说明（2026-09-09 更新）
+
+- 后端：`cd backend && ./.venv/Scripts/python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8001`
+  （8000 端口残留了一个无法在普通会话终止的旧进程，故统一走 8001；如需清掉请用管理员终端或重启后删除。）
+- 前端：`cd frontend && npm run build && npx next start -p 3000`；构建会读取 `.env.local`（NEXT_PUBLIC_API_URL=http://localhost:8001）。
+- 报告管线（新增）：`backend/experiments/polarization/{reports.py,docbuild.py}`。
+  - `GET  /api/record-sheets/polarization.{docx|pdf}`：空白记录表（Word / 紧凑 PDF，无填充色）
+  - `POST /api/experiments/polarization/report?part=basic|advanced&fmt=docx|pdf`：基准/拓展报告
+- 依赖新增：python-docx、reportlab（见 backend/requirements.txt）。

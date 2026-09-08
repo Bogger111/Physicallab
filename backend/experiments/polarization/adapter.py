@@ -26,7 +26,8 @@ import matplotlib.pyplot as plt
 
 # Matplotlib styling for clean scientific plots
 plt.rcParams.update({
-    'font.sans-serif': ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Helvetica'],
+    'font.family': 'sans-serif',
+    'font.sans-serif': ['Microsoft YaHei', 'SimHei', 'DejaVu Sans', 'Arial'],
     'axes.unicode_minus': False,
     'figure.dpi': 150,
     'savefig.dpi': 200,
@@ -149,17 +150,44 @@ class PolarizationAdapter:
         }
 
     def _plot_malus(self, r: dict) -> str:
+        """Malus: I_left and I_right series on the SAME axes, each with its own
+        linear fit, plus the mean-series fit (the one used for the report numbers)."""
         fig, ax = plt.subplots(figsize=(8, 5.5))
-        ax.scatter(r['cos2'], r['I_mean'], c='#2563eb', marker='o', s=50, zorder=5,
-                   label='校正后实验数据', edgecolors='white', linewidths=0.5)
+
+        def fit_line(y_series, label_color):
+            mask = np.isfinite(r['cos2']) & np.isfinite(y_series)
+            if mask.sum() < 2:
+                return None
+            sl, ic, rv, _, _ = stats.linregress(r['cos2'][mask], y_series[mask])
+            xs = np.linspace(0, 1, 80)
+            ax.plot(xs, sl * xs + ic, linestyle='--', linewidth=1.6,
+                    color=label_color, alpha=0.85, zorder=3)
+            return sl, ic, rv ** 2
+
+        ax.scatter(r['cos2'], r['I_left_corr'], c='#2563eb', marker='o', s=52, zorder=5,
+                   label='I 左旋', edgecolors='white', linewidths=0.6)
+        ax.scatter(r['cos2'], r['I_right_corr'], c='#f59e0b', marker='s', s=44, zorder=5,
+                   label='I 右旋', edgecolors='white', linewidths=0.6)
+
+        fit_l = fit_line(r['I_left_corr'], '#2563eb')
+        fit_r = fit_line(r['I_right_corr'], '#f59e0b')
+
+        # mean-series fit = canonical reported fit
         x_fit = np.linspace(0, 1, 100)
         y_fit = r['slope'] * x_fit + r['intercept']
-        ax.plot(x_fit, y_fit, 'r-', linewidth=2,
-                label=f"拟合: I = {r['slope']:.1f}cos²θ + {r['intercept']:.2f}\nR² = {r['r_squared']:.6f}")
+        ax.plot(x_fit, y_fit, '-', color='#dc2626', linewidth=2.2, zorder=6,
+                label=f"拟合(平均): I = {r['slope']:.2f}cos²θ + {r['intercept']:.2f}   R² = {r['r_squared']:.5f}")
+        if fit_l:
+            ax.plot([], [], '--', color='#2563eb', alpha=0.85,
+                    label=f"拟合(左): R² = {fit_l[2]:.5f}")
+        if fit_r:
+            ax.plot([], [], '--', color='#f59e0b', alpha=0.85,
+                    label=f"拟合(右): R² = {fit_r[2]:.5f}")
+
         ax.set_xlabel('cos²θ', fontsize=12)
         ax.set_ylabel('I / μW', fontsize=12)
-        ax.set_title("马吕斯定律: I 与 cos²θ 的关系", fontsize=14, fontweight='bold')
-        ax.legend(fontsize=10, framealpha=0.9)
+        ax.set_title('马吕斯定律：I 左 / I 右 与 cos²θ 的关系（背景已校正）', fontsize=13, fontweight='bold')
+        ax.legend(fontsize=9, framealpha=0.9, loc='upper left')
         fig.tight_layout()
         return _fig_to_base64(fig)
 

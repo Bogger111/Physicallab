@@ -79,3 +79,59 @@ export async function processPolarization(
 export function getRecordSheetUrl(experimentId: string): string {
   return `${API_BASE}/api/record-sheets/${experimentId}`;
 }
+
+// ---------------------------------------------------------- file downloads
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+export async function downloadRecordSheet(
+  fmt: "docx" | "pdf"
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/record-sheets/polarization.${fmt}`);
+  if (!res.ok) throw new Error(`记录表下载失败 (${res.status})`);
+  triggerDownload(await res.blob(), `偏振光与双折射实验-数据记录表.${fmt}`);
+}
+
+export async function previewRecordSheet(): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/record-sheets/polarization.pdf`);
+  if (!res.ok) throw new Error(`记录表生成失败 (${res.status})`);
+  const url = URL.createObjectURL(await res.blob());
+  window.open(url, "_blank", "noopener");
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+export async function downloadReport(
+  part: "basic" | "advanced",
+  fmt: "docx" | "pdf",
+  data: ProcessRequest
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/api/experiments/polarization/report?part=${part}&fmt=${fmt}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }
+  );
+  if (!res.ok) {
+    let msg = `报告生成失败 (${res.status})`;
+    try {
+      const j = await res.json();
+      if (j.detail) msg = j.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(msg);
+  }
+  const label = part === "basic" ? "基准部分" : "拓展部分";
+  triggerDownload(await res.blob(), `偏振光与双折射实验-报告-${label}.${fmt}`);
+}

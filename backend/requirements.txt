@@ -7,3 +7,5 @@ openpyxl>=3.1.0
 pydantic>=2.0.0
 python-multipart>=0.0.6
 Pillow>=10.0.0
+python-docx>=1.1.0
+reportlab>=4.0.0

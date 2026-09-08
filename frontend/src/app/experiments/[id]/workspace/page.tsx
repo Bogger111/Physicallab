@@ -26,6 +26,9 @@ import {
 import { getExperiment } from "@/lib/experiments";
 import {
   processPolarization,
+  downloadRecordSheet,
+  previewRecordSheet,
+  downloadReport,
   type ProcessRequest,
   type ProcessResponse,
 } from "@/lib/api";
@@ -94,6 +97,21 @@ export default function WorkspacePage({
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ProcessResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [dlError, setDlError] = useState<string | null>(null);
+
+  const runDownload = async (key: string, action: () => Promise<void>) => {
+    if (busyKey) return;
+    setBusyKey(key);
+    setDlError(null);
+    try {
+      await action();
+    } catch (e) {
+      setDlError(e instanceof Error ? e.message : "下载失败");
+    } finally {
+      setBusyKey(null);
+    }
+  };
 
   const buildRequest = useCallback((): ProcessRequest => {
     return {
@@ -338,25 +356,45 @@ export default function WorkspacePage({
                 ))}
               </ul>
 
-              <div className="mt-8 flex justify-center gap-3">
-                <a
-                  href={experiment.recordSheet}
-                  target="_blank"
-                  rel="noopener"
-                  className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <button
+                  onClick={() => runDownload("preview", previewRecordSheet)}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:opacity-50"
                 >
                   <Eye className="h-4 w-4" />
                   预览
-                </a>
-                <a
-                  href={experiment.recordSheet}
-                  download
-                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition-all hover:bg-indigo-700"
+                </button>
+                <button
+                  onClick={() => runDownload("record-docx", () => downloadRecordSheet("docx"))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-stone-900 px-5 text-sm font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-stone-700 disabled:opacity-50"
                 >
-                  <Download className="h-4 w-4" />
+                  {busyKey === "record-docx" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="h-4 w-4" />
+                  )}
+                  下载 Word
+                </button>
+                <button
+                  onClick={() => runDownload("record-pdf", () => downloadRecordSheet("pdf"))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {busyKey === "record-pdf" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
                   下载 PDF
-                </a>
+                </button>
               </div>
+              {dlError && (
+                <p className="mt-3 text-center text-xs font-medium text-red-500" role="alert">
+                  {dlError}
+                </p>
+              )}
             </div>
 
             <button
@@ -786,6 +824,90 @@ export default function WorkspacePage({
                 <Download className="h-4 w-4" />
                 导出全部图像
               </button>
+            </div>
+
+            {/* Deliverables: Word + compact PDF per part */}
+            <div className="card mb-8 overflow-hidden shadow-soft">
+              <div className="flex items-center justify-between border-b border-stone-100 bg-stone-50/60 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-sm shadow-indigo-600/25">
+                    <FileDown className="h-[18px] w-[18px]" strokeWidth={2} />
+                  </span>
+                  <div>
+                    <h3 className="text-[15px] font-bold text-stone-900">报告交付文件</h3>
+                    <p className="text-xs text-stone-400">
+                      每个部分 = 可编辑 Word + 紧凑排版 PDF（表格无底色，省纸打印）
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+                {[
+                  {
+                    part: "basic" as const,
+                    name: "基准报告",
+                    desc: "数据表 + 计算结果 + 4 张基准图（含 I 左/右对比）",
+                  },
+                  {
+                    part: "advanced" as const,
+                    name: "拓展报告",
+                    desc: "残差 / 理论对比 / 恒定性 / 参数汇总等误差分析图",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.part}
+                    className="flex flex-col justify-between gap-3 rounded-xl border border-stone-200/80 p-4"
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-stone-900">
+                        报告 · {item.name}
+                      </p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-stone-400">{item.desc}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          runDownload(
+                            `${item.part}-docx`,
+                            () => downloadReport(item.part, "docx", buildRequest())
+                          )
+                        }
+                        disabled={busyKey !== null}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
+                      >
+                        {busyKey === `${item.part}-docx` ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <FileText className="h-3.5 w-3.5" />
+                        )}
+                        Word 版
+                      </button>
+                      <button
+                        onClick={() =>
+                          runDownload(
+                            `${item.part}-pdf`,
+                            () => downloadReport(item.part, "pdf", buildRequest())
+                          )
+                        }
+                        disabled={busyKey !== null}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                        {busyKey === `${item.part}-pdf` ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Download className="h-3.5 w-3.5" />
+                        )}
+                        紧凑 PDF
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {dlError && (
+                <p className="px-6 pb-4 text-xs font-medium text-red-500" role="alert">
+                  {dlError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-6">

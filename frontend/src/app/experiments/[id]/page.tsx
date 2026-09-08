@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -16,8 +16,10 @@ import {
   Sheet,
   ChartSpline,
   Lock,
+  Loader2,
 } from "lucide-react";
 import { getExperiment } from "@/lib/experiments";
+import { downloadRecordSheet, previewRecordSheet } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const CAT_CHIP: Record<string, string> = {
@@ -42,6 +44,21 @@ export default function ExperimentDetailPage({
 }) {
   const { id } = use(params);
   const experiment = getExperiment(id);
+  const [sheetBusy, setSheetBusy] = useState<string | null>(null);
+  const [sheetError, setSheetError] = useState<string | null>(null);
+
+  const grab = async (key: string, action: () => Promise<void>) => {
+    if (sheetBusy) return;
+    setSheetBusy(key);
+    setSheetError(null);
+    try {
+      await action();
+    } catch (e) {
+      setSheetError(e instanceof Error ? e.message : "下载失败");
+    } finally {
+      setSheetBusy(null);
+    }
+  };
 
   if (!experiment) {
     return (
@@ -122,14 +139,23 @@ export default function ExperimentDetailPage({
                 开始数据处理
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
-              <a
-                href={experiment.recordSheet}
-                download
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white/80 px-6 text-[15px] font-semibold text-stone-700 backdrop-blur transition-colors hover:border-stone-400 hover:bg-white"
+              <button
+                onClick={() => grab("cover-pdf", () => downloadRecordSheet("pdf"))}
+                disabled={sheetBusy !== null}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white/80 px-6 text-[15px] font-semibold text-stone-700 backdrop-blur transition-colors hover:border-stone-400 hover:bg-white disabled:opacity-50"
               >
-                <Download className="h-4 w-4 text-indigo-600" />
+                {sheetBusy === "cover-pdf" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 text-indigo-600" />
+                )}
                 下载记录表
-              </a>
+              </button>
+              {sheetError && (
+                <p className="mt-2 text-xs font-medium text-red-500" role="alert">
+                  {sheetError}
+                </p>
+              )}
             </div>
           </div>
 
@@ -213,25 +239,45 @@ export default function ExperimentDetailPage({
                   </p>
                 </div>
               </div>
-              <div className="flex shrink-0 gap-2.5">
-                <a
-                  href={experiment.recordSheet}
-                  target="_blank"
-                  rel="noopener"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900"
+              <div className="flex shrink-0 flex-wrap gap-2.5">
+                <button
+                  onClick={() => grab("preview", previewRecordSheet)}
+                  disabled={sheetBusy !== null}
+                  className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900 disabled:opacity-50"
                 >
                   <Eye className="h-4 w-4" />
                   预览
-                </a>
-                <a
-                  href={experiment.recordSheet}
-                  download
-                  className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-indigo-600 px-5 text-sm font-semibold text-white shadow-sm shadow-indigo-600/25 transition-colors hover:bg-indigo-700"
+                </button>
+                <button
+                  onClick={() => grab("sheet-docx", () => downloadRecordSheet("docx"))}
+                  disabled={sheetBusy !== null}
+                  className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-stone-900 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-stone-700 disabled:opacity-50"
                 >
-                  <Download className="h-4 w-4" />
+                  {sheetBusy === "sheet-docx" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="h-4 w-4" />
+                  )}
+                  下载 Word
+                </button>
+                <button
+                  onClick={() => grab("sheet-pdf", () => downloadRecordSheet("pdf"))}
+                  disabled={sheetBusy !== null}
+                  className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm shadow-indigo-600/25 transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {sheetBusy === "sheet-pdf" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
                   下载 PDF
-                </a>
+                </button>
               </div>
+              {sheetError && (
+                <p className="mt-2 text-xs font-medium text-red-500" role="alert">
+                  {sheetError}
+                </p>
+              )}
             </div>
           </div>
         </section>
