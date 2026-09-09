@@ -443,6 +443,7 @@ function PolarizationWorkspace({
                       step="any"
                       value={bgUw}
                       onChange={(e) => setBgUw(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 pr-9 text-right text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
                     />
                     <span className="pointer-events-none absolute right-3 text-xs text-stone-400">
@@ -545,6 +546,7 @@ function PolarizationWorkspace({
                           onChange={(e) =>
                             setHwInit((prev) => ({ ...prev, [f.key]: e.target.value }))
                           }
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="h-9 rounded-lg border border-stone-200 bg-white px-3 text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
                         />
                       </label>

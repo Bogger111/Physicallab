@@ -38,6 +38,33 @@ export default function DataInputTable({
       row: number,
       col: number
     ) => {
+      // 方向键在表格内移动焦点（跳过“自动/只读”列，到边界即停）
+      if (e.key.startsWith("Arrow")) {
+        e.preventDefault();
+        const [dr, dc] =
+          e.key === "ArrowUp"
+            ? [-1, 0]
+            : e.key === "ArrowDown"
+              ? [1, 0]
+              : e.key === "ArrowLeft"
+                ? [0, -1]
+                : [0, 1];
+        if (dr !== 0) {
+          const tr = row + dr;
+          const el = inputRefs.current[tr]?.[col];
+          if (el && !headers[col]?.readOnly) el.focus();
+        } else {
+          let tc = col + dc;
+          while (tc >= 0 && tc < headers.length) {
+            if (!headers[tc]?.readOnly) {
+              inputRefs.current[row]?.[tc]?.focus();
+              break;
+            }
+            tc += dc;
+          }
+        }
+        return;
+      }
       if (e.key === "Tab") {
         e.preventDefault();
         const nextCol = col + (e.shiftKey ? -1 : 1);
@@ -137,6 +164,10 @@ export default function DataInputTable({
                         value={cell}
                         onChange={(e) => handleChange(ri, ci, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, ri, ci)}
+                        onWheel={(e) => {
+                          // 滚动页面时禁止滚轮改值（防误触）
+                          e.currentTarget.blur();
+                        }}
                         onPaste={(e) => handlePaste(e, ri, ci)}
                         className={cn(
                           "w-full border-0 bg-transparent outline-none transition-colors",

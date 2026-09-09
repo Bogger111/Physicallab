@@ -39,6 +39,10 @@ from reportlab.platypus import (
 )
 
 from experiments.polarization.adapter import PolarizationAdapter
+from experiments.polarization.angles import (
+    dms_to_decimal as _dms_to_dec,
+    unwrap_angle_delta as _unwrap_delta,
+)
 from experiments.polarization import reports as R
 
 CN = "微软雅黑"
@@ -443,6 +447,13 @@ def _doc_table(doc, spec) -> None:
         for ci, w in enumerate(widths):
             for row in table.rows:
                 row.cells[ci].width = Cm(w)
+    # Whole-table keep-together in Word: chain every row's paragraph with the
+    # next one (keepNext), so Word never splits a table between rows/pages.
+    # PDF flavour already wraps each table in KeepTogether.
+    for ri in range(len(rows) - 1):
+        for cell in table.rows[ri].cells:
+            for para in cell.paragraphs:
+                para.paragraph_format.keep_with_next = True
 
 
 def _doc_p(doc, text, size=10, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT,
@@ -854,6 +865,185 @@ def _raw_table_block(key: str, raw: dict, present: bool) -> list[dict]:
     return b
 
 
+# ---------------------------------------------------------------- complete data tables (raw + computed columns)
+#
+# 「完整数据表」：每个已提交子实验除原始提交列外，补计算列并填好数值。
+# 计算列一律复用 analyze() 返回的 arrays（docbuild.analyze → PolarizationAdapter，
+# 与 adapter.py 同公式同语义，禁止另造轮子）：
+#   malus       thetas / cos2 / I_left_corr / I_right_corr（背景修正 I_corr = I_raw − bg）
+#   halfwave    offsets / delta_c / delta_p2 / errors（Δ 由 dms_to_decimal +
+#               unwrap_angle_delta 求同一器件读数差；errors = ΔP2 − 2ΔC，单位 °）
+#   quarterwave phis / I_corr；circular angles / I_corr
+# 仅当 arrays 与提交行数不一致（正常数据不会发生）时才按上述同公式从提交行本地重算。
+
+
+def _num(v):
+    """float(v)，None/''/nan -> None。"""
+    if v is None:
+        return None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return None if f != f else f
+
+
+def _i2(v):
+    """光强：2 位小数，空值 -> ''."""
+    f = _num(v)
+    return "" if f is None else f"{f:.2f}"
+
+
+def _c(text) -> dict:
+    return {"text": str(text)}
+
+
+def _malus_full(rr: dict, data_rows: list, bg: float) -> tuple:
+    """马吕斯完整表：θ(°)、cos²θ、I左(μW)、I右(μW)、I左′(μW)、I右′(μW)。"""
+    valid = [r for r in data_rows if r.get("theta") is not None]
+    n = int(np.asarray(rr["thetas"]).size)
+    aligned = len(valid) == n
+    headers = [_c("θ (°)"), _c("cos²θ"), _c("I左(μW)"), _c("I右(μW)"),
+               _c("I左′(μW)"), _c("I右′(μW)")]
+    rows = [headers]
+    for i in range(n if aligned else len(valid)):
+        row = valid[i] if aligned else (valid[i] if i < len(valid) else None)
+        if row is None:
+            continue
+        th = rr["thetas"][i] if aligned else _num(row.get("theta"))
+        c2 = float(rr["cos2"][i]) if aligned else (
+            float(np.cos(np.radians(float(th))) ** 2) if th is not None else None)
+        i_l_raw = _num(row.get("i_left"))
+        i_r_raw = _num(row.get("i_right"))
+        i_l_c = rr["I_left_corr"][i] if aligned else (
+            None if i_l_raw is None else i_l_raw - bg)
+        i_r_c = rr["I_right_corr"][i] if aligned else (
+            None if i_r_raw is None else i_r_raw - bg)
+        rows.append([
+            _c(_fmt(th)), _c("" if c2 is None else f"{c2:.4f}"),
+            _c(_i2(i_l_raw)), _c(_i2(i_r_raw)),
+            _c(_i2(i_l_c)), _c(_i2(i_r_c)),
+        ])
+    return headers, [1.9, 2.7, 3.2, 3.2, 3.4, 3.4], rows
+
+
+def _halfwave_full(rr: dict, data_rows: list, init: dict) -> tuple:
+    """半波片完整表：序号、C偏移(°)、C(度/分)、P2(度/分) + ΔC(°)、ΔP2(°)、ΔP2−2ΔC(′)。"""
+    valid = [r for r in data_rows
+             if r.get("c_deg") is not None and r.get("p2_deg") is not None]
+    off = rr.get("offsets", [])
+    aligned = len(valid) == int(np.asarray(off).size)
+    c0 = _dms_to_dec(_num(init.get("c_deg")) or 0.0, _num(init.get("c_min")) or 0.0)
+    p20 = _dms_to_dec(_num(init.get("p2_deg")) or 0.0, _num(init.get("p2_min")) or 0.0)
+    headers = [_c("序号"), _c("C偏移(°)"), _c("C(度)"), _c("C(分)"),
+               _c("P2(度)"), _c("P2(分)"),
+               _c("ΔC(°)"), _c("ΔP2(°)"), _c("ΔP2−2ΔC(′)")]
+    rows = [headers]
+    for i, row in enumerate(valid):
+        if aligned:
+            dc = float(rr["delta_c"][i])
+            dp = float(rr["delta_p2"][i])
+            err = float(rr["errors"][i])
+        else:
+            c_dec = _dms_to_dec(_num(row.get("c_deg")) or 0.0,
+                                _num(row.get("c_min")) or 0.0)
+            p2_dec = _dms_to_dec(_num(row.get("p2_deg")) or 0.0,
+                                 _num(row.get("p2_min")) or 0.0)
+            dc = _unwrap_delta(c_dec - c0)
+            dp = _unwrap_delta(p2_dec - p20)
+            err = dp - 2.0 * dc
+        rows.append([
+            _c(str(i + 1)),
+            _c(_fmt(row.get("offset")) if _num(row.get("offset")) is not None else "0"),
+            _c(_fmt(row.get("c_deg"))), _c(_fmt(row.get("c_min"))),
+            _c(_fmt(row.get("p2_deg"))), _c(_fmt(row.get("p2_min"))),
+            _c(_fmt(dc)), _c(_fmt(dp)),
+            _c(f"{err * 60.0:.1f}"),
+        ])
+    return headers, [1.5, 2.1, 1.9, 1.7, 1.9, 1.7, 2.0, 2.1, 2.9], rows
+
+
+def _curve_full(rr: dict, data_rows: list, bg: float,
+                ang_key: str, unit: str) -> tuple:
+    """λ/4 / 圆偏振 3-up 完整表：每组 (角度, I_raw, I_corr)×3，9 列 12 行形态。"""
+    valid = [r for r in data_rows if r.get(ang_key) is not None]
+    arr_ang = rr.get("phis" if ang_key == "phi" else "angles", [])
+    aligned = len(valid) == int(np.asarray(arr_ang).size)
+    ic = rr.get("I_corr", [])
+    lab = "φ(°)" if ang_key == "phi" else "P2(°)"
+    headers = []
+    for _ in range(3):
+        headers += [_c(lab), _c("I_raw(μW)"), _c("I_corr(μW)")]
+    rows = [headers]
+    for i in range(0, len(valid), 3):
+        line = []
+        for j in range(3):
+            if i + j < len(valid):
+                row = valid[i + j]
+                ang = row.get(ang_key)
+                raw = _num(row.get("i_raw"))
+                corr = ic[i + j] if aligned else (None if raw is None else raw - bg)
+                line += [_c(_fmt(ang)), _c(_i2(raw)), _c(_i2(corr))]
+            else:
+                line += [_c(""), _c(""), _c("")]
+        rows.append(line)
+    widths = [2.0] * 9
+    return headers, widths, rows
+
+
+def _corr_note(bg: float, body: str) -> str:
+    if bg and bg > 0:
+        return body + f"（背景光 I0 = {bg:g} μW，修正列已按 I−I0 填入）"
+    return body + "（本次背景光 I0 = 0 μW，无需修正，修正列与原始列相同）"
+
+
+def _complete_table_blocks(key: str, run: dict, data: dict) -> list[dict]:
+    """basic 报告用「完整数据表」block 列表（表头 + 原始列 + 计算列数值全填）。"""
+    rr = run["r"][key]
+    bg = float(run["meta"].get("bg_uw", 0.0))
+    data_rows = (data.get(key) or {}).get("rows", []) or []
+    blocks: list[dict] = []
+    if key == "halfwave":
+        init = (data.get("halfwave") or {}).get("initial") or {}
+        rows_init = [
+            [_c("项目"), _c("度"), _c("分")],
+            [_c("C 初始消光位置"), _c(_fmt(init.get("c_deg"))), _c(_fmt(init.get("c_min")))],
+            [_c("P2 初始消光位置"), _c(_fmt(init.get("p2_deg"))), _c(_fmt(init.get("p2_min")))],
+        ]
+        blocks.append({"kind": "table", "widths": [9.0, 4.4, 4.4],
+                       "font": 8.5, "row_h": 0.6, "rows": rows_init})
+        blocks.append({"kind": "spacer", "cm": 0.15})
+        headers, widths, rows = _halfwave_full(rr, data_rows, init)
+        blocks.append({"kind": "note",
+                       "text": "完整数据表：C/P2 原始读数在下表左侧；ΔC、ΔP2 为同一器件相对初始位置的读数差，"
+                               "验证列 ΔP2−2ΔC 单位 (′)，应≈0（理论 ΔP2 = 2ΔC）。"})
+        blocks.append({"kind": "table", "widths": widths, "font": 8,
+                       "row_h": 0.48, "rows": rows})
+        return blocks
+    if key == "malus":
+        headers, widths, rows = _malus_full(rr, data_rows, bg)
+        note = ("θ、I左、I右为原始记录；cos²θ 由程序按 cos(θ·π/180)² 计算（4 位小数）；"
+                "修正列 I左′=I左−I0、I右′=I右−I0 为背景光修正。")
+        blocks.append({"kind": "note", "text": "完整数据表：" + _corr_note(bg, note)})
+        blocks.append({"kind": "table", "widths": widths, "font": 8,
+                       "row_h": 0.48, "rows": rows})
+        return blocks
+    if key == "quarterwave":
+        headers, widths, rows = _curve_full(rr, data_rows, bg, "phi", "")
+        note = "3-up 排列：每点给出原始光强 I_raw(μW) 与修正光强 I_corr = I_raw − I0。"
+        blocks.append({"kind": "note", "text": "完整数据表：" + _corr_note(bg, note)})
+        blocks.append({"kind": "table", "widths": widths, "font": 8,
+                       "row_h": 0.48, "rows": rows})
+        return blocks
+    # circular
+    headers, widths, rows = _curve_full(rr, data_rows, bg, "angle", "")
+    note = "3-up 排列：每点给出原始光强 I_raw(μW) 与修正光强 I_corr = I_raw − I0。"
+    blocks.append({"kind": "note", "text": "完整数据表：" + _corr_note(bg, note)})
+    blocks.append({"kind": "table", "widths": widths, "font": 8,
+                   "row_h": 0.48, "rows": rows})
+    return blocks
+
+
 def _summary_table_block(key: str, run: dict) -> list[dict]:
     s = run["summaries"].get(key)
     if not s:
@@ -883,8 +1073,8 @@ def _summary_table_block(key: str, run: dict) -> list[dict]:
 def part1_blocks(run: dict, data: dict) -> list[dict]:
     blocks = _meta_intro(
         "基准部分", run,
-        "包含四个子实验的原始数据表、计算结果与基准图像（Word 可编辑；PDF 紧凑排版用于打印）。")
-    raw = _raw_input_tables(data)
+        "包含四个子实验的完整数据表（原始列 + 计算列，数值已填）、计算结果与基准图像"
+        "（Word 可编辑；PDF 紧凑排版用于打印）。")
     order = ["malus", "halfwave", "quarterwave", "circular"]
     for n, key in enumerate(order, 1):
         if key not in run["r"]:
@@ -892,7 +1082,7 @@ def part1_blocks(run: dict, data: dict) -> list[dict]:
         title, desc = _SUB_TITLES[key]
         blocks.append({"kind": "h2", "text": f"{n}. {title}"})
         blocks.append({"kind": "note", "text": desc})
-        blocks += _raw_table_block(key, raw, True)
+        blocks += _complete_table_blocks(key, run, data)
         blocks.append({"kind": "note", "text": "计算结果："})
         blocks += _summary_table_block(key, run)
         fig = run["basic"].get(key)

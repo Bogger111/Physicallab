@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""mimo-style clean record sheets: exp01 polarization (landscape), exp02 sound-light (portrait).
+"""mimo-style clean record sheets: exp01 polarization + exp02 sound-light, both portrait A4.
 
 Mirrors C:/Users/Bogger/OneDrive/Desktop/Hermes File/PhysicsLab_Output/01_record_tables/
 gen_clean_tables.py: experiment title (h2) is followed directly by its tables,
 no page header/footer, no explanatory note paragraphs, no cell fills except
 prefilled reference cells (cos²θ, 测量次数/序号 etc.); the rest is blank for
 handwriting. Tables flow naturally; the PDF renderer keeps each table intact
-on one page (KeepTogether). exp01 polarization stays landscape A4; exp02
-sound-light is portrait A4 laid out per the lecture tables (表1-1, 2-1 ~ 2-3).
+on one page (KeepTogether). User requirement: every blank record sheet is
+portrait A4 (docx 210×297 宋体 / pdf 595×842 msyh), one row per record.
+Per-table total widths below stay <= 18.0 cm so Word tables never overflow the
+portrait text column (usable 18.2 cm); the PDF flavour rescales to full width.
 
 Rendering contract:
   record_bytes('polarization'|'sound-light', 'docx'|'pdf')
-landscape = (exp_id == 'polarization')
-docx -> render_docx(landscape=landscape, cn='宋体', cn_en='宋体')
-pdf  -> render_pdf(landscape=landscape, cn_pref='msyh')
+landscape = False for both experiments
+docx -> render_docx(landscape=False, cn='宋体', cn_en='宋体')
+pdf  -> render_pdf(landscape=False, cn_pref='msyh')
 """
 
 from __future__ import annotations
@@ -75,7 +77,8 @@ def _polarization_blocks() -> list[dict]:
         ca = math.cos(math.radians(a))
         rows1.append([_cell(str(a), True), _cell(f"{ca * ca:.4f}", True)]
                      + _empty_row(6))
-    b.append(_tbl([2.7, 3.0, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5], rows1))
+    # portrait: 8 列合计 17.8 cm（原横向 26.7 cm × 2/3），列宽比不变
+    b.append(_tbl([1.8, 2.0, 2.33, 2.33, 2.33, 2.33, 2.33, 2.33], rows1))
 
     # ── 实验二：λ/2 波片 ──
     b.append(_h2("实验二：λ/2 波片验证 — 偏振方向旋转 2θ"))
@@ -91,7 +94,7 @@ def _polarization_blocks() -> list[dict]:
     rows2b = [head2b] + [
         [_cell(str(i), True), _cell(str((i - 1) * 10), True)] + _empty_row(4)
         for i in range(1, 7)]
-    b.append(_tbl([3.0, 4.5, 4.8, 4.8, 4.8, 4.8], rows2b))
+    b.append(_tbl([2.0, 3.0, 3.2, 3.2, 3.2, 3.2], rows2b))
 
     # ── 实验三：λ/4 波片 ──
     b.append(_h2("实验三：λ/4 波片椭圆偏振光强分布 I(φ)"))
@@ -113,7 +116,7 @@ def _polarization_blocks() -> list[dict]:
             deg = i * 10 + j * 120
             row += [_cell(str(deg), True), {}]
         rows3b.append(row)
-    b.append(_tbl([4.45, 4.45, 4.45, 4.45, 4.45, 4.45], rows3b))
+    b.append(_tbl([2.97, 2.97, 2.97, 2.97, 2.97, 2.97], rows3b))
 
     # ── 实验四：双折射（选做）──
     b.append(_h2("实验四（选做）：双折射现象观察"))
@@ -124,13 +127,13 @@ def _polarization_blocks() -> list[dict]:
               [_cell("移动冰洲石时像如何变化？"), {}],
               [_cell("出射几个光斑？"), {}],
               [_cell("光斑偏振方向关系"), {}]]
-    b.append(_tbl([8.0, 12.0], rows4a))              # 80/120 mm
+    b.append(_tbl([7.2, 10.8], rows4a))               # 80/120 mm → 竖版 72/108 mm
     b.append(_sp(0.15))
     rows4b = [[_cell(h) for h in ("光斑", "P2消光(度)", "P2消光(分)", "备注")],
               [_cell("光斑A（不偏折）"), {}, {}, {}],
               [_cell("光斑B（偏折）"), {}, {}, {}],
               [_cell("角度差"), {}, {}, {}]]
-    b.append(_tbl([8.7, 6.0, 6.0, 6.0], rows4b))
+    b.append(_tbl([5.8, 4.0, 4.0, 4.0], rows4b))
 
     # ── 实验五：波片鉴别（选做）──
     b.append(_h2("实验五（选做）：判别 λ/4 与 λ/2 波片"))
@@ -140,7 +143,7 @@ def _polarization_blocks() -> list[dict]:
               "光强行为", "有无消光", "判别结果")]
     rows5 = [head5] + [[_cell(f"样品{i}", True)] + _empty_row(7)
                        for i in range(1, 4)]
-    b.append(_tbl([4.2, 3.3, 3.3, 3.5, 3.5, 3.6, 2.7, 2.6], rows5))
+    b.append(_tbl([2.8, 2.2, 2.2, 2.33, 2.33, 2.4, 1.8, 1.73], rows5))
 
     # ── 实验六：圆偏振光（选做）──
     b.append(_h2("实验六（选做）：圆偏振光光强分布"))
@@ -155,7 +158,7 @@ def _polarization_blocks() -> list[dict]:
             deg = (i + j * 6) * 10
             row += [_cell(str(deg), True), {}, {}]
         rows6.append(row)
-    b.append(_tbl([4.45] * 6, rows6))
+    b.append(_tbl([2.97, 2.97, 2.97, 2.97, 2.97, 2.97], rows6))
     return b
 
 
@@ -242,12 +245,11 @@ def _pdf_safe(blocks: list[dict]) -> list[dict]:
 
 def record_bytes(exp_id: str, fmt: str = "docx") -> bytes:
     blocks = clean_record_blocks(exp_id)
-    # exp01 polarization: landscape sheet; exp02 sound-light: portrait A4 (per lecture).
-    landscape = exp_id == "polarization"
+    # Both blank record sheets are portrait A4 (user requirement: 空白表一律竖版 A4).
     if fmt == "pdf":
         # Word substitutes missing ᵢ/₁/₂ glyphs automatically; reportlab with a
         # single face would print blanks, so swap those to ASCII beforehand.
         # ² (cos²θ) is kept: Microsoft YaHei contains it.
-        return docbuild.render_pdf(_pdf_safe(blocks), landscape=landscape,
+        return docbuild.render_pdf(_pdf_safe(blocks), landscape=False,
                                    cn_pref="msyh")
-    return docbuild.render_docx(blocks, landscape=landscape, cn="宋体", cn_en="宋体")
+    return docbuild.render_docx(blocks, landscape=False, cn="宋体", cn_en="宋体")

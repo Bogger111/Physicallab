@@ -639,6 +639,7 @@ export default function SoundLightWorkspace() {
                               [method]: { ...(prev[method] ?? {}), [p.key]: e.target.value },
                             }))
                           }
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 text-right text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
                         />
                       </label>
