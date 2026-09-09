@@ -13,15 +13,17 @@ params: dict[str, float]，未给出的参数使用默认值。
 计算规则与单位换算（严格执行）：
   A. air_resonance  空气中共振法：输入 l(mm) 12 个 + {temperature_degC=25.0, f_khz=38}。
        逐差 Δl_i=(l[i+6]-l[i])/6 (mm, i=0..5)；波长 λ=2*mean(Δl) 由 mm 换算为 m；
-       实验声速 v_exp = f_khz*1000 * λ_m；理论声速 v_theory = 331.45*(1+t/273.15)。
+       实验声速 v_exp = f_khz*1000 * λ_m；理论声速 v_theory = 331.45*sqrt(1+t/273.15)
+       （理想气体声速根式温度修正，讲义式）。
   B. water_phase    水中相位法：输入 l(mm) 12 个 + {f_mhz=1.0}，同上逐差；
        v = f_mhz*1e6 * λ_m。A 类不确定度：s=std(Δl,ddof=1)，
        U_A_Δl_m = 2.571*s/√6 再换算为米；U_A(m/s) = 2*f_Hz*U_A_Δl_m（因 v=f*2*Δl_m）。
   C. tof            飞行时间法：输入 L(mm) 12 个 + T(μs) 12 个（讲义：连续 12 组，
        每点 v_i = (L_i*1e-3)/(T_i*1e-6) m/s，取平均与标准差。
   D. light_sine     光速正弦法：输入 T(μs)、Δt(μs)、x1(mm)、x2(mm) 各 3 个 + {f_mhz=150, c_ref=2.998e8}。
-       Δx_i=|x2-x1|；调制波长 λ = (T_mean/Δt_mean)*2*Δx_mean（mm→m）；
-       c_exp = f_mhz*1e6 * λ_m。
+       Δx_i=|x2-x1|；逐点 r_i=Δx_i/Δt_i (mm/μs)，平均值 r_mean（讲义：计算 Δx/Δt 的平均值）；
+       λ(mm) = 2*T_mean(μs)*r_mean(mm/μs)，λ_m = λ_mm*1e-3；c_exp = f_mhz*1e6 * λ_m；
+       结果含绝对误差 error_abs（|c_exp-c_ref|）。
   E. light_lissajous 光速李萨如法：输入 x1(mm)、x2(mm) 各 3 个；λ = 4*Δx_mean（mm→m）；
        c_exp = f_mhz*1e6 * λ_m。
 """
@@ -248,7 +250,8 @@ def _calc_air_resonance(cols, p):
     lam_m = 2.0 * dlm * 1e-3          # mm -> m
     f_hz = p["f_khz"] * 1000.0
     v_exp = f_hz * lam_m
-    v_theory = V0 * (1.0 + p["temperature_degC"] / T0)
+    # 讲义（235-266 行）：理想气体声速 v = √(γRT/μ)，T = 273.15+t → v_t = v0·√(1+t/273.15)
+    v_theory = V0 * math.sqrt(1.0 + p["temperature_degC"] / T0)
     err_abs = abs(v_exp - v_theory)
     err_rel = err_abs / v_theory * 100.0
     results = [
@@ -263,8 +266,9 @@ def _calc_air_resonance(cols, p):
     b64 = _positions_fig(list(range(1, n + 1)), l, "空气中共振法：共振位置 l 随序号变化",
                          dlm, 2.0 * dlm,
                          f"v_exp ≈ {v_exp:.1f} m/s；v_theory ≈ {v_theory:.1f} m/s（t = {p['temperature_degC']:g} °C）")
-    arrays = {"l": l, "delta_l": dl, "dlm": dlm, "s": s_dl,
-              "v_exp": v_exp, "v_theory": v_theory, "err_rel": err_rel}
+    arrays = {"l": l, "delta_l": dl, "dlm": dlm, "s": s_dl, "lam_mm": 2.0 * dlm,
+              "v_exp": v_exp, "v_theory": v_theory, "err_abs": err_abs,
+              "err_rel": err_rel}
     return results, b64, arrays
 
 
@@ -277,8 +281,9 @@ def _calc_water_phase(cols, p):
     lam_m = 2.0 * dlm * 1e-3
     v = f_hz * lam_m
     s_dl = float(np.std(dl, ddof=1)) if len(dl) > 1 else 0.0
-    ua_dl_m = T95_5DOF * s_dl * 1e-3 / math.sqrt(6)   # 2.571*s/sqrt(6), mm -> m
-    ua_v = 2.0 * f_hz * ua_dl_m                       # v = f*(2*Δl_m)
+    ua_dl_mm = T95_5DOF * s_dl / math.sqrt(6)      # U_A(Δl)，mm（n=6 差值, t95(ν=5)=2.571）
+    ua_dl_m = ua_dl_mm * 1e-3                       # mm -> m
+    ua_v = 2.0 * f_hz * ua_dl_m                     # v = f*(2*Δl_m)
     results = [
         {"key": "v", "label": "水中声速 v", "value": _sig(v), "unit": "m/s"},
         {"key": "delta_l_mean", "label": "逐差平均间距 Δl", "value": round(dlm, 4), "unit": "mm"},
@@ -288,7 +293,9 @@ def _calc_water_phase(cols, p):
     b64 = _positions_fig(list(range(1, n + 1)), l, "水中相位法：匹配位置 l 随序号变化",
                          dlm, 2.0 * dlm,
                          f"v ≈ {v:.1f} m/s；U_A ≈ {ua_v:.2f} m/s")
-    arrays = {"l": l, "delta_l": dl, "dlm": dlm, "s": s_dl, "v": v, "u_a_v": ua_v}
+    arrays = {"l": l, "delta_l": dl, "dlm": dlm, "s": s_dl, "v": v,
+              "lam_mm": 2.0 * dlm,
+              "ua_dl_mm": ua_dl_mm, "ua_dl_m": ua_dl_m, "u_a_v": ua_v}
     return results, b64, arrays
 
 
@@ -323,15 +330,25 @@ def _calc_light_sine(cols, p):
     dxm = _mean(dx)
     tm = _mean(T)
     dtm = _mean(dt)
-    lam_m = (tm / dtm) * 2.0 * dxm * 1e-3 if dtm != 0 else float("nan")
+    # 讲义【数据处理】：计算 Δx/Δt 的平均值 → 逐点 r_i = Δx_i/Δt_i (mm/μs) 再取平均 r_mean
+    r = [(dx[i] / dt[i]) if dt[i] else float("nan") for i in range(len(dt))]
+    r_finite = [v for v in r if v == v]
+    r_mean = _mean(r_finite) if r_finite else float("nan")
+    # 差频原理：c = 2·f_t·T·(Δx/Δt)。量纲：λ(mm)=2·T(μs)·r_mean(mm/μs)，
+    # λ(m)=λ(mm)·1e-3，c_exp = f_t(Hz)·λ(m)。
+    lam_mm = 2.0 * tm * r_mean if r_finite else float("nan")
+    lam_m = lam_mm * 1e-3
     f_hz = p["f_mhz"] * 1e6
     c_exp = f_hz * lam_m
     c_ref = p.get("c_ref", 299800000.0)
-    err_rel = abs(c_exp - c_ref) / c_ref * 100.0
+    err_abs = abs(c_exp - c_ref)
+    err_rel = err_abs / c_ref * 100.0
     results = [
         {"key": "c_exp", "label": "实验光速 c_exp", "value": _sig(c_exp), "unit": "m/s"},
+        {"key": "error_abs", "label": "绝对误差", "value": _sig(err_abs), "unit": "m/s"},
         {"key": "error_rel", "label": "相对误差", "value": round(err_rel, 2), "unit": "%"},
         {"key": "t_mean", "label": "差频周期均值 T", "value": round(tm, 3), "unit": "μs"},
+        {"key": "r_mean", "label": "Δx/Δt 的平均值", "value": round(r_mean, 3), "unit": "mm/μs"},
         {"key": "delta_t_mean", "label": "相位差均值 Δt", "value": round(dtm, 3), "unit": "μs"},
         {"key": "delta_x_mean", "label": "Δx 均值", "value": round(dxm, 1), "unit": "mm"},
     ]
@@ -341,7 +358,9 @@ def _calc_light_sine(cols, p):
     b64 = _light_sine_fig(dt, [2.0 * v for v in dx], float(slope) if slope is not None else None,
                           c_exp, err_rel, c_ref)
     arrays = {"T": T, "dt": dt, "x1": x1, "x2": x2, "dx": dx, "dxm": dxm,
-              "t_mean": tm, "dt_mean": dtm, "c_exp": c_exp, "err_rel": err_rel}
+              "r": r, "r_mean": r_mean, "t_mean": tm, "dt_mean": dtm,
+              "lam_mm": lam_mm, "c_exp": c_exp, "err_abs": err_abs,
+              "err_rel": err_rel}
     return results, b64, arrays
 
 
@@ -354,14 +373,17 @@ def _calc_light_lissajous(cols, p):
     f_hz = p["f_mhz"] * 1e6
     c_exp = f_hz * lam_m
     c_ref = p.get("c_ref", 299800000.0)
-    err_rel = abs(c_exp - c_ref) / c_ref * 100.0
+    err_abs = abs(c_exp - c_ref)
+    err_rel = err_abs / c_ref * 100.0
     results = [
         {"key": "c_exp", "label": "实验光速 c_exp", "value": _sig(c_exp), "unit": "m/s"},
+        {"key": "error_abs", "label": "绝对误差", "value": _sig(err_abs), "unit": "m/s"},
         {"key": "error_rel", "label": "相对误差", "value": round(err_rel, 2), "unit": "%"},
         {"key": "delta_x_mean", "label": "Δx 均值", "value": round(dxm, 1), "unit": "mm"},
     ]
     b64 = _light_lissajous_fig(dx, dxm)
-    arrays = {"x1": x1, "x2": x2, "dx": dx, "dxm": dxm, "c_exp": c_exp, "err_rel": err_rel}
+    arrays = {"x1": x1, "x2": x2, "dx": dx, "dxm": dxm, "lam_mm": 4.0 * dxm,
+              "c_exp": c_exp, "err_abs": err_abs, "err_rel": err_rel}
     return results, b64, arrays
 
 

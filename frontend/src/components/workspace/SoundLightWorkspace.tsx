@@ -20,6 +20,7 @@ import {
   Ruler,
   Gauge,
   Orbit,
+  CircleDashed,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DataInputTable from "@/components/workspace/DataInputTable";
@@ -382,6 +383,35 @@ export default function SoundLightWorkspace() {
     [cell, params, method]
   );
 
+  // 数据是否已填满（无需预先逐方法计算，报告生成时后端会内部重算）
+  const isMethodFilled = (mId: string): boolean => {
+    const mspec = METHODS.find((m) => m.id === mId);
+    if (!mspec) return false;
+    return mspec.tables.every((table, ti) => {
+      const rows = getRows(mId, ti);
+      return table.cols.every((col, ci) => {
+        if (!col.key || col.readOnly) return true;
+        return rows.every((r) => (r[ci] ?? "").trim() !== "");
+      });
+    });
+  };
+  const filledAllReportData = () => {
+    const out: Record<string, { rows: Record<string, (number | null)[]>; params: Record<string, number> }> = {};
+    METHODS.forEach((m) => {
+      if (isMethodFilled(m.id)) {
+        const p = buildPayload(m.id);
+        out[m.id] = { rows: p.rows, params: p.params };
+      }
+    });
+    return out;
+  };
+  const requiredMethods = METHODS.filter((m) => m.required);
+  const requiredFilledCount = requiredMethods.filter((m) => isMethodFilled(m.id)).length;
+  const requiredAllFilled = requiredFilledCount === requiredMethods.length;
+  const missingFill = requiredMethods
+    .filter((m) => !isMethodFilled(m.id))
+    .map((m) => m.name);
+
   const handleProcess = async () => {
     setBusy(true);
     setError(null);
@@ -419,6 +449,12 @@ export default function SoundLightWorkspace() {
   const reportData = Object.fromEntries(
     processedKeys.map((k) => [k, { rows: processed[k].rows, params: processed[k].params }])
   );
+  const basicReady = METHODS.filter((m) => m.required).every(
+    (m) => !!processed[m.id]
+  );
+  const missingRequired = METHODS.filter(
+    (m) => m.required && !processed[m.id]
+  ).map((m) => m.name);
   const cur = currentResult && processed[currentResult] ? processed[currentResult].res : null;
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
@@ -567,7 +603,7 @@ export default function SoundLightWorkspace() {
                 选择测量方法，录入读数
               </h2>
               <p className="mt-1 text-sm text-stone-500">
-                一个方法算完可以继续录入下一个；全部完成后在结果页下载报告。
+                逐方法填数据即可，无需逐个先算：4 个必做填完就能「一口气」生成基准报告（表格 → 数据处理）；想先看某个方法的图与误差，再单独点它的「生成结果」。选做方法填入后并入基准报告，否则自动跳过。
               </p>
             </div>
 
@@ -575,7 +611,7 @@ export default function SoundLightWorkspace() {
             <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="测量方法">
               {METHODS.map((m) => {
                 const active = method === m.id;
-                const done = !!processed[m.id];
+                const done = !!processed[m.id] || isMethodFilled(m.id);
                 return (
                   <button
                     key={m.id}
@@ -597,6 +633,66 @@ export default function SoundLightWorkspace() {
                   </button>
                 );
               })}
+            </div>
+
+            {/* one-click basic report */}
+            <div
+              className={cn(
+                "mb-6 flex flex-col gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center",
+                requiredAllFilled
+                  ? "border-emerald-200 bg-emerald-50/50"
+                  : "border-stone-200 bg-stone-50/60"
+              )}
+            >
+              <div className="flex-1">
+                <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-stone-900">
+                  {requiredAllFilled ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      必做数据已齐（{requiredFilledCount}/{requiredMethods.length}）——可一键生成基准报告
+                    </>
+                  ) : (
+                    <>
+                      <CircleDashed className="h-4 w-4 text-amber-500" />
+                      必做进度 {requiredFilledCount}/{requiredMethods.length}
+                    </>
+                  )}
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-stone-500">
+                  基准报告 = 原始数据表（讲义表 1-1 / 2-1 / 2-2 / 2-3 填入实测值）→ 数据处理（逐差、不确定度、误差）；本实验讲义未要求作图，图与误差深化在拓展报告单独生成。
+                  {!requiredAllFilled && missingFill.length > 0 && (
+                    <span className="mt-0.5 block font-semibold text-amber-600">
+                      还差：{missingFill.join("、")}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  onClick={() =>
+                    runDownload("quick-basic-docx", () =>
+                      downloadSoundLightReport("basic", "docx", filledAllReportData())
+                    )
+                  }
+                  disabled={busyKey !== null || !requiredAllFilled}
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-stone-900 px-4 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-40"
+                >
+                  {busyKey === "quick-basic-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                  基准 · Word
+                </button>
+                <button
+                  onClick={() =>
+                    runDownload("quick-basic-pdf", () =>
+                      downloadSoundLightReport("basic", "pdf", filledAllReportData())
+                    )
+                  }
+                  disabled={busyKey !== null || !requiredAllFilled}
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-40"
+                >
+                  {busyKey === "quick-basic-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                  基准 · 紧凑 PDF
+                </button>
+              </div>
             </div>
 
             {/* current method panel */}
@@ -786,24 +882,36 @@ export default function SoundLightWorkspace() {
                   <div>
                     <h3 className="text-[15px] font-bold text-stone-900">报告交付文件</h3>
                     <p className="text-xs text-stone-400">
-                      已含 {processedKeys.join("、").length > 0 ? processedKeys.length : 0} 个方法的图与数据；每个部分 = Word + 紧凑 PDF
+                      基准报告：必做方法全部计算后一键生成（表格 → 数据处理）；拓展报告：图片与误差深化单独生成。每部分 = Word + 紧凑 PDF
                     </p>
                   </div>
                 </div>
                 <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
-                  <div className="flex flex-col justify-between gap-3 rounded-xl border border-stone-200/80 p-4">
+                  <div
+                    className={cn(
+                      "flex flex-col justify-between gap-3 rounded-xl border p-4",
+                      basicReady
+                        ? "border-stone-200/80"
+                        : "border-dashed border-amber-200 bg-amber-50/40"
+                    )}
+                  >
                     <div>
-                      <p className="text-sm font-bold text-stone-900">报告 · 基准部分</p>
+                      <p className="text-sm font-bold text-stone-900">报告 · 基准部分（按讲义）</p>
                       <p className="mt-0.5 text-xs leading-relaxed text-stone-400">
-                        各方法原始数据 + 结果 + 图像
+                        原始数据规范作表 → 逐差 / 不确定度 / 误差处理，含误差来源分析；本实验讲义未要求作图，图全部在拓展报告
                       </p>
+                      {!basicReady && (
+                        <p className="mt-1.5 text-xs font-semibold text-amber-600">
+                          完成必做方法计算后可生成：{missingRequired.join("、")}
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
                           runDownload("basic-docx", () => downloadSoundLightReport("basic", "docx", reportData))
                         }
-                        disabled={busyKey !== null}
+                        disabled={busyKey !== null || !basicReady}
                         className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
                       >
                         {busyKey === "basic-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
@@ -813,7 +921,7 @@ export default function SoundLightWorkspace() {
                         onClick={() =>
                           runDownload("basic-pdf", () => downloadSoundLightReport("basic", "pdf", reportData))
                         }
-                        disabled={busyKey !== null}
+                        disabled={busyKey !== null || !basicReady}
                         className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
                       >
                         {busyKey === "basic-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
@@ -823,9 +931,9 @@ export default function SoundLightWorkspace() {
                   </div>
                   <div className="flex flex-col justify-between gap-3 rounded-xl border border-stone-200/80 p-4">
                     <div>
-                      <p className="text-sm font-bold text-stone-900">报告 · 拓展部分</p>
+                      <p className="text-sm font-bold text-stone-900">报告 · 拓展部分（图与误差深化）</p>
                       <p className="mt-0.5 text-xs leading-relaxed text-stone-400">
-                        误差 / 不确定度 / 方法对比图
+                        拟合原图 / 逐差与逐点误差 / 方法对比等插图与分析——讲义未要求内容均在此，可单独生成
                       </p>
                     </div>
                     <div className="flex gap-2">
