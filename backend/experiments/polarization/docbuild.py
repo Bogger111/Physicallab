@@ -94,7 +94,7 @@ def _fmt(v) -> str:
 def setup_blocks() -> list[dict]:
     """Cover page: title + student/setup info (same for record sheet and parts)."""
     blocks = [
-        {"kind": "spacer", "cm": 0.6},
+        {"kind": "spacer", "cm": 0.1},
         {"kind": "h1", "text": "偏振光与双折射实验"},
         {"kind": "sub", "text": "实验数据记录表 / 处理报告"},
         {"kind": "spacer", "cm": 0.5},
@@ -102,7 +102,7 @@ def setup_blocks() -> list[dict]:
             "kind": "table",
             "widths": [4.6, 12.4],
             "font": 9.5,
-            "row_h": 0.72,
+            "row_h": 0.58,
             "rows": [
                 [{"text": "实验日期"}, {"text": ""}],
                 [{"text": "姓名"}, {"text": ""}],
@@ -129,7 +129,6 @@ def record_sheet_blocks() -> list[dict]:
 
     # ---------- Exp 1 malus ----------
     b += [
-        {"kind": "pagebreak"},
         {"kind": "h2", "text": "实验 1 · 马吕斯定律 — I 与 cos²θ 的关系"},
         {"kind": "note", "text": "步骤：P2 从消光位置（θ = 90°）开始，每次改变 10°，分别左旋、右旋测量光强。"},
         {"kind": "note", "text": "P1 消光位置：度＿＿＿ 分＿＿＿     P1 目标光强设定：＿＿＿ μW"},
@@ -154,7 +153,6 @@ def record_sheet_blocks() -> list[dict]:
 
     # ---------- Exp 2 halfwave ----------
     b += [
-        {"kind": "pagebreak"},
         {"kind": "h2", "text": "实验 2 · λ/2 波片 — 验证偏振方向变化规律"},
         {"kind": "note", "text": "步骤：C 从消光位置开始依次转 10°，每次重新找 P2 消光位置并记录度分读数。"},
         {"kind": "note", "text": "关键：P2 旋转方向与 C 保持一致；只能用同一器件自身读数差求转角。"},
@@ -162,7 +160,7 @@ def record_sheet_blocks() -> list[dict]:
             "kind": "table",
             "widths": [9.4, 4.3, 4.3],
             "font": 9,
-            "row_h": 0.7,
+            "row_h": 0.6,
             "rows": [
                 [{"text": "项目"}, {"text": "度"}, {"text": "分"}],
                 [{"text": "C 初始消光位置 φ_C0"}, {}, {}],
@@ -189,14 +187,13 @@ def record_sheet_blocks() -> list[dict]:
 
     # ---------- Exp 3 quarterwave ----------
     b += [
-        {"kind": "pagebreak"},
         {"kind": "h2", "text": "实验 3 · λ/4 波片 — 椭圆偏振光强分布 I(φ)"},
         {"kind": "note", "text": "步骤：P1⊥P2 消光 → 插入 C′ 并转至再次消光 → C′ 转 θ_qwp → P2 每转 10° 记录光强（共 36 点）。"},
         {
             "kind": "table",
             "widths": [6.0, 4.0, 4.0],
             "font": 9,
-            "row_h": 0.68,
+            "row_h": 0.58,
             "rows": [
                 [{"text": "项目"}, {"text": "度"}, {"text": "分"}],
                 [{"text": "P2 消光位置"}, {}, {}],
@@ -223,14 +220,13 @@ def record_sheet_blocks() -> list[dict]:
 
     # ---------- Exp 4 birefringence (选做) ----------
     b += [
-        {"kind": "pagebreak"},
         {"kind": "h2", "text": "实验 4（选做）· 双折射现象观察"},
         {"kind": "h3", "text": "4.1 裸眼观察：将冰洲石放在文字上"},
         {
             "kind": "table",
             "widths": [6.2, 11.8],
             "font": 9,
-            "row_h": 0.75,
+            "row_h": 0.62,
             "rows": [
                 [{"text": "观察内容"}, {"text": "记录"}],
                 [{"text": "看到几个像？"}, {}],
@@ -245,7 +241,7 @@ def record_sheet_blocks() -> list[dict]:
             "kind": "table",
             "widths": [6.2, 11.8],
             "font": 9,
-            "row_h": 0.75,
+            "row_h": 0.62,
             "rows": [
                 [{"text": "观察内容"}, {"text": "记录"}],
                 [{"text": "出射几个光斑？"}, {}],
@@ -259,7 +255,7 @@ def record_sheet_blocks() -> list[dict]:
             "kind": "table",
             "widths": [5.4, 4.2, 4.2, 4.2],
             "font": 9,
-            "row_h": 0.75,
+            "row_h": 0.62,
             "rows": [
                 [{"text": "光斑"}, {"text": "P2 消光位置 (度)"}, {"text": "P2 消光位置 (分)"}, {"text": "备注"}],
                 [{"text": "光斑 A（不偏折）"}, {}, {}, {}],
@@ -273,14 +269,13 @@ def record_sheet_blocks() -> list[dict]:
 
     # ---------- Exp 5 waveplate ID (选做) ----------
     b += [
-        {"kind": "pagebreak"},
         {"kind": "h2", "text": "实验 5（选做）· 判别 λ/4 波片与 λ/2 波片"},
         {"kind": "note", "text": "步骤：正交偏振片间插入待测波片 → 转至消光 → 再转 45° → 观察光强变化。"},
         {
             "kind": "table",
             "widths": [2.0, 2.3, 2.3, 2.3, 2.3, 3.6, 2.3, 2.6],
             "font": 8.5,
-            "row_h": 0.72,
+            "row_h": 0.58,
             "rows": [
                 [{"text": "样品编号"}, {"text": "消光位置 (度)"}, {"text": "消光位置 (分)"},
                  {"text": "转 45° 后 (度)"}, {"text": "转 45° 后 (分)"},
@@ -304,7 +299,6 @@ def record_sheet_blocks() -> list[dict]:
 
     # ---------- Exp 6 circular (选做) ----------
     b += [
-        {"kind": "pagebreak"},
         {"kind": "h2", "text": "实验 6（选做）· 圆偏振光通过检偏器的光强"},
         {"kind": "note", "text": "条件：λ/4 波片 θ = 45° 形成圆偏振光；转 P2 每 10° 记录一次光强（共 36 点）。"},
         {"kind": "note", "text": "P2 起始位置：度＿＿＿ 分＿＿＿    λ/4 波片位置确认为 45°：是 / 否"},
@@ -378,6 +372,12 @@ def _doc_table(doc, spec) -> None:
     table = doc.add_table(rows=len(rows), cols=n_cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     _doc_borders(table)
+    # repeat the header row when a long table spans Word pages
+    tr = table.rows[0]._tr
+    trPr = tr.get_or_add_trPr()
+    tblHeader = OxmlElement("w:tblHeader")
+    tblHeader.set(qn("w:val"), "true")
+    trPr.append(tblHeader)
     widths = spec.get("widths")
     font_pt = spec.get("font", 8.5)
     row_h = spec.get("row_h", 0.6)
