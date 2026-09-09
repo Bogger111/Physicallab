@@ -17,7 +17,7 @@ params: dict[str, float]，未给出的参数使用默认值。
   B. water_phase    水中相位法：输入 l(mm) 12 个 + {f_mhz=1.0}，同上逐差；
        v = f_mhz*1e6 * λ_m。A 类不确定度：s=std(Δl,ddof=1)，
        U_A_Δl_m = 2.571*s/√6 再换算为米；U_A(m/s) = 2*f_Hz*U_A_Δl_m（因 v=f*2*Δl_m）。
-  C. tof            飞行时间法：输入 L(mm) 8 个 + T(μs) 8 个，
+  C. tof            飞行时间法：输入 L(mm) 12 个 + T(μs) 12 个（讲义：连续 12 组，
        每点 v_i = (L_i*1e-3)/(T_i*1e-6) m/s，取平均与标准差。
   D. light_sine     光速正弦法：输入 T(μs)、Δt(μs)、x1(mm)、x2(mm) 各 3 个 + {f_mhz=150, c_ref=2.998e8}。
        Δx_i=|x2-x1|；调制波长 λ = (T_mean/Δt_mean)*2*Δx_mean（mm→m）；
@@ -63,7 +63,7 @@ _METHOD_NAMES = {
 _COLUMNS = {
     "air_resonance": [("l", 12, "共振位置 l (mm)")],
     "water_phase": [("l", 12, "同相位位置 l (mm)")],
-    "tof": [("L", 8, "传播距离 L (mm)"), ("T", 8, "飞行时间 T (μs)")],
+    "tof": [("L", 12, "传播距离 L (mm)"), ("T", 12, "飞行时间 T (μs)")],
     "light_sine": [
         ("T", 3, "差频周期 T (μs)"),
         ("dt", 3, "相位差 Δt (μs)"),

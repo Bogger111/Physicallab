@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """声速光速的测量（exp02）— 数据记录表与处理报告的 docbuild blocks。
 
-record_blocks()                      空白数据记录表（供 /api/record-sheets/sound-light.*）
+record_blocks()                      空白数据记录表（遗留实现，供 docs.record_bytes；主接口 /api/record-sheets/sound-light.* 现由 record_clean.record_bytes 提供）
 report_blocks(part, methods_data)    基准 / 拓展部分报告（供 /api/experiments/sound-light/report）
 report_bytes(part, methods_data, fmt) 渲染为 docx/pdf 字节
 """
@@ -142,7 +142,7 @@ def record_blocks() -> list[dict]:
     # ---------- 3 tof ----------
     b += [
         {"kind": "h2", "text": "方法三（选做）· 飞行时间法测声速"},
-        {"kind": "note", "text": "步骤：信号发生器置脉冲/猝发模式，S1 固定；S2 从 L 约 40 mm 起每次移动 20 mm，在示波器上读出发射脉冲与接收脉冲的时间间隔 T（μs）。共 8 组 (L, T)。"},
+        {"kind": "note", "text": "步骤：信号发生器置脉冲/猝发模式，S1 固定；S2 从 L 约 40 mm 起每次移动 20 mm，在示波器上读出发射脉冲与接收脉冲的时间间隔 T（μs）。共 12 组 (L, T)。"},
         {"kind": "note", "text": "处理：每点速度 v_i = (L 换算为 m)/(T 换算为 s) = L(mm)/T(μs) × 1000 (m/s)，取平均；图中对 L-T 线性拟合得斜率 a（μs/mm），v = 1000/a (m/s)。"},
         {"kind": "note", "text": "起始读数 L 起点：______ mm；本方法为选做，可结合前两法结果对比空气中声速的一致性。"},
         {
@@ -150,7 +150,7 @@ def record_blocks() -> list[dict]:
             "widths": [3.0, 6.7, 6.7],
             "font": 8,
             "row_h": 0.5,
-            "rows": _seq_rows(["序号", "传播距离 L (mm)", "飞行时间 T (μs)"], 8),
+            "rows": _seq_rows(["序号", "传播距离 L (mm)", "飞行时间 T (μs)"], 12),
         },
         {"kind": "spacer", "cm": 0.9},
     ]
@@ -319,14 +319,27 @@ def _raw_blocks(mid, rows, arrays):
         dt = rows.get("dt", [])
         x1 = rows.get("x1", [])
         x2 = rows.get("x2", [])
-        dx = arrays.get("dx", [])
-        hdr = [{"text": "序号"}, {"text": "T (μs)"}, {"text": "Δt (μs)"},
-               {"text": "x1 (mm)"}, {"text": "x2 (mm)"}, {"text": "Δx (mm)"}]
-        body = [[{"text": str(i + 1)}, {"text": _fx(T[i], 3)}, {"text": _fx(dt[i], 3)},
-                 {"text": _fx(x1[i], 2)}, {"text": _fx(x2[i], 2)}, {"text": _fx(dx[i], 2)}]
-                for i in range(len(T))]
-        return [{"kind": "table", "widths": [1.8, 3.0, 3.2, 3.0, 3.0, 3.1],
-                 "font": 8, "row_h": 0.5, "rows": [hdr] + body}]
+        dx = arrays.get("dx", [])          # Δx_i = |x2_i - x1_i|（派生）
+        ratio = [(_fx(dx[i] / dt[i], 3) if dt[i] else "")
+                 for i in range(len(dt))]  # Δx/Δt (mm/μs)（派生）
+        # 表 2-1：差频周期（每参考点测一次 T）
+        tbl_t = [[{"text": "序号"}, {"text": "差频周期 T (μs)"}]] + \
+                [[{"text": str(i + 1)}, {"text": _fx(T[i], 3)}] for i in range(len(T))]
+        # 表 2-2：相移 Δt 与滑块位移（补计算列 Δx、Δx/Δt）
+        tbl_p = [[{"text": "序号"}, {"text": "Δt (μs)"}, {"text": "x1 (mm)"},
+                  {"text": "x2 (mm)"}, {"text": "Δx (mm)"},
+                  {"text": "Δx/Δt (mm/μs)"}]] + \
+                [[{"text": str(i + 1)}, {"text": _fx(dt[i], 3)},
+                  {"text": _fx(x1[i], 2)}, {"text": _fx(x2[i], 2)},
+                  {"text": _fx(dx[i], 2)}, {"text": ratio[i]}]
+                 for i in range(len(dt))]
+        return [
+            {"kind": "table", "widths": [3.0, 15.0], "font": 8, "row_h": 0.5,
+             "rows": tbl_t},
+            {"kind": "spacer", "cm": 0.12},
+            {"kind": "table", "widths": [1.8, 3.0, 3.0, 3.0, 3.2, 3.6],
+             "font": 8, "row_h": 0.5, "rows": tbl_p},
+        ]
     if mid == "light_lissajous":
         x1 = rows.get("x1", [])
         x2 = rows.get("x2", [])

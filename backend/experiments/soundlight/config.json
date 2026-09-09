@@ -46,9 +46,9 @@
     "type": "optional",
     "purpose": "利用脉冲波的飞行时间测量声速（选做）",
     "table_cols": [
-      {"key": "L", "label": "传播距离 L", "unit": "mm", "count": 8,
-       "note": "等间距（如 20 mm）移动接收端"},
-      {"key": "T", "label": "飞行时间 T", "unit": "μs", "count": 8}
+      {"key": "L", "label": "传播距离 L", "unit": "mm", "count": 12,
+       "note": "等间距（如 20 mm）移动接收端，连续 12 组"},
+      {"key": "T", "label": "飞行时间 T", "unit": "μs", "count": 12}
     ],
     "params": [],
     "outputs": [

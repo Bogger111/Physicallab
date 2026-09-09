@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""mimo-style clean landscape record sheets (exp01 polarization, exp02 sound-light).
+"""mimo-style clean record sheets: exp01 polarization (landscape), exp02 sound-light (portrait).
 
 Mirrors C:/Users/Bogger/OneDrive/Desktop/Hermes File/PhysicsLab_Output/01_record_tables/
 gen_clean_tables.py: experiment title (h2) is followed directly by its tables,
-no page header/footer, no explanatory note paragraphs, no cell fills. Tables
-flow naturally across landscape A4 pages (no forced page breaks); reference
-values (cos²θ, sequence numbers, offsets, angles, sample/group labels) are
-prefilled cells, the rest is blank for handwriting.
+no page header/footer, no explanatory note paragraphs, no cell fills except
+prefilled reference cells (cos²θ, 测量次数/序号 etc.); the rest is blank for
+handwriting. Tables flow naturally; the PDF renderer keeps each table intact
+on one page (KeepTogether). exp01 polarization stays landscape A4; exp02
+sound-light is portrait A4 laid out per the lecture tables (表1-1, 2-1 ~ 2-3).
 
 Rendering contract:
   record_bytes('polarization'|'sound-light', 'docx'|'pdf')
-docx -> render_docx(landscape=True, cn='宋体', cn_en='宋体')
-pdf  -> render_pdf(landscape=True, cn_pref='simsun')
+landscape = (exp_id == 'polarization')
+docx -> render_docx(landscape=landscape, cn='宋体', cn_en='宋体')
+pdf  -> render_pdf(landscape=landscape, cn_pref='msyh')
 """
 
 from __future__ import annotations
@@ -157,66 +159,56 @@ def _polarization_blocks() -> list[dict]:
     return b
 
 
-# ---------------------------------------------------------------- exp02 sound & light
+# ---------------------------------------------------------------- exp02 sound & light (portrait per lecture)
 
-def _sl_measure_table(row_labels: list) -> dict:
-    head = [_cell("测量次数")] + [_cell(str(i)) for i in range(1, 13)]
-    rows = [head] + [[_cell(lab)] + _empty_row(12) for lab in row_labels]
-    return _tbl([4.5] + [1.85] * 12, rows)
+def _sl_num_rows(n: int, headers: list, widths: list) -> dict:
+    """空白记录表：表头 + 测量次数 1..n 预填，其余格留空（白底黑框）。
 
-
-def _sl_group_rows(headers: tuple, n: int = 3) -> list:
+    与讲义表结构一致（表1-1 / 表2-1 ~ 2-3）：次数列排在最左逐行下行，
+    数据列留白手写；仅次数列使用 prefill。
+    """
     rows = [[_cell(h) for h in headers]]
     for i in range(1, n + 1):
-        rows.append([_cell(f"第{i}组", True)] + _empty_row(len(headers) - 1))
-    return rows
+        rows.append([_cell(str(i), True)] + _empty_row(len(headers) - 1))
+    return _tbl(widths, rows)
+
+
+# 实验四 / 实验六（方波选做）共用表头与列宽（讲义表 2-2 结构）
+_PHASE_HEADERS = ["测量次数", "参考点移动（方格数）", "参考点移动距离 Δt (μs)",
+                  "x1 (mm)", "x2 (mm)", "Δx (mm)", "Δx/Δt (mm/μs)"]
+_PHASE_WIDTHS = [2.2, 2.9, 3.1, 2.3, 2.3, 2.4, 2.6]        # 合计 17.8 cm
 
 
 def _sound_light_blocks() -> list[dict]:
     b: list[dict] = []
 
-    # ── 实验一：空气共振法 ──
-    b.append(_h2("实验一：空气中共振法测声速"))
-    b.append(_sp(0.1))
-    b.append(_sl_measure_table(["lᵢ / mm"]))
-    b.append(_sp(0.1))
-    b.append(_para("f = ________ Hz    室温 t = ________ °C"))
-    b.append(_sp(0.2))
+    # ── 实验一：表 1-1 空气共振法 + 水中相位法（同一张表，12 行）──
+    b.append(_h2("实验一：超声声速测量 — 共振干涉法与相位比较法"))
+    b.append(_sl_num_rows(12, ["测量次数", "空气中共振法 l (mm)", "水中相位法 l (mm)"],
+                          [2.6, 7.6, 7.6]))
+    b.append(_para("f 空气 = ________ Hz；f 水 = ________ Hz；环境室温 t = ________ °C"))
 
-    # ── 实验二：水中相位法 ──
-    b.append(_h2("实验二：水中相位法测声速"))
-    b.append(_sp(0.1))
-    b.append(_sl_measure_table(["lᵢ / mm"]))
-    b.append(_sp(0.1))
-    b.append(_para("f = ________ Hz"))
-    b.append(_sp(0.2))
+    # ── 实验二（选做）：时差法测水中声速（讲义：连续 12 组，每次 20 mm）──
+    b.append(_h2("实验二（选做）：时差法测水中声速"))
+    b.append(_sl_num_rows(12, ["测量次数", "L (mm)", "T (μs)"], [2.6, 7.6, 7.6]))
 
-    # ── 实验三：飞行时间法（选做）──
-    b.append(_h2("实验三（选做）：飞行时间法测声速"))
-    b.append(_sp(0.1))
-    b.append(_sl_measure_table(["Lᵢ / mm", "Tᵢ / μs"]))
-    b.append(_sp(0.2))
+    # ── 实验三：表 2-1 差频周期测量 ──
+    b.append(_h2("实验三：光速测量 — 相位法（正弦波）· 周期"))
+    b.append(_sl_num_rows(3, ["测量次数", "相邻参考点间距（格子数）", "周期 T (μs)"],
+                          [2.6, 7.6, 7.6]))
 
-    # ── 实验四：光速正弦法 — 周期 ──
-    b.append(_h2("实验四：光速正弦法 — 周期 T"))
-    b.append(_sp(0.1))
-    b.append(_tbl([3.0, 4.0, 4.0],                   # 30/40/40 mm
-                  _sl_group_rows(("组别", "间距(格)", "T / μs"))))
-    b.append(_sp(0.2))
+    # ── 实验四：表 2-2 相位移动 Δt 与滑块位移 Δx ──
+    b.append(_h2("实验四：光速测量 — 相位法（正弦波）· 相位移动 Δt"))
+    b.append(_sl_num_rows(3, _PHASE_HEADERS, _PHASE_WIDTHS))
 
-    # ── 实验五：光速正弦法 — 相移 ──
-    b.append(_h2("实验五：光速正弦法 — 相位移动 Δt"))
-    b.append(_sp(0.1))
-    b.append(_tbl([4.2, 4.5, 4.5, 4.5, 4.5, 4.5],
-                  _sl_group_rows(("组别", "移动格数", "Δt/μs",
-                                  "x₁/mm", "x₂/mm", "Δx/mm"))))
-    b.append(_sp(0.2))
+    # ── 实验五：表 2-3 李萨如图形法 ──
+    b.append(_h2("实验五：光速测量 — 李萨如图形法"))
+    b.append(_sl_num_rows(3, ["测量次数", "x1 (mm)", "x2 (mm)", "Δx (mm)"],
+                          [2.6, 5.0, 5.0, 5.2]))
 
-    # ── 实验六：李萨如法 ──
-    b.append(_h2("实验六：李萨如图形法测光速"))
-    b.append(_sp(0.1))
-    b.append(_tbl([6.6, 6.7, 6.7, 6.7],
-                  _sl_group_rows(("组别", "x₁ / mm", "x₂ / mm", "Δx / mm"))))
+    # ── 实验六（选做）：方波相位法，复用实验四表结构 ──
+    b.append(_h2("实验六（选做）：相位法测光速（方波）"))
+    b.append(_sl_num_rows(3, _PHASE_HEADERS, _PHASE_WIDTHS))
     return b
 
 
@@ -250,10 +242,12 @@ def _pdf_safe(blocks: list[dict]) -> list[dict]:
 
 def record_bytes(exp_id: str, fmt: str = "docx") -> bytes:
     blocks = clean_record_blocks(exp_id)
+    # exp01 polarization: landscape sheet; exp02 sound-light: portrait A4 (per lecture).
+    landscape = exp_id == "polarization"
     if fmt == "pdf":
         # Word substitutes missing ᵢ/₁/₂ glyphs automatically; reportlab with a
         # single face would print blanks, so swap those to ASCII beforehand.
         # ² (cos²θ) is kept: Microsoft YaHei contains it.
-        return docbuild.render_pdf(_pdf_safe(blocks), landscape=True,
+        return docbuild.render_pdf(_pdf_safe(blocks), landscape=landscape,
                                    cn_pref="msyh")
-    return docbuild.render_docx(blocks, landscape=True, cn="宋体", cn_en="宋体")
+    return docbuild.render_docx(blocks, landscape=landscape, cn="宋体", cn_en="宋体")

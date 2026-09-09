@@ -98,10 +98,11 @@ const METHODS: MethodSpec[] = [
     id: "tof",
     name: "飞行时间法测声速（选做）",
     required: false,
-    desc: "脉冲波模式：等间距 20 mm 移动，记录距离 L 与飞行时间 T，逐点 v = L/T。",
+    desc: "脉冲波模式测水中声速：S2 每次移动等间距 20 mm，连续记录 12 组距离 L 与飞行时间 T，逐点 v = L/T。",
     tables: [
       {
-        rows: 8,
+        note: "每次移动 20 mm，共 12 组",
+        rows: 12,
         cols: [
           { label: "序号", readOnly: true },
           { label: "距离 L (mm)", key: "L" },
@@ -164,6 +165,108 @@ const METHOD_ICON: Record<string, React.ElementType> = {
   light_sine: Gauge,
   light_lissajous: Orbit,
 };
+
+function _e(v: number | null | undefined): string {
+  if (v === null || v === undefined || !Number.isFinite(v)) return "";
+  const n = v as number;
+  if (Number.isInteger(n)) return String(n);
+  if (Math.abs(n) >= 100) return n.toFixed(2).replace(/\.?0+$/, "");
+  if (Math.abs(n) >= 1) return n.toFixed(3).replace(/\.?0+$/, "");
+  return n.toFixed(4).replace(/\.?0+$/, "");
+}
+
+function DataEcho({
+  methodId,
+  rowsPayload,
+}: {
+  methodId: string;
+  rowsPayload: Record<string, (number | null)[]>;
+}) {
+  const spec = METHODS.find((m) => m.id === methodId);
+  if (!spec) return null;
+  // base columns in display order
+  const base: { label: string; key: string }[] = [];
+  spec.tables.forEach((t) =>
+    t.cols.forEach((c) => {
+      if (!c.readOnly && c.key) base.push({ label: c.label, key: c.key });
+    })
+  );
+  const extra: string[] = [];
+  if (methodId === "light_sine" || methodId === "light_lissajous") extra.push("Δx (mm)");
+  if (methodId === "light_sine") extra.push("Δx/Δt (mm/μs)");
+  if (methodId === "tof") extra.push("v = L/T (m/s)");
+  const n =
+    Math.max(1, ...base.map((b) => rowsPayload[b.key]?.length ?? 0), spec.tables.reduce((a, t) => Math.max(a, t.rows), 0));
+  const num = (k: string, i: number) => rowsPayload[k]?.[i] ?? null;
+  return (
+    <div className="border-t border-stone-100 bg-white p-5 sm:p-6">
+      <p className="mb-3 flex items-center gap-2 text-sm font-bold text-stone-700">
+        <Table2 className="h-4 w-4 text-indigo-600" />
+        已录入数据（含计算列）
+      </p>
+      <div className="overflow-x-auto rounded-lg border border-stone-200">
+        <table className="w-full border-collapse text-[13px]">
+          <thead>
+            <tr>
+              <th className="border-b border-stone-200 bg-stone-50 px-3 py-2 text-left text-xs font-bold text-stone-500">
+                次数
+              </th>
+              {base.map((b) => (
+                <th key={b.key} className="border-b border-stone-200 bg-stone-50 px-3 py-2 text-right text-xs font-bold text-stone-500">
+                  {b.label}
+                </th>
+              ))}
+              {extra.map((e) => (
+                <th key={e} className="border-b border-stone-200 bg-indigo-50/70 px-3 py-2 text-right text-xs font-bold text-indigo-600">
+                  {e}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: n }, (_, i) => {
+              const x1 = num("x1", i);
+              const x2 = num("x2", i);
+              const dt = num("dt", i);
+              const L = num("L", i);
+              const T = num("T", i);
+              let dx: number | null = null;
+              if (x1 !== null && x2 !== null) dx = Math.abs(x2 - x1);
+              let ratio: number | null = null;
+              if (dx !== null && dt !== null && dt > 0) ratio = dx / dt;
+              let vi: number | null = null;
+              if (L !== null && T !== null && T > 0) vi = (L * 1e-3) / (T * 1e-6);
+              return (
+                <tr key={i} className="odd:bg-white even:bg-stone-50/40">
+                  <td className="border-b border-stone-100 px-3 py-1.5 text-xs font-medium text-stone-400">
+                    {i + 1}
+                  </td>
+                  {base.map((b) => (
+                    <td key={b.key} className="border-b border-stone-100 px-3 py-1.5 text-right font-medium tabular-nums text-stone-800">
+                      {_e(num(b.key, i))}
+                    </td>
+                  ))}
+                  {extra.map((e) => {
+                    const val = e.startsWith("Δx (")
+                      ? dx
+                      : e.startsWith("Δx/Δt")
+                        ? ratio
+                        : vi;
+                    return (
+                      <td key={e} className="border-b border-stone-100 bg-indigo-50/30 px-3 py-1.5 text-right font-semibold tabular-nums text-indigo-800">
+                        {_e(val)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 function makeRows(rows: number, extraCols: number): string[][] {
   return Array.from({ length: rows }, (_, i) => [
@@ -626,6 +729,12 @@ export default function SoundLightWorkspace() {
                         />
                       </div>
                     </div>
+                  )}
+                  {currentResult && processed[currentResult] && (
+                    <DataEcho
+                      methodId={currentResult}
+                      rowsPayload={processed[currentResult].rows}
+                    />
                   )}
                 </div>
               </>
