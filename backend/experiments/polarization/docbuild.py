@@ -125,12 +125,21 @@ def setup_blocks() -> list[dict]:
 
 def record_sheet_blocks() -> list[dict]:
     b: list[dict] = []
-    b += setup_blocks()
+    # compact head: title + one-line student fields (no big setup table)
+    b += [
+        {"kind": "spacer", "cm": 0.05},
+        {"kind": "h1", "text": "偏振光与双折射实验 · 数据记录表"},
+        {"kind": "para", "size": 9,
+         "text": "姓名：＿＿＿＿　　学号：＿＿＿＿　　班级 / 组号：＿＿＿＿　　实验日期：＿＿＿＿"},
+        {"kind": "note", "text": "填写说明：空白格为需手写的原始数据；单位已标注在表头，只写数字。角度格式：度° + 分′（如 271°28′ 写 271 与 28）；光强单位统一 μW。"},
+        {"kind": "note", "text": "刻度盘读数：① 看 0 刻度位置 ② 看对齐刻度 ③ 两者相加，例 271°28′ = 270° + 1°28′。只能用同一器件自身读数差求转角。"},
+        {"kind": "spacer", "cm": 0.15},
+    ]
 
     # ---------- Exp 1 malus ----------
     b += [
         {"kind": "h2", "text": "实验 1 · 马吕斯定律 — I 与 cos²θ 的关系"},
-        {"kind": "note", "text": "步骤：P2 从消光位置（θ = 90°）开始，每次改变 10°，分别左旋、右旋测量光强。"},
+        {"kind": "note", "text": "步骤：P2 从消光位置（θ = 90°）开始，每次改变 10°，分别左旋、右旋测量光强。背景光强 I0（μW）：＿＿＿＿"},
         {"kind": "note", "text": "P1 消光位置：度＿＿＿ 分＿＿＿     P1 目标光强设定：＿＿＿ μW"},
         {"kind": "note", "text": "P2 消光位置读数（θ = 90° 起点）：度＿＿＿ 分＿＿＿"},
         {
@@ -384,6 +393,8 @@ def _doc_table(doc, spec) -> None:
     for ri, row in enumerate(rows):
         table.rows[ri].height = Cm(row_h)
         table.rows[ri].height_rule = WD_ROW_HEIGHT_RULE.AT_LEAST
+        trPr = table.rows[ri]._tr.get_or_add_trPr()
+        trPr.append(OxmlElement("w:cantSplit"))
         for ci in range(n_cols):
             cell = table.cell(ri, ci)
             cell.vertical_alignment = 1  # center
@@ -600,6 +611,11 @@ def render_pdf(blocks, out=None) -> bytes:
                 cluster += f if isinstance(f, list) else [f]
                 idx += 1
             story.append(KeepTogether(cluster))
+            continue
+        if blk["kind"] == "table":
+            f = flowable_of(blk)
+            story.append(KeepTogether([f]))
+            idx += 1
             continue
         f = flowable_of(blk)
         if isinstance(f, list):
