@@ -116,6 +116,21 @@ async def list_experiments():
                 ],
                 "record_sheet": "/api/record-sheets/polarization",
                 "processing_time": "~30秒",
+            },
+            {
+                "id": "sound-light",
+                "name": "声速光速的测量",
+                "category": "波动",
+                "description": "空气共振法、水中相位法、飞行时间法测声速；正弦法与李萨如法测光速",
+                "sub_experiments": [
+                    {"id": "air_resonance", "name": "空气中共振法测声速", "required": True},
+                    {"id": "water_phase", "name": "水中相位法测声速", "required": True},
+                    {"id": "tof", "name": "飞行时间法测声速", "required": False},
+                    {"id": "light_sine", "name": "光速测量（正弦法）", "required": True},
+                    {"id": "light_lissajous", "name": "光速测量（李萨如法）", "required": True},
+                ],
+                "record_sheet": "/api/record-sheets/sound-light",
+                "processing_time": "~1分钟",
             }
         ]
     }
@@ -275,3 +290,86 @@ async def get_polarization_config():
         with open(config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     raise HTTPException(status_code=404, detail="Config not found")
+
+
+# ════════════════════════════════════════════════════════════════════
+#  exp02 声速光速的测量
+# ════════════════════════════════════════════════════════════════════
+
+class SoundLightProcessRequest(BaseModel):
+    """Single-method processing: {method, rows, params}."""
+    method: str
+    rows: Dict[str, List[Any]] = {}
+    params: Dict[str, Any] = {}
+
+
+class SoundLightReportRequest(BaseModel):
+    """Report generation: {data: {method_id: {rows, params}, ...}}."""
+    data: Dict[str, Dict[str, Any]] = {}
+
+
+@app.get("/api/experiments/sound-light/config")
+async def get_soundlight_config():
+    """Return the exp02 method config array (5 methods) for the frontend."""
+    config_path = BACKEND_ROOT / "experiments" / "soundlight" / "config.json"
+    if config_path.exists():
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    raise HTTPException(status_code=404, detail="Config not found")
+
+
+@app.post("/api/experiments/sound-light/process")
+async def process_soundlight(req: SoundLightProcessRequest):
+    """Process one sound/light-speed method: returns {status, errors, results, plots}."""
+    from experiments.soundlight import engine
+    return engine.process_method(req.method, req.rows or {}, req.params or {})
+
+
+@app.get("/api/record-sheets/sound-light.docx")
+async def get_soundlight_record_sheet_docx():
+    """Blank exp02 record sheet as an editable Word file."""
+    from experiments.soundlight import docs
+    content = docs.record_bytes("docx")
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": _attachment("声速光速的测量-数据记录表.docx")},
+    )
+
+
+@app.get("/api/record-sheets/sound-light.pdf")
+async def get_soundlight_record_sheet_pdf():
+    """Blank exp02 record sheet as a compact printable PDF."""
+    from experiments.soundlight import docs
+    content = docs.record_bytes("pdf")
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": _attachment("声速光速的测量-数据记录表.pdf")},
+    )
+
+
+@app.post("/api/experiments/sound-light/report")
+async def soundlight_report(req: SoundLightReportRequest, part: str = "basic", fmt: str = "docx"):
+    """Generate an exp02 part report (basic | advanced) as Word or compact PDF.
+
+    Body: {"data": {"<method_id>": {"rows": {...}, "params": {...}}, ...}}
+    Only methods with submitted data are included in the report.
+    """
+    if not req.data:
+        raise HTTPException(status_code=400, detail="未提供任何实验数据")
+    if part not in ("basic", "advanced"):
+        raise HTTPException(status_code=400, detail="part 必须是 basic 或 advanced")
+    if fmt not in ("docx", "pdf"):
+        raise HTTPException(status_code=400, detail="fmt 必须是 docx 或 pdf")
+    from experiments.soundlight import docs
+    try:
+        content = docs.report_bytes(part, req.data, fmt)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"报告生成失败: {e}")
+    label = "基准部分" if part == "basic" else "拓展部分"
+    fname = f"声速光速的测量-报告-{label}.{'docx' if fmt == 'docx' else 'pdf'}"
+    mime = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            if fmt == "docx" else "application/pdf")
+    return Response(content=content, media_type=mime,
+                    headers={"Content-Disposition": _attachment(fname)})

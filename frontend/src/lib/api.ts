@@ -187,5 +187,24 @@ export async function downloadSoundLightReport(
   fmt: "docx" | "pdf",
   data: SoundLightMethodData
 ): Promise<void> {
-  await downloadReport(part, fmt, data as unknown as ProcessRequest, "sound-light");
+  const res = await fetch(
+    `${API_BASE}/api/experiments/sound-light/report?part=${part}&fmt=${fmt}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data }),
+    }
+  );
+  if (!res.ok) {
+    let msg = `报告生成失败 (${res.status})`;
+    try {
+      const j = await res.json();
+      if (j.detail) msg = j.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(msg);
+  }
+  const label = part === "basic" ? "基准部分" : "拓展部分";
+  triggerDownload(await res.blob(), `声速光速的测量-报告-${label}.${fmt}`);
 }

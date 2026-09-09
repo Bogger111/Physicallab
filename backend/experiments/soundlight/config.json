@@ -1,0 +1,101 @@
+[
+  {
+    "id": "air_resonance",
+    "name": "空气中共振法测声速",
+    "type": "required",
+    "purpose": "利用空气中的超声驻波共振测量声速（约 38 kHz）",
+    "table_cols": [
+      {"key": "l", "label": "共振位置 l", "unit": "mm", "count": 12,
+       "note": "12 个连续共振位置，单方向移动记录"}
+    ],
+    "params": [
+      {"key": "temperature_degC", "label": "环境温度 t", "unit": "°C", "default": 25.0},
+      {"key": "f_khz", "label": "共振频率 f", "unit": "kHz", "default": 38.0}
+    ],
+    "outputs": [
+      {"key": "v_exp", "label": "实验声速 v_exp", "unit": "m/s"},
+      {"key": "v_theory", "label": "理论声速（温度修正）", "unit": "m/s"},
+      {"key": "error_abs", "label": "绝对误差", "unit": "m/s"},
+      {"key": "error_rel", "label": "相对误差", "unit": "%"},
+      {"key": "delta_l_mean", "label": "逐差平均间距 Δl", "unit": "mm"},
+      {"key": "data_points", "label": "数据点数", "unit": ""}
+    ]
+  },
+  {
+    "id": "water_phase",
+    "name": "水中相位法测声速",
+    "type": "required",
+    "purpose": "利用相位比较法（李萨如直线判据）测量水中的声速（约 1 MHz）",
+    "table_cols": [
+      {"key": "l", "label": "同相位位置 l", "unit": "mm", "count": 12,
+       "note": "12 个连续相位匹配（李萨如直线）位置，相邻约 λ/2"}
+    ],
+    "params": [
+      {"key": "f_mhz", "label": "水中超声波频率 f", "unit": "MHz", "default": 1.0}
+    ],
+    "outputs": [
+      {"key": "v", "label": "水中声速", "unit": "m/s"},
+      {"key": "delta_l_mean", "label": "逐差平均间距 Δl", "unit": "mm"},
+      {"key": "s_delta_l", "label": "Δl 标准差 s", "unit": "mm"},
+      {"key": "u_a", "label": "A 类不确定度 U_A", "unit": "m/s"}
+    ]
+  },
+  {
+    "id": "tof",
+    "name": "飞行时间法测声速",
+    "type": "optional",
+    "purpose": "利用脉冲波的飞行时间测量声速（选做）",
+    "table_cols": [
+      {"key": "L", "label": "传播距离 L", "unit": "mm", "count": 8,
+       "note": "等间距（如 20 mm）移动接收端"},
+      {"key": "T", "label": "飞行时间 T", "unit": "μs", "count": 8}
+    ],
+    "params": [],
+    "outputs": [
+      {"key": "v_mean", "label": "平均声速 v", "unit": "m/s"},
+      {"key": "v_std", "label": "标准差", "unit": "m/s"}
+    ]
+  },
+  {
+    "id": "light_sine",
+    "name": "光速测量（正弦法）",
+    "type": "required",
+    "purpose": "利用差频正弦波的相位差测量光速（约 150 MHz 调制）",
+    "table_cols": [
+      {"key": "T", "label": "差频周期 T", "unit": "μs", "count": 3},
+      {"key": "dt", "label": "相位差 Δt", "unit": "μs", "count": 3},
+      {"key": "x1", "label": "反射镜位置 x1", "unit": "mm", "count": 3},
+      {"key": "x2", "label": "反射镜位置 x2", "unit": "mm", "count": 3}
+    ],
+    "params": [
+      {"key": "f_mhz", "label": "调制频率 f", "unit": "MHz", "default": 150.0},
+      {"key": "c_ref", "label": "光速参考值 c_ref", "unit": "m/s", "default": 299800000}
+    ],
+    "outputs": [
+      {"key": "c_exp", "label": "实验光速 c_exp", "unit": "m/s"},
+      {"key": "error_rel", "label": "相对误差", "unit": "%"},
+      {"key": "t_mean", "label": "差频周期均值 T", "unit": "μs"},
+      {"key": "delta_t_mean", "label": "相位差均值 Δt", "unit": "μs"},
+      {"key": "delta_x_mean", "label": "Δx 均值", "unit": "mm"}
+    ]
+  },
+  {
+    "id": "light_lissajous",
+    "name": "光速测量（李萨如法）",
+    "type": "required",
+    "purpose": "利用李萨如图 π 相位变化（直线↔反斜率直线）测量光速",
+    "table_cols": [
+      {"key": "x1", "label": "直线位置 x1", "unit": "mm", "count": 3},
+      {"key": "x2", "label": "反斜率直线位置 x2", "unit": "mm", "count": 3}
+    ],
+    "params": [
+      {"key": "f_mhz", "label": "调制频率 f", "unit": "MHz", "default": 150.0},
+      {"key": "c_ref", "label": "光速参考值 c_ref", "unit": "m/s", "default": 299800000}
+    ],
+    "outputs": [
+      {"key": "c_exp", "label": "实验光速 c_exp", "unit": "m/s"},
+      {"key": "error_rel", "label": "相对误差", "unit": "%"},
+      {"key": "delta_x_mean", "label": "Δx 均值", "unit": "mm"}
+    ]
+  }
+]
