@@ -181,37 +181,81 @@ _PHASE_HEADERS = ["测量次数", "参考点移动（方格数）", "参考点�
                   "x1 (mm)", "x2 (mm)", "Δx (mm)", "Δx/Δt (mm/μs)"]
 _PHASE_WIDTHS = [2.2, 2.9, 3.1, 2.3, 2.3, 2.4, 2.6]        # 合计 17.8 cm
 
+# 声光实验各张表的结构权威定义（空白记录表与报告共用同一 spec，
+# 报告按需填入数值/留空，保证列数、列序、表头、列宽永不漂移）。
+SL_TABLE_SPECS = {
+    # 实验一：表 1-1 空气共振法 + 水中相位法（同一张表，12 行）
+    "sl_1_air_water": {
+        "n": 12,
+        "headers": ["测量次数", "空气中共振法 l (mm)", "水中相位法 l (mm)"],
+        "widths": [2.6, 7.6, 7.6],
+    },
+    # 实验二（选做）：时差法测水中声速（讲义：连续 12 组，每次 20 mm）
+    "sl_2_tof": {
+        "n": 12,
+        "headers": ["测量次数", "L (mm)", "T (μs)"],
+        "widths": [2.6, 7.6, 7.6],
+    },
+    # 实验三 / 方波选做共用：表 2-1 差频周期测量
+    "sl_3_period": {
+        "n": 3,
+        "headers": ["测量次数", "相邻参考点间距（格子数）", "周期 T (μs)"],
+        "widths": [2.6, 7.6, 7.6],
+    },
+    # 实验四 / 实验六（方波选做）共用：表 2-2 相位移动 Δt 与滑块位移 Δx
+    "sl_4_phase": {
+        "n": 3,
+        "headers": _PHASE_HEADERS,
+        "widths": _PHASE_WIDTHS,
+    },
+    # 实验五：表 2-3 李萨如图形法
+    "sl_5_lissajous": {
+        "n": 3,
+        "headers": ["测量次数", "x1 (mm)", "x2 (mm)", "Δx (mm)"],
+        "widths": [2.6, 5.0, 5.0, 5.2],
+    },
+}
+
+
+def sl_table_spec(key: str) -> tuple:
+    """(headers, widths, n_rows) —— 供 docs.py 生成与空白记录表同构的填数值表格。"""
+    spec = SL_TABLE_SPECS[key]
+    return spec["headers"], spec["widths"], spec["n"]
+
+
+def sl_num_table(key: str) -> dict:
+    """按共享 spec 生成空白记录表（次数预填，其余留空）。"""
+    headers, widths, n = sl_table_spec(key)
+    return _sl_num_rows(n, headers, widths)
+
 
 def _sound_light_blocks() -> list[dict]:
     b: list[dict] = []
 
     # ── 实验一：表 1-1 空气共振法 + 水中相位法（同一张表，12 行）──
     b.append(_h2("实验一：超声声速测量 — 共振干涉法与相位比较法"))
-    b.append(_sl_num_rows(12, ["测量次数", "空气中共振法 l (mm)", "水中相位法 l (mm)"],
-                          [2.6, 7.6, 7.6]))
+    b.append(sl_num_table("sl_1_air_water"))
     b.append(_para("f 空气 = ________ Hz；f 水 = ________ Hz；环境室温 t = ________ °C"))
 
-    # ── 实验二（选做）：时差法测水中声速（讲义：连续 12 组，每次 20 mm）──
+    # ── 实验二（选做）：时差法测水中声速 ──
     b.append(_h2("实验二（选做）：时差法测水中声速"))
-    b.append(_sl_num_rows(12, ["测量次数", "L (mm)", "T (μs)"], [2.6, 7.6, 7.6]))
+    b.append(sl_num_table("sl_2_tof"))
 
     # ── 实验三：表 2-1 差频周期测量 ──
     b.append(_h2("实验三：光速测量 — 相位法（正弦波）· 周期"))
-    b.append(_sl_num_rows(3, ["测量次数", "相邻参考点间距（格子数）", "周期 T (μs)"],
-                          [2.6, 7.6, 7.6]))
+    b.append(sl_num_table("sl_3_period"))
 
     # ── 实验四：表 2-2 相位移动 Δt 与滑块位移 Δx ──
     b.append(_h2("实验四：光速测量 — 相位法（正弦波）· 相位移动 Δt"))
-    b.append(_sl_num_rows(3, _PHASE_HEADERS, _PHASE_WIDTHS))
+    b.append(sl_num_table("sl_4_phase"))
 
     # ── 实验五：表 2-3 李萨如图形法 ──
     b.append(_h2("实验五：光速测量 — 李萨如图形法"))
-    b.append(_sl_num_rows(3, ["测量次数", "x1 (mm)", "x2 (mm)", "Δx (mm)"],
-                          [2.6, 5.0, 5.0, 5.2]))
+    b.append(sl_num_table("sl_5_lissajous"))
 
     # ── 实验六（选做）：方波相位法，复用实验四表结构 ──
     b.append(_h2("实验六（选做）：相位法测光速（方波）"))
-    b.append(_sl_num_rows(3, _PHASE_HEADERS, _PHASE_WIDTHS))
+    b.append(sl_num_table("sl_4_phase"))
     return b
 
 

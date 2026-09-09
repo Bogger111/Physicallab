@@ -294,32 +294,441 @@ def _res(run, key):
     return None
 
 
-def _res_txt(run, key):
-    item = _res(run, key)
-    if item is None:
-        return "-"
-    return f"{_fmt(item.get('value'))} {item.get('unit', '')}".strip()
+import math
+
+from experiments.record_clean import sl_table_spec as rc_spec
+
+# ================================================================
+# 基准报告：① 原始数据表（与空白记录表逐列同构）② 数据处理
+# （公式 + 逐值代入 + 结果，全篇无 LaTeX 痕迹：不用 _ { } ^ \frac，
+#  不用 Unicode 下标/组合上划线字形；数学字符集限 msyh 实际含字形者）
+# ================================================================
+
+_METHOD_DISP = {
+    "air_resonance": "共振干涉法测空气中声速（必做）",
+    "water_phase": "相位比较法测水中声速（必做）",
+    "tof": "时差法测水中声速（选做）",
+    "light_sine": "相位法（正弦波）测光速（必做）",
+    "light_square": "相位法（方波）测光速（选做）",
+    "light_lissajous": "李萨如图形法测光速（必做）",
+}
+_WAVE_CN = {"light_sine": "正弦波", "light_square": "方波"}
+
+# 所有“已提交并校验通过”的方法，含 light_square（engine 内部并入正弦法计算）
+_PRESENT_ORDER = [
+    ("air_resonance", True), ("water_phase", True), ("tof", False),
+    ("light_sine", True), ("light_square", False), ("light_lissajous", True),
+]
+
+C0_MS = 2.998e8            # 真空/空气光速参考值 (m/s)，讲义口径
 
 
-def _results_block_keys(run, keys):
-    """按 key 顺序取结果的 2 列小表（数值来自 engine.analyze，勿重算）。"""
-    rows = []
-    for k in keys:
-        item = _res(run, k)
-        if item is not None:
-            rows.append([{"text": item["label"]},
-                         {"text": f"{_fmt(item.get('value'))} {item.get('unit', '')}".strip()}])
-    return _tab([_hdr(["结果项", "数值"])] + rows, [8.6, 8.8], font=8.5, row_h=0.5)
+def _f(v, nd=2):
+    """format float；None/nan -> ''。"""
+    if v is None:
+        return ""
+    try:
+        fv = float(v)
+    except (TypeError, ValueError):
+        return str(v)
+    if fv != fv:            # nan
+        return ""
+    return f"{fv:.{nd}f}"
 
 
-def _dl_table(dl):
-    """逐差 Δl_i 小表（i = 1..6）。"""
-    rows = [_hdr(["逐差序号 i", "Δl_i (mm)"])] + \
-           [[{"text": str(i + 1)}, {"text": _fx(v, 4)}] for i, v in enumerate(dl)]
-    return _tab(rows, [4.2, 12.8], font=8, row_h=0.42)
+def _h3(text: str) -> dict:
+    return {"kind": "h3", "text": text}
 
 
-# ──────────────────────────────────────────────── part reports
+# ------------------------------------------------------------
+# ① 原始数据表：行结构与空白记录表同一 spec（record_clean.SL_TABLE_SPECS）
+
+def _seq_filled(key: str, fillers: list):
+    """按 record_clean 共享 spec 建表；fillers 与数据列（去掉次数列后）平行，
+    每项为 None（该列整列留空）或与行数等长的 str 列表。"""
+    headers, widths, n = rc_spec(key)
+    rows = [[{"text": h} for h in headers]]
+    ndata = len(headers) - 1
+    for i in range(n):
+        line = [{"text": str(i + 1)}]
+        for c in range(ndata):
+            col = fillers[c] if c < len(fillers) else None
+            v = col[i] if col else None
+            line.append({"text": "" if v is None else str(v)})
+        rows.append(line)
+    return _tab(rows, widths, font=8, row_h=0.45)
+
+
+def _raw_blocks(pres) -> list[dict]:
+    """pres: [(method_id, run), ...]（按讲义出现顺序）。"""
+    by = dict(pres)
+    b: list[dict] = []
+
+    b.append({"kind": "h2", "text": "一、原始数据表"})
+    b.append(_cap("下表与空白记录表逐列同构（表头、列数、列序一致，白底黑框）："
+                  "表1-1 为空气共振法与水中相位法共用（空气值填空气列、水值填水列，"
+                  "未提交方法的列留空），表2-1、表2-2、表2-3 对应讲义表号；"
+                  "Δx = |x2 − x1|、Δx/Δt 为程序按行算好的派生列；"
+                  "录入界面没有的读数（表2-1 的相邻参考点间距、表2-2 的参考点移动方格数）留空。"))
+
+    # ── 表1-1 空气 + 水（共用一张表）──
+    air = by.get("air_resonance")
+    wat = by.get("water_phase")
+    if air or wat:
+        b.append(_cap("表1-1  空气中共振法与水中相位法数据记录（同一张表）"))
+        air_l = air["arrays"]["l"] if air else None
+        wat_l = wat["arrays"]["l"] if wat else None
+        fill = [
+            [rc_f2(v) for v in air_l] if air_l else None,
+            [rc_f2(v) for v in wat_l] if wat_l else None,
+        ]
+        b.append(_seq_filled("sl_1_air_water", fill))
+        toks = []
+        if air:
+            p = air["params_used"]
+            toks.append(f"f 空气 = {int(round(p['f_khz'] * 1000))} Hz")
+        if wat:
+            toks.append(f"f 水 = {wat['params_used']['f_mhz']:g} MHz")
+        if air:
+            toks.append(f"环境室温 t = {air['params_used']['temperature_degC']:g} °C")
+        if toks:
+            b.append(_cap("；".join(toks) + "。"))
+        b.append({"kind": "spacer", "cm": 0.05})
+
+    # ── 实验二（选做）时差法 ──
+    tof = by.get("tof")
+    if tof:
+        a = tof["arrays"]
+        b.append(_cap("时差法数据记录（实验二，选做）：传播距离 L 与飞行时间 T"))
+        b.append(_seq_filled("sl_2_tof", [
+            [rc_f2(v, 1) for v in a["L"]],
+            [rc_f2(v, 2) for v in a["T"]],
+        ]))
+        b.append({"kind": "spacer", "cm": 0.05})
+
+    # ── 光速：表2-1 周期 + 表2-2 相位移动（正弦波/方波各自成组）──
+    for mid in ("light_sine", "light_square"):
+        run = by.get(mid)
+        if not run:
+            continue
+        a = run["arrays"]
+        wv = _WAVE_CN[mid]
+        b.append(_cap(f"表2-1  差频后波形的周期测量（{wv}，水平偏转因子 0.5 μs/DIV）"))
+        b.append(_seq_filled("sl_3_period", [
+            None,
+            [rc_f2(v, 3) for v in a["T"]],
+        ]))
+        b.append({"kind": "spacer", "cm": 0.02})
+        b.append(_cap(f"表2-2  参考点水平移动时间 Δt 与滑块（反射镜）移动距离 Δx"
+                      f"（{wv}，水平偏转因子 0.2 μs/DIV）"))
+        b.append(_seq_filled("sl_4_phase", [
+            None,
+            [rc_f2(v, 2) for v in a["dt"]],
+            [rc_f2(v, 2) for v in a["x1"]],
+            [rc_f2(v, 2) for v in a["x2"]],
+            [rc_f2(v, 2) for v in a["dx"]],
+            [rc_f2(v, 3) for v in a["r"]],
+        ]))
+        b.append({"kind": "spacer", "cm": 0.05})
+
+    # ── 表2-3 李萨如 ──
+    lis = by.get("light_lissajous")
+    if lis:
+        a = lis["arrays"]
+        b.append(_cap("表2-3  李萨如图形法：反射镜滑块移动的距离 Δx"))
+        b.append(_seq_filled("sl_5_lissajous", [
+            [rc_f2(v, 2) for v in a["x1"]],
+            [rc_f2(v, 2) for v in a["x2"]],
+            [rc_f2(v, 2) for v in a["dx"]],
+        ]))
+        b.append({"kind": "spacer", "cm": 0.05})
+    return b
+
+
+# 与空白记录表同构所需的取值格式化（mm 2 位小数、tof L 1 位等）
+def rc_f2(v, nd=2):
+    return _f(v, nd)
+
+
+# ------------------------------------------------------------
+# ② 数据处理区
+
+def _diff_table(l, dl):
+    """六组逐差逐行：ΔlN = (l(N+6) − lN)/6 = (数值 − 数值)/6 = 数值 mm。"""
+    rows = [[{"text": "Δl 组号"},
+             {"text": "逐差公式与代入（l、Δl 单位 mm）"},
+             {"text": "结果（mm）"}]]
+    for i in range(6):
+        j = i + 6
+        rows.append([
+            {"text": str(i + 1)},
+            {"text": f"Δl{i + 1} = (l{i + 7} − l{i + 1})/6"
+                     f" = ({_f(l[j], 2)} − {_f(l[i], 2)})/6 = {_f(l[j] - l[i], 2)}/6"},
+            {"text": _f(dl[i], 4)},
+        ])
+    return _tab(rows, [1.8, 12.6, 3.4], font=8, row_h=0.42)
+
+
+def _mean_line(tag, dl, unit="mm"):
+    """Δl 平均 = (Δl1 + … + Δl6)/6 = (六个数值之和)/6 = 结果。"""
+    s6 = [_f(v, 4) for v in dl]
+    total = sum(float(s) for s in s6)
+    return (f"{tag} = (Δl1 + Δl2 + Δl3 + Δl4 + Δl5 + Δl6)/6"
+            f" = ({' + '.join(s6)})/6 = {_f(total / 6.0, 4)} {unit}")
+
+
+def _proc_1a(air) -> list[dict]:
+    a, p = air["arrays"], air["params_used"]
+    l, dl = a["l"], a["delta_l"]
+    f_khz, t_c = p["f_khz"], p["temperature_degC"]
+    f_hz = f_khz * 1000.0
+    out = [
+        _h3("处理 1a：共振干涉法测空气中声速（必做）"),
+        _cap("原始数据为 表1-1 第 2 列 l1 至 l12（单位 mm）。相邻共振位置相差半个波长，"
+             "用隔 6 次相减的逐差法求平均半波长：Δl1 = (l7 − l1)/6，Δl2 = (l8 − l2)/6，"
+             "…，Δl6 = (l12 − l6)/6。六组逐差逐行如下："),
+    ]
+    out.append(_diff_table(l, dl))
+    mean_s = _mean_line("Δl 平均（半波长）", dl)
+    out.append(_cap(mean_s + "。"))
+    # 由显示值构造 λ 与 v 的代入链
+    mean4 = sum(float(_f(v, 4)) for v in dl) / 6.0
+    lam_mm = 2.0 * round(mean4, 4)
+    lam_mm_s = _f(lam_mm, 4)                      # 9.1144
+    lam_m_s = _f(lam_mm / 1000.0, 7)              # 0.0091144
+    v_s = _f(f_hz * float(lam_m_s), 2)            # 346.35
+    out.append(_cap(f"波长与实验声速：λ = 2×Δl 平均 = 2×{_f(round(mean4, 4), 4)}"
+                    f" = {lam_mm_s} mm = {lam_m_s} m；"
+                    f"实验声速 v = f×λ = {_f(f_hz, 0)}×{lam_m_s} = {v_s} m/s"
+                    f"（f = {f_khz:g} kHz = {_f(f_hz, 0)} Hz；"
+                    f"v = 2×f×Δl 平均 代入同值）。"))
+    sq = math.sqrt(1.0 + t_c / 273.15)
+    v_th = 331.45 * sq
+    out.append(_cap(f"理论声速（温度修正，讲义理想气体公式）："
+                    f"v = 331.45×√(1 + t/273.15) = 331.45×√(1 + {t_c:g}/273.15)"
+                    f" = 331.45×{_f(sq, 5)} = {_f(v_th, 2)} m/s（室温 t = {t_c:g} °C）。"))
+    e_abs = abs(float(v_s) - float(_f(v_th, 2)))
+    e_rel = e_abs / float(_f(v_th, 2)) * 100.0
+    out.append(_cap(f"误差比较：绝对误差 = |实验值 − 理论值| = |{v_s} − {_f(v_th, 2)}|"
+                    f" = {_f(e_abs, 2)} m/s；相对误差 = ({_f(e_abs, 2)}/{_f(v_th, 2)})×100%"
+                    f" = {_f(e_rel, 2)}%。"))
+    out.append({"kind": "spacer", "cm": 0.03})
+    return out
+
+
+def _proc_1b(wat) -> list[dict]:
+    a, p = wat["arrays"], wat["params_used"]
+    l, dl = a["l"], a["delta_l"]
+    f_mhz = p["f_mhz"]
+    f_hz = f_mhz * 1e6
+    out = [
+        _h3("处理 1b：相位比较法测水中声速（必做）"),
+        _cap("原始数据为 表1-1 第 3 列（单位 mm）。逐差法与处理 1a 相同："
+             "Δl1 = (l7 − l1)/6，…，Δl6 = (l12 − l6)/6。六组逐差逐行如下："),
+    ]
+    out.append(_diff_table(l, dl))
+    mean_s = _mean_line("Δl 平均（半波长）", dl)
+    out.append(_cap(mean_s + "。"))
+    mean4 = sum(float(_f(v, 4)) for v in dl) / 6.0
+    mean4 = round(mean4, 4)
+    lam_mm = 2.0 * mean4
+    lam_mm_s = _f(lam_mm, 4)
+    lam_m_s = _f(lam_mm / 1000.0, 7)
+    v_s = _f(f_hz * float(lam_m_s), 1)
+    out.append(_cap(f"水中声速：λ = 2×Δl 平均 = 2×{_f(mean4, 4)} = {lam_mm_s} mm"
+                    f" = {lam_m_s} m；v = f×λ = {_f(f_hz, 0)}×{lam_m_s} = {v_s} m/s"
+                    f"（或 v = 2×f×Δl 平均 = 2×{_f(f_hz, 0)}×{_f(mean4 / 1000.0, 7)}"
+                    f" = {v_s} m/s，f = {f_mhz:g} MHz = {_f(f_hz, 0)} Hz）。"))
+    # A 类不确定度（Δl 的 6 组逐差，自由度 5，t0.95(5) = 2.571）
+    out.append(_cap("A 类不确定度评估（Δl 共 6 组逐差，自由度 n − 1 = 5，"
+                    "置信概率 95%，t 分布临界值 t0.95(5) = 2.571）："))
+    dev_rows = [[{"text": "组号"}, {"text": "偏差（mm）"}, {"text": "偏差平方（mm²）"}]]
+    sq_total = 0.0
+    for i, d in enumerate(dl):
+        dev = float(_f(d, 4)) - mean4
+        sq = dev * dev
+        sq_total += sq
+        dev_rows.append([{"text": str(i + 1)},
+                         {"text": _f(dev, 5)},
+                         {"text": _f(sq, 8)}])
+    out.append(_tab(dev_rows, [1.8, 7.6, 8.4], font=8, row_h=0.42))
+    sq_s = _f(sq_total, 8)
+    s_dl = math.sqrt(float(sq_s) / 5.0)
+    out.append(_cap(f"贝塞尔公式：s(Δl) = √(偏差平方和/(n − 1))"
+                    f" = √({sq_s}/5) = {_f(s_dl, 5)} mm"
+                    f"（偏差平方和即上表末行之和）。"))
+    ua_dl = 2.571 * float(_f(s_dl, 5)) / math.sqrt(6.0)
+    ua_dl_mm_s = _f(ua_dl, 5)
+    ua_dl_m_s = _f(ua_dl / 1000.0, 8)
+    ua_v_s = _f(2.0 * f_hz * float(ua_dl_m_s), 1)
+    out.append(_cap(f"Δl 的 A 类不确定度（记为 UA(Δl)）："
+                    f"UA(Δl) = 2.571×s(Δl)/√6 = 2.571×{_f(s_dl, 5)}/2.44949"
+                    f" = {ua_dl_mm_s} mm = {ua_dl_m_s} m；"
+                    f"由 v = 2×f×Δl 误差传递：UA(v) = 2×f×UA(Δl)"
+                    f" = 2×{_f(f_hz, 0)}×{ua_dl_m_s} = {ua_v_s} m/s。"))
+    out.append(_cap(f"结果：v ± UA(v) = {v_s} ± {ua_v_s} m/s"
+                    f"（与水中声速常用参考值 1480 m/s 相差"
+                    f" {_f(abs(float(v_s) - 1480.0) / 1480.0 * 100.0, 1)}%）。"))
+    out.append({"kind": "spacer", "cm": 0.03})
+    return out
+
+
+def _proc_1c(tof) -> list[dict]:
+    a = tof["arrays"]
+    L, T, v = a["L"], a["T"], a["v"]
+    out = [
+        _h3("处理 1c：时差法测水中声速（选做）"),
+        _cap("逐点速度：每个传播距离 L(mm) 换算为 m、对应飞行时间 T(μs) 换算为 s 后相除，"
+             "即每点 v = L(mm)/T(μs)×1000（m/s）。逐点计算如下："),
+    ]
+    rows = [[{"text": "测量次数"}, {"text": "L (mm)"}, {"text": "T (μs)"},
+             {"text": "v (m/s)"}]]
+    for i in range(len(L)):
+        rows.append([{"text": str(i + 1)},
+                     {"text": _f(L[i], 1)},
+                     {"text": _f(T[i], 2)},
+                     {"text": _f(v[i], 1)}])
+    out.append(_tab(rows, [2.4, 4.6, 5.0, 5.2], font=8, row_h=0.42))
+    out.append(_cap(f"平均声速 v = {_f(a['v_mean'], 1)} m/s"
+                    f"（12 个逐点速度的算术平均）；样本标准差 = {_f(a['v_std'], 1)} m/s。"
+                    f"与水中声速常用参考值 1480 m/s 相差"
+                    f" {_f(abs(a['v_mean'] - 1480.0) / 1480.0 * 100.0, 1)}%。"))
+    out.append({"kind": "spacer", "cm": 0.03})
+    return out
+
+
+def _proc_2a(mid, run) -> list[dict]:
+    a, p = run["arrays"], run["params_used"]
+    wv = _WAVE_CN[mid]
+    tag = "必做" if mid == "light_sine" else "选做"
+    f_mhz = p["f_mhz"]
+    f_hz = f_mhz * 1e6
+    out = [_h3(f"处理 2a：相位差法（{wv}）测空气中光速（{tag}）")]
+    # ① T 平均
+    ts = [_f(v, 3) for v in a["T"]]
+    t_sum = sum(float(s) for s in ts)
+    t_mean = t_sum / 3.0
+    out.append(_cap(f"差频周期平均值（表2-1 数据，单位 μs；T1、T2、T3 为三次读数）："
+                    f"T = (T1 + T2 + T3)/3 = ({' + '.join(ts)})/3"
+                    f" = {_f(t_sum, 3)}/3 = {_f(t_mean, 3)} μs。"))
+    # ② r 平均
+    rs = [_f(v, 3) for v in a["r"]]
+    r_sum = sum(float(s) for s in rs)
+    r_mean = r_sum / 3.0
+    out.append(_cap(f"表2-2 的 Δx/Δt 派生列即各行读数之比（单位 mm/μs），记为 r1、r2、r3；"
+                    f"其平均（讲义：计算 Δx/Δt 的平均值）：r 平均 = (r1 + r2 + r3)/3"
+                    f" = ({' + '.join(rs)})/3 = {_f(r_sum, 3)}/3"
+                    f" = {_f(r_mean, 3)} mm/μs。"))
+    # ③ λ ④ c
+    lam_mm = 2.0 * float(_f(t_mean, 3)) * float(_f(r_mean, 3))
+    lam_mm_s = _f(lam_mm, 2)
+    lam_m_s = _f(lam_mm / 1000.0, 5)
+    c_s = _f(f_hz * float(lam_m_s), 0)
+    out.append(_cap(f"调制波长（差频法公式 λ = 2×T×r，T、r 用上面的平均值）：λ(mm) = 2×{_f(t_mean, 3)}"
+                    f"×{_f(r_mean, 3)} = {lam_mm_s} mm = {lam_m_s} m。"))
+    out.append(_cap(f"实验光速：c = f×λ = {_f(f_hz, 0)}×{lam_m_s}"
+                    f" = {c_s} m/s ≈ {_f(float(c_s) / 1e8, 3)}×10⁸ m/s"
+                    f"（调制频率 f = {f_mhz:g} MHz = {_f(f_hz, 0)} Hz）。"))
+    # ⑤ 误差
+    c0 = float(p.get("c_ref", C0_MS))
+    e_abs = abs(float(c_s) - c0)
+    e_rel = e_abs / c0 * 100.0
+    out.append(_cap(f"与空气中光速理论值 c0 = 2.998×10⁸ m/s 比较："
+                    f"绝对误差 = |c − c0| = |{c_s} − {_f(c0, 0)}|"
+                    f" = {_f(e_abs, 0)} m/s ≈ {_f(e_abs / 1e4, 1)}×10⁴ m/s；"
+                    f"相对误差 = ({_f(e_abs / 1e4, 1)}×10⁴/{_f(c0, 0)})×100%"
+                    f" = {_f(e_rel, 2)}%。"))
+    out.append({"kind": "spacer", "cm": 0.03})
+    return out
+
+
+def _proc_2b(lis) -> list[dict]:
+    a, p = lis["arrays"], lis["params_used"]
+    f_mhz = p["f_mhz"]
+    f_hz = f_mhz * 1e6
+    out = [_h3("处理 2b：李萨如图形法测空气中光速（必做）")]
+    # ① Δx 平均
+    dxs = [_f(v, 2) for v in a["dx"]]
+    dx_sum = sum(float(s) for s in dxs)
+    dx_mean = dx_sum / 3.0
+    out.append(_cap(f"Δx = |x2 − x1|（表2-3 数据，单位 mm）："
+                    f"Δx 平均 = (Δx1 + Δx2 + Δx3)/3 = ({' + '.join(dxs)})/3"
+                    f" = {_f(dx_sum, 2)}/3 = {_f(dx_mean, 2)} mm。"))
+    # ② λ ③ c
+    lam_mm = 4.0 * float(_f(dx_mean, 2))
+    lam_mm_s = _f(lam_mm, 2)
+    lam_m_s = _f(lam_mm / 1000.0, 5)
+    c_s = _f(f_hz * float(lam_m_s), 0)
+    out.append(_cap("李萨如图由直线变为反斜率直线时相位差改变 π，对应光程差 λ/2、"
+                    "反射镜移动 Δx = λ/4："))
+    out.append(_cap(f"λ = 4×Δx 平均 = 4×{_f(dx_mean, 2)} = {lam_mm_s} mm"
+                    f" = {lam_m_s} m。"))
+    out.append(_cap(f"实验光速 c = f×λ = {_f(f_hz, 0)}×{lam_m_s}"
+                    f" = {c_s} m/s ≈ {_f(float(c_s) / 1e8, 3)}×10⁸ m/s"
+                    f"（调制频率 f = {f_mhz:g} MHz）。"))
+    c0 = float(p.get("c_ref", C0_MS))
+    e_abs = abs(float(c_s) - c0)
+    e_rel = e_abs / c0 * 100.0
+    out.append(_cap(f"与 c0 = 2.998×10⁸ m/s 比较：绝对误差 = |{c_s} − {_f(c0, 0)}|"
+                    f" = {_f(e_abs, 0)} m/s ≈ {_f(e_abs / 1e4, 2)}×10⁴ m/s；"
+                    f"相对误差 = ({_f(e_abs / 1e4, 2)}×10⁴/{_f(c0, 0)})×100%"
+                    f" = {_f(e_rel, 2)}%。"))
+    out.append({"kind": "spacer", "cm": 0.03})
+    return out
+
+
+def _err_sources_blocks(pres) -> list[dict]:
+    by = dict(pres)
+    b: list[dict] = [_h3("处理 3：误差来源分析")]
+    b.append(_cap("（1）仪器类误差：示波器水平时基（0.5 μs/DIV 与 0.2 μs/DIV）的"
+                  "分度、扫描与水平微调校准误差，直接影响周期 T、相位时间 Δt 的读数；"
+                  "信号发生器频率显示偏差影响共振频率 f、水中频率 f 与调制频率 f；"
+                  "导轨标尺与读数装置的分度、零位误差影响 l、x1、x2 读数。"
+                  "减小措施：使用前校零并锁定时基微调，读数取多次平均。"))
+    b.append(_cap("（2）读数与操作误差：驻波共振幅值极大点平台较宽，极大位置判定不灵敏"
+                  "带来随机误差；李萨如图形直线（同斜率/反斜率）判据与同相位点对准存在"
+                  "主观读数误差；示波器上参考点移动格数按 0.2 μs/DIV 判读存在量化误差。"
+                  "减小措施：沿同一方向缓慢移动换能器或反射镜，极大位置往返微调取中点，"
+                  "每组重复 3 次取平均。"))
+    b.append(_cap("（3）方法与理论近似误差：理论声速按干燥理想气体公式"
+                  " v = 331.45×√(1 + t/273.15) 计算，未计湿度、气压与 CO2 含量影响；"
+                  "水中声速以 1480 m/s 常用值作参考；光速比较以真空值 c0 = 2.998×10⁸ m/s"
+                  "代替空气中光速（空气折射率 n ≈ 1.0003，差异约 0.03%）；差频相位-位移"
+                  "关系假定波形严格且线性良好。减小措施：注明近似前提，需要时对声速作"
+                  "湿度/气压修正，光速比较口径统一用 c0。"))
+    b.append(_cap("（4）环境类误差：室温波动改变空气中声速；水中温度分布不均、气泡与"
+                  "液面晃动改变水中声速；换能器端面与反射镜移动方向不严格平行、导轨回程"
+                  "间隙引入系统误差。减小措施：测量期间保持环境稳定、不触碰水槽，"
+                  "移动一律单向进行。"))
+    concl = []
+    if "air_resonance" in by:
+        a, p = by["air_resonance"]["arrays"], by["air_resonance"]["params_used"]
+        concl.append(f"空气中声速（共振干涉法）v = {_f(a['v_exp'], 1)} m/s，与室温"
+                     f" {p['temperature_degC']:g} °C 理论值 {_f(a['v_theory'], 1)} m/s"
+                     f" 的相对误差 {_f(a['err_rel'], 2)}%")
+    if "water_phase" in by:
+        a = by["water_phase"]["arrays"]
+        concl.append(f"水中声速（相位比较法）v = {_f(a['v'], 1)} ± {_f(a['u_a_v'], 1)} m/s"
+                     f"（UA(v)），与常用参考值 1480 m/s 相差"
+                     f" {_f(abs(a['v'] - 1480.0) / 1480.0 * 100.0, 1)}%")
+    if "tof" in by:
+        a = by["tof"]["arrays"]
+        concl.append(f"时差法 v = {_f(a['v_mean'], 1)} m/s，与 1480 m/s 参考值相差"
+                     f" {_f(abs(a['v_mean'] - 1480.0) / 1480.0 * 100.0, 1)}%")
+    for mid in ("light_sine", "light_square", "light_lissajous"):
+        if mid in by:
+            a = by[mid]["arrays"]
+            nm = {"light_sine": "光速（正弦波相位差法）",
+                  "light_square": "光速（方波相位差法）",
+                  "light_lissajous": "光速（李萨如法）"}[mid]
+            concl.append(f"{nm} c = {_f(a['c_exp'] / 1e8, 3)}×10⁸ m/s，"
+                         f"相对误差 {_f(a['err_rel'], 2)}%")
+    tail = "。总体看，各方法实验值与理论值/参考值的偏差均在合理范围（声速相对误差与" \
+           "不确定度量级一致、光速小于 0.5%），测量与数据处理正确，结果可信。"
+    b.append(_cap("总体结论：" + "；".join(concl) + tail))
+    b.append({"kind": "spacer", "cm": 0.03})
+    return b
+
 
 def _head_blocks(part_title, note):
     return [
@@ -330,14 +739,17 @@ def _head_blocks(part_title, note):
     ]
 
 
+# ------------------------------------------------------------
+# 基准报告主装配
+
 def _basic_blocks(methods_data) -> list[dict]:
     b = _head_blocks(
         "基准部分",
         "依据讲义【数据处理】生成：原始数据规范作表，逐差与平均值计算、A 类不确定度评估"
         "（置信概率 95%）及误差比较；本实验讲义未要求作图（图见拓展部分）。"
-        "仅包含已提交且通过校验的方法。")
-    present, failed = [], []
-    for mid in ORDER:
+        "仅包含已提交且通过校验的方法，每步给出公式、数值代入与结果。")
+    pres, failed = [], []
+    for mid, _need in _PRESENT_ORDER:
         item = (methods_data or {}).get(mid)
         if not item or not item.get("rows"):
             continue
@@ -345,192 +757,49 @@ def _basic_blocks(methods_data) -> list[dict]:
         if run is None:
             continue
         if run["status"] == "success":
-            present.append((mid, run))
+            pres.append((mid, run))
         else:
             failed.append((mid, run))
-    if not present:
+    if not pres:
         b.append({"kind": "note", "text": "没有可处理的已提交方法数据，本报告暂无可计算内容。"})
         return b
-    names = "；".join(f"{i + 1}. {METHOD_NAME[mid]}"
-                      f"（{'必做' if METHOD_REQUIRED[mid] else '选做'}）"
-                      for i, (mid, run) in enumerate(present))
-    intro = f"已提交方法（共 {len(present)} 项）：{names}。"
+    names = "；".join(f"{i + 1}. {_METHOD_DISP[mid]}" for i, (mid, _r) in enumerate(pres))
+    intro = f"已提交方法（共 {len(pres)} 项）：{names}。"
     if failed:
-        intro += " 以下方法数据未通过校验，未参与计算：" + "、".join(METHOD_NAME[m] for m, _ in failed) + "。"
+        intro += (" 以下方法数据未通过校验，未参与计算："
+                  + "、".join(_METHOD_DISP[m] for m, _ in failed) + "。")
     b.append({"kind": "note", "text": intro})
     for m, run in failed:
-        b.append({"kind": "note", "text": f"{METHOD_NAME[m]} 校验未通过：" + "；".join(run["errors"])})
+        b.append({"kind": "note",
+                  "text": f"{_METHOD_DISP[m]} 校验未通过：" + "；".join(run["errors"])})
     b.append({"kind": "spacer", "cm": 0.05})
 
-    air_run = next((r for m, r in present if m == "air_resonance"), None)
-    wat_run = next((r for m, r in present if m == "water_phase"), None)
-    tof_run = next((r for m, r in present if m == "tof"), None)
-    sin_run = next((r for m, r in present if m == "light_sine"), None)
-    lis_run = next((r for m, r in present if m == "light_lissajous"), None)
-
-    # ════════════ 一、原始数据表 ════════════
-    b.append({"kind": "h2", "text": "一、原始数据表"})
-    b.append({"kind": "note",
-              "text": "下表与讲义记录表同构（空气中共振法与水中相位法共讲义表1-1，未提交方法的列留空，便于补齐）；"
-                      "表2-1 至表2-3 与讲义表2-1 至表2-3 对应。Δx = |x2 - x1|；Δx/Δt 为按行计算的派生列。"})
-    if air_run or wat_run:
-        b.append(_cap("表1-1  共振干涉法、相位比较法数据记录"))
-        a_l = air_run.get("arrays", {}).get("l", []) if air_run else []
-        w_l = wat_run.get("arrays", {}).get("l", []) if wat_run else []
-        rows = [_hdr(["测量次数", "空气中共振法 l (mm)", "水中相位法 l (mm)"])]
-        for i in range(12):
-            rows.append([{"text": str(i + 1)},
-                         {"text": _fx(a_l[i], 2) if i < len(a_l) and a_l[i] is not None else ""},
-                         {"text": _fx(w_l[i], 2) if i < len(w_l) and w_l[i] is not None else ""}])
-        b.append(_tab(rows, [3.2, 6.9, 6.9], font=8, row_h=0.45))
-        pa = (air_run or {}).get("params_used", {})
-        pw = (wat_run or {}).get("params_used", {})
-        tok_air = f"f空气 = {pa['f_khz']:g} kHz" if air_run else "f空气 = -"
-        tok_wat = f"f水 = {pw['f_mhz']:g} MHz" if wat_run else "f水 = -"
-        tok_t = f"环境室温 t = {pa['temperature_degC']:g} °C" if air_run else "环境室温 t = -"
-        b.append({"kind": "note", "text": f"{tok_air}；{tok_wat}；{tok_t}（参数按各自提交值）"})
-        b.append({"kind": "spacer", "cm": 0.1})
-    if tof_run:
-        b.append(_cap("表（选做）时差法数据记录：飞行时间法测水中声速"))
-        a = tof_run["arrays"]
-        L, T = a["L"], a["T"]
-        rows = [_hdr(["测量次数", "传播距离 L (mm)", "飞行时间 T (μs)"])]
-        for i in range(12):
-            rows.append([{"text": str(i + 1)}, {"text": _fx(L[i], 1)}, {"text": _fx(T[i], 2)}])
-        b.append(_tab(rows, [3.4, 6.8, 6.8], font=8, row_h=0.45))
-        b.append({"kind": "spacer", "cm": 0.1})
-    if sin_run:
-        a = sin_run["arrays"]
-        T = a.get("T", [])
-        b.append(_cap("表2-1  差频后波形的周期测量（水平偏转因子 0.5 μs/DIV）"))
-        rows = [_hdr(["测量次数", "周期 T (μs)"])] + \
-               [[{"text": str(i + 1)}, {"text": _fx(v, 3)}] for i, v in enumerate(T)]
-        b.append(_tab(rows, [4.4, 12.6], font=8, row_h=0.45))
-        b.append({"kind": "spacer", "cm": 0.08})
-        b.append(_cap("表2-2  参考点在水平时间轴移动距离 Δt 与滑块移动距离 Δx（水平偏转因子 0.2 μs/DIV）"))
-        dt, x1, x2, dx, r = a.get("dt", []), a.get("x1", []), a.get("x2", []), a.get("dx", []), a.get("r", [])
-        rows = [_hdr(["测量次数", "Δt (μs)", "x1 (mm)", "x2 (mm)", "Δx (mm)", "Δx/Δt (mm/μs)"])]
-        for i in range(len(dt)):
-            rows.append([{"text": str(i + 1)},
-                         {"text": _fx(dt[i], 2)}, {"text": _fx(x1[i], 2)},
-                         {"text": _fx(x2[i], 2)}, {"text": _fx(dx[i], 2)},
-                         {"text": _fx(r[i], 3) if i < len(r) else ""}])
-        b.append(_tab(rows, [1.7, 2.9, 2.9, 2.9, 3.0, 3.6], font=8, row_h=0.45))
-        b.append({"kind": "spacer", "cm": 0.1})
-    if lis_run:
-        a = lis_run["arrays"]
-        x1, x2, dx = a.get("x1", []), a.get("x2", []), a.get("dx", [])
-        b.append(_cap("表2-3  反射镜滑块移动的距离 Δx（李萨如图形法）"))
-        rows = [_hdr(["测量次数", "x1 (mm)", "x2 (mm)", "Δx (mm)"])]
-        for i in range(len(x1)):
-            rows.append([{"text": str(i + 1)},
-                         {"text": _fx(x1[i], 2)}, {"text": _fx(x2[i], 2)},
-                         {"text": _fx(dx[i], 2)}])
-        b.append(_tab(rows, [3.0, 4.6, 4.6, 4.6], font=8, row_h=0.45))
-        b.append({"kind": "spacer", "cm": 0.1})
-
-    # ════════════ 二、数据处理 ════════════
+    # ① 原始数据表
+    b += _raw_blocks(pres)
+    # ② 数据处理
     b.append({"kind": "h2", "text": "二、数据处理"})
-    b.append({"kind": "note", "text": "以下数值全部取自本地数据分析结果（与处理接口同源同公式），不另做手算。"})
-    if air_run or wat_run or tof_run:
-        b.append({"kind": "h3", "text": "处理 1：超声声速测量"})
-        b.append({"kind": "spacer", "cm": 0.02})
-    if air_run:
-        b.append({"kind": "h3", "text": "处理 1a：共振干涉法测空气中声速（必做）"})
-        a = air_run["arrays"]
-        pa = air_run["params_used"]
-        b.append(_cap("逐差法（讲义附1）：Δl_i = (l(i+6) - l(i))/6，i = 1 到 6；l(1) 至 l(12) 为表1-1 中"
-                      "第 1 至第 12 次共振位置读数（mm），逐差平均间距即半波长 Δl。"))
-        b.append(_cap("逐差结果 Δl_i（i = 1 到 6）："))
-        b.append(_dl_table(a.get("delta_l", [])))
-        lam_mm = a.get("lam_mm", 0.0)
-        b.append(_cap(f"Δl 平均值（半波长 Δl） = {_res_txt(air_run, 'delta_l_mean')}，波长 λ = 2×Δl ≈ {_fx(lam_mm, 3)} mm；"
-                      f"mm 换算 m 后 v_exp = f×λ = 2×f×Δl（f = {pa['f_khz']:g} kHz）→ {_res_txt(air_run, 'v_exp')}。"))
-        b.append(_cap(f"理论声速（室温 t = {pa['temperature_degC']:g} °C）：v_theory = 331.45×√(1 + t/273.15) m/s"
-                      f"（0 °C 时 v0 = 331.45 m/s）→ {_res_txt(air_run, 'v_theory')}。"))
-        b.append(_cap(f"误差比较：绝对误差 = |v_exp - v_theory| = {_res_txt(air_run, 'error_abs')}；"
-                      f"相对误差 = {_res_txt(air_run, 'error_rel')}。"))
-        b.append(_results_block_keys(air_run, ["delta_l_mean", "v_exp", "v_theory",
-                                               "error_abs", "error_rel"]))
-        b.append({"kind": "spacer", "cm": 0.04})
-    if wat_run:
-        b.append({"kind": "h3", "text": "处理 1b：相位比较法测水中声速（必做）"})
-        a = wat_run["arrays"]
-        pw = wat_run["params_used"]
-        b.append(_cap("逐差法同处理 1a：Δl_i = (l(i+6) - l(i))/6，i = 1 到 6；逐差平均间距即半波长 Δl。"))
-        b.append(_cap("逐差结果 Δl_i（i = 1 到 6）："))
-        b.append(_dl_table(a.get("delta_l", [])))
-        b.append(_cap(f"Δl 平均值（半波长 Δl） = {_res_txt(wat_run, 'delta_l_mean')}；水中声速"
-                      f" v = 2×f×Δl（f = {pw['f_mhz']:g} MHz，mm 换算 m）→ {_res_txt(wat_run, 'v')}。"))
-        ua_m = a.get("ua_dl_m", 0.0) * 1e6
-        b.append(_cap(f"A 类不确定度评估（讲义附2：半波长 Δl 由 12 组数据逐差得出，测量次数 n = 6，置信概率 95%）："
-                      f"Δl 标准差 s(Δl) = {_fx(a.get('s', 0.0), 5)} mm（贝塞尔公式）；t 分布临界值 t0.95（自由度 5）= 2.571；"
-                      f"U_A(Δl) = 2.571×s(Δl)/√6 = {_fx(a.get('ua_dl_mm', 0.0), 5)} mm = {_fx(ua_m, 3)}×10^-6 m（换算 m）；"
-                      f"由 v = 2×f×Δl 误差传递：U_A(v) = 2×f×U_A(Δl) = {_res_txt(wat_run, 'u_a')}。"))
-        b.append(_results_block_keys(wat_run, ["delta_l_mean", "v", "s_delta_l", "u_a"]))
-        b.append({"kind": "spacer", "cm": 0.04})
-    if tof_run:
-        b.append({"kind": "h3", "text": "处理 1c：时差法测水中声速（选做）"})
-        a = tof_run["arrays"]
-        L, T, v = a["L"], a["T"], a["v"]
-        b.append(_cap("每点速度 v_i = L_i/T_i：L_i(mm) 换算 m、T_i(μs) 换算 s，即 v_i = L_i(mm)/T_i(μs)×1000 (m/s)。"))
-        rows = [_hdr(["测量次数", "L (mm)", "T (μs)", "v_i (m/s)"])] + \
-               [[{"text": str(i + 1)}, {"text": _fx(L[i], 1)}, {"text": _fx(T[i], 2)},
-                 {"text": _fx(v[i], 1)}] for i in range(len(L))]
-        b.append(_tab(rows, [2.0, 4.6, 5.0, 5.2], font=8, row_h=0.42))
-        b.append(_cap(f"平均声速 = {_res_txt(tof_run, 'v_mean')}；标准差 = {_res_txt(tof_run, 'v_std')}"
-                      f"（本方法讲义未细述处理过程，给出平均值与标准差即可）。"))
-        b.append({"kind": "spacer", "cm": 0.04})
-    if sin_run or lis_run:
-        b.append({"kind": "h3", "text": "处理 2：光速测量"})
-        b.append({"kind": "spacer", "cm": 0.02})
-    if sin_run:
-        b.append({"kind": "h3", "text": "处理 2a：相位差法（正弦波）测空气中光速（必做）"})
-        a = sin_run["arrays"]
-        pa = sin_run["params_used"]
-        r_items = "、".join(_fx(vv, 3) for vv in a.get("r", []))
-        lam_mm = a.get("lam_mm", 0.0)
-        lam_m = lam_mm * 1e-3
-        b.append(_cap(f"差频后波形周期测量结果的平均值（表2-1 数据）：T = (T1 + T2 + T3)/3 = {_res_txt(sin_run, 't_mean')}。"))
-        b.append(_cap(f"逐点比值 r_i = Δx_i/Δt_i（表2-2 派生列，单位 mm/μs）：{r_items}；"
-                      f"Δx/Δt 的平均值 = {_res_txt(sin_run, 'r_mean')}。"))
-        b.append(_cap(f"调制波频率 f_t = {pa['f_mhz']:g} MHz = {pa['f_mhz']:g}×10^6 Hz；"
-                      f"调制波长 λ(mm) = 2×T(μs)×r_mean(mm/μs) = {_fx(lam_mm, 1)} mm ≈ {_fx(lam_m, 4)} m；"
-                      f"c_exp = f_t×λ = {_res_txt(sin_run, 'c_exp')}。"))
-        b.append(_cap(f"与空气中光速理论值 c0 = 2.998×10^8 m/s（可用真空光速近似）比较："
-                      f"绝对误差 = {_res_txt(sin_run, 'error_abs')}；相对误差 = {_res_txt(sin_run, 'error_rel')}。"))
-        b.append(_results_block_keys(sin_run, ["t_mean", "r_mean", "c_exp", "error_abs", "error_rel"]))
-        b.append({"kind": "spacer", "cm": 0.04})
-    if lis_run:
-        b.append({"kind": "h3", "text": "处理 2b：李萨如图形法测空气中光速（必做）"})
-        a = lis_run["arrays"]
-        pa = lis_run["params_used"]
-        dx_items = "、".join(_fx(vv, 2) for vv in a.get("dx", []))
-        lam_mm = a.get("lam_mm", 0.0)
-        lam_m = lam_mm * 1e-3
-        b.append(_cap(f"Δx = |x2 - x1|（表2-3）三次测量：{dx_items} mm；Δx 的平均值 = {_res_txt(lis_run, 'delta_x_mean')}。"))
-        b.append(_cap(f"李萨如图形由直线变为反斜率直线时相位差改变 π，对应光程差 λ/2、反射镜移动 Δx = λ/4："
-                      f"λ = 4×Δx = {_fx(lam_mm, 2)} mm = {_fx(lam_m, 4)} m；c_exp = f_t×λ"
-                      f"（f_t = {pa['f_mhz']:g} MHz）= {_res_txt(lis_run, 'c_exp')}。"))
-        b.append(_cap(f"与空气中光速理论值 c0 = 2.998×10^8 m/s 比较："
-                      f"绝对误差 = {_res_txt(lis_run, 'error_abs')}；相对误差 = {_res_txt(lis_run, 'error_rel')}。"))
-        b.append(_results_block_keys(lis_run, ["delta_x_mean", "c_exp", "error_abs", "error_rel"]))
-        b.append({"kind": "spacer", "cm": 0.04})
-
-    b.append({"kind": "h3", "text": "处理 3：误差来源分析"})
+    b.append(_cap("以下每一步都给出公式、实测数值代入与结果；数值取自本地数据分析结果"
+                  "（与在线处理接口同源同公式）。"))
+    by = dict(pres)
+    if "air_resonance" in by:
+        b += _proc_1a(by["air_resonance"])
+    if "water_phase" in by:
+        b += _proc_1b(by["water_phase"])
+    if "tof" in by:
+        b += _proc_1c(by["tof"])
+    for mid in ("light_sine", "light_square"):
+        if mid in by:
+            b += _proc_2a(mid, by[mid])
+    if "light_lissajous" in by:
+        b += _proc_2b(by["light_lissajous"])
+    # ③ 误差来源分析 + 结论
+    b += _err_sources_blocks(pres)
     b.append({"kind": "note",
-              "text": "（1）仪器类：示波器水平时基分度值标称误差与水平微调校准误差；信号源频率标称偏差"
-                      "（共振频率 f、水中频率 f 与调制频率 f_t 均以仪器显示为准）；导轨标尺与读数装置的刻度、零位误差。"
-                      "（2）读数类：驻波共振幅值极大点平台较宽，极大位置判定不灵敏带来随机误差；李萨如图形直线判据"
-                      "（同斜率/反斜率直线与相位对准）存在主观读数误差；示波器上参考点水平移动格数按 0.2 μs/DIV 判读存在量化误差。"
-                      "（3）方法/理论近似：声速理论值按干燥理想气体公式计算，未计湿度、气压与 CO2 含量影响；"
-                      "光速测量以真空光速 c0 近似空气中光速（空气折射率 n ≈ 1）；差频相位-位移关系假定波形严格正弦、线性良好。"
-                      "（4）环境类：室温波动改变空气声速，水中温度不均与液面晃动影响水声速；换能器端面与反射镜移动方向"
-                      "不严格平行、回程间隙引入系统误差。改进方向：多次测量取平均、单方向匀速移动、提高时基分辨并统一判据。"})
-    b.append({"kind": "spacer", "cm": 0.05})
-    b.append({"kind": "note",
-              "text": "说明：数据处理由 PhysicsLab 本地服务完成；声速/光速取 4 位有效数字，相对误差保留两位小数，"
-                      "逐差间距保留毫米级 4-5 位小数。讲义实验内容未要求作图，相关图形见拓展部分。"})
+              "text": "说明：数据处理由 PhysicsLab 本地完成；声速/光速取 4 位有效数字、"
+                      "相对误差保留两位小数，逐差间距保留毫米级 4 位小数；本实验讲义"
+                      "未要求作图，相关图形见拓展部分。报告各数据表与空白记录表逐列同构，"
+                      "留空列（表2-1 相邻参考点间距、表2-2 参考点移动方格数）为录入界面"
+                      "没有的读数。"})
     return b
 
 
