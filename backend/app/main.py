@@ -216,9 +216,9 @@ async def process_polarization(req: ProcessRequest):
 
 @app.get("/api/record-sheets/polarization.docx")
 async def get_polarization_record_sheet_docx():
-    """Blank record sheet as an editable Word file (compact, no fills)."""
-    from experiments.polarization import docbuild
-    content = docbuild.record_sheet_bytes("docx")
+    """Blank record sheet as an editable Word file (mimo landscape clean layout)."""
+    from experiments import record_clean
+    content = record_clean.record_bytes("polarization", "docx")
     return Response(
         content=content,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -228,9 +228,9 @@ async def get_polarization_record_sheet_docx():
 
 @app.get("/api/record-sheets/polarization.pdf")
 async def get_polarization_record_sheet_pdf():
-    """Blank record sheet as a compact printable PDF (no fills)."""
-    from experiments.polarization import docbuild
-    content = docbuild.record_sheet_bytes("pdf")
+    """Blank record sheet as a landscape printable PDF (mimo clean layout)."""
+    from experiments import record_clean
+    content = record_clean.record_bytes("polarization", "pdf")
     return Response(
         content=content,
         media_type="application/pdf",
@@ -327,9 +327,9 @@ async def process_soundlight(req: SoundLightProcessRequest):
 
 @app.get("/api/record-sheets/sound-light.docx")
 async def get_soundlight_record_sheet_docx():
-    """Blank exp02 record sheet as an editable Word file."""
-    from experiments.soundlight import docs
-    content = docs.record_bytes("docx")
+    """Blank exp02 record sheet as an editable Word file (mimo landscape clean layout)."""
+    from experiments import record_clean
+    content = record_clean.record_bytes("sound-light", "docx")
     return Response(
         content=content,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -339,9 +339,9 @@ async def get_soundlight_record_sheet_docx():
 
 @app.get("/api/record-sheets/sound-light.pdf")
 async def get_soundlight_record_sheet_pdf():
-    """Blank exp02 record sheet as a compact printable PDF."""
-    from experiments.soundlight import docs
-    content = docs.record_bytes("pdf")
+    """Blank exp02 record sheet as a landscape printable PDF (mimo clean layout)."""
+    from experiments import record_clean
+    content = record_clean.record_bytes("sound-light", "pdf")
     return Response(
         content=content,
         media_type="application/pdf",

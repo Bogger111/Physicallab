@@ -14,6 +14,7 @@ from datetime import datetime
 import numpy as np
 
 from docx import Document
+from docx.enum.section import WD_ORIENT
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ROW_HEIGHT_RULE
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
@@ -21,7 +22,7 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Mm, Pt, RGBColor
 
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape as rl_landscape
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
@@ -46,28 +47,38 @@ PREVIEW_COLOR_DOCX = RGBColor(0x64, 0x6D, 0x7B)
 
 # ---------------------------------------------------------------- fonts
 
-_PDF_FONTS = {"CN": "Helvetica", "CN-B": "Helvetica"}
+# Every CJK family is registered exactly once under a stable name; generic
+# CN / CN-B keys then resolve to a family pair depending on preference.
+_PDF_FONT_FILES = [
+    ("MSYH", "C:/Windows/Fonts/msyh.ttc"),
+    ("MSYHB", "C:/Windows/Fonts/msyhbd.ttc"),
+    ("SIMSUN", "C:/Windows/Fonts/simsun.ttc"),
+    ("SIMHEI", "C:/Windows/Fonts/simhei.ttf"),
+]
+_REGISTERED_FONTS: set = set()
 
 
-def _pdf_fonts():
-    if _PDF_FONTS["CN"] != "Helvetica":
-        return _PDF_FONTS
-    candidates = [
-        ("CN", "C:/Windows/Fonts/msyh.ttc"),
-        ("CN-B", "C:/Windows/Fonts/msyhbd.ttc"),
-        ("CN", "C:/Windows/Fonts/simhei.ttf"),
-        ("CN-B", "C:/Windows/Fonts/simhei.ttf"),
-        ("CN", "C:/Windows/Fonts/simsun.ttc"),
-    ]
-    for key, path in candidates:
-        if key in _PDF_FONTS and _PDF_FONTS[key] != "Helvetica":
-            continue
-        try:
-            pdfmetrics.registerFont(TTFont(key, path))
-            _PDF_FONTS[key] = key
-        except Exception:
-            pass
-    return _PDF_FONTS
+def _pdf_fonts(cn_pref: str = "msyh") -> dict:
+    """Return {'CN': regular, 'CN-B': bold} family names for a preference.
+
+    'msyh'   -> 微软雅黑 regular + bold (default, matches legacy output)
+    'simsun' -> 宋体 regular, 黑体 standing in where bold is needed
+    """
+    if not _REGISTERED_FONTS:
+        for name, path in _PDF_FONT_FILES:
+            try:
+                pdfmetrics.registerFont(TTFont(name, path))
+                _REGISTERED_FONTS.add(name)
+            except Exception:
+                pass
+    ok = _REGISTERED_FONTS
+    if cn_pref == "simsun":
+        cn = "SIMSUN" if "SIMSUN" in ok else ("MSYH" if "MSYH" in ok else "Helvetica")
+        cnb = "SIMHEI" if "SIMHEI" in ok else ("MSYHB" if "MSYHB" in ok else cn)
+    else:
+        cn = "MSYH" if "MSYH" in ok else ("SIMSUN" if "SIMSUN" in ok else "Helvetica")
+        cnb = "MSYHB" if "MSYHB" in ok else ("SIMHEI" if "SIMHEI" in ok else cn)
+    return {"CN": cn, "CN-B": cnb}
 
 
 def _set_east_asia(style_or_run, name=CN_EN):
@@ -337,19 +348,32 @@ def _phi3_rows(xlab: str, ylab: str, groups: int) -> list[list[dict]]:
 
 # ---------------------------------------------------------------- Word renderer
 
-def _doc_base() -> Document:
+def _doc_base(landscape: bool = False, cn: str = CN, cn_en: str = CN_EN) -> Document:
     doc = Document()
     sec = doc.sections[0]
-    sec.page_width = Mm(210)
-    sec.page_height = Mm(297)
-    sec.top_margin = Cm(1.1)
-    sec.bottom_margin = Cm(1.1)
-    sec.left_margin = Cm(1.4)
-    sec.right_margin = Cm(1.4)
+    if landscape:
+        sec.orientation = WD_ORIENT.LANDSCAPE
+        sec.page_width = Mm(297)
+        sec.page_height = Mm(210)
+        sec.top_margin = Cm(1.2)
+        sec.bottom_margin = Cm(1.2)
+        sec.left_margin = Cm(1.5)
+        sec.right_margin = Cm(1.5)
+    else:
+        sec.page_width = Mm(210)
+        sec.page_height = Mm(297)
+        sec.top_margin = Cm(1.1)
+        sec.bottom_margin = Cm(1.1)
+        sec.left_margin = Cm(1.4)
+        sec.right_margin = Cm(1.4)
+    # per-document font pair (Chinese name for eastAsia, latin name for ascii);
+    # helpers pick it up from the doc instance so no globals are shared.
+    doc._font_cn = cn
+    doc._font_cn_en = cn_en
     normal = doc.styles["Normal"]
-    normal.font.name = CN_EN
+    normal.font.name = cn_en
     normal.font.size = Pt(10)
-    _set_east_asia(normal)
+    _set_east_asia(normal, cn)
     return doc
 
 
@@ -374,6 +398,8 @@ def _doc_borders(table) -> None:
 
 
 def _doc_table(doc, spec) -> None:
+    cn = getattr(doc, "_font_cn", CN)
+    cn_en = getattr(doc, "_font_cn_en", CN_EN)
     rows = spec["rows"]
     if not rows:
         return
@@ -406,8 +432,8 @@ def _doc_table(doc, spec) -> None:
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             run = p.add_run(str(text))
             run.font.size = Pt(font_pt)
-            run.font.name = CN_EN
-            _set_east_asia(run)
+            run.font.name = cn_en
+            _set_east_asia(run, cn)
             if ri == 0:
                 run.font.bold = True
             if isinstance(val, dict) and val.get("prefill"):
@@ -421,6 +447,8 @@ def _doc_table(doc, spec) -> None:
 
 def _doc_p(doc, text, size=10, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT,
            space_after=4, space_before=0, color=None):
+    cn = getattr(doc, "_font_cn", CN)
+    cn_en = getattr(doc, "_font_cn_en", CN_EN)
     p = doc.add_paragraph()
     p.alignment = align
     p.paragraph_format.space_after = Pt(space_after)
@@ -428,8 +456,8 @@ def _doc_p(doc, text, size=10, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT,
     run = p.add_run(str(text))
     run.font.size = Pt(size)
     run.font.bold = bold
-    run.font.name = CN_EN
-    _set_east_asia(run)
+    run.font.name = cn_en
+    _set_east_asia(run, cn)
     if color:
         run.font.color.rgb = color
     return p
@@ -445,8 +473,9 @@ def _doc_img(doc, b64, width_cm=17.0, caption=None):
                color=RGBColor(0x64, 0x6D, 0x7B), space_before=0)
 
 
-def render_docx(blocks) -> bytes:
-    doc = _doc_base()
+def render_docx(blocks, landscape: bool = False,
+                cn: str = CN, cn_en: str = CN_EN) -> bytes:
+    doc = _doc_base(landscape=landscape, cn=cn, cn_en=cn_en)
     for blk in blocks:
         kind = blk["kind"]
         if kind == "h1":
@@ -483,8 +512,8 @@ def render_docx(blocks) -> bytes:
 
 # ---------------------------------------------------------------- PDF renderer
 
-def _pdf_styles():
-    F = _pdf_fonts()
+def _pdf_styles(cn_pref: str = "msyh"):
+    F = _pdf_fonts(cn_pref)
     cn = F["CN"]
     cnb = F["CN-B"]
     return {
@@ -545,16 +574,24 @@ def _pdf_table(story, spec, styles, usable):
     story.append(t)
 
 
-def render_pdf(blocks, out=None) -> bytes:
+def render_pdf(blocks, out=None, landscape: bool = False,
+               cn_pref: str = "msyh") -> bytes:
     if out is None:
         out = io.BytesIO()
-    styles = _pdf_styles()
+    styles = _pdf_styles(cn_pref)
+    if landscape:
+        pagesize = rl_landscape(A4)  # 297 x 210 mm (width > height)
+        lm = rm = 15 * mm
+        tm = bm = 12 * mm
+    else:
+        pagesize = A4
+        lm = rm = tm = bm = 12 * mm
     doc = SimpleDocTemplate(
-        out, pagesize=A4,
-        leftMargin=12 * mm, rightMargin=12 * mm,
-        topMargin=12 * mm, bottomMargin=12 * mm,
+        out, pagesize=pagesize,
+        leftMargin=lm, rightMargin=rm,
+        topMargin=tm, bottomMargin=bm,
     )
-    usable = A4[0] - 24 * mm
+    usable = pagesize[0] - lm - rm
 
     def flowable_of(blk):
         kind = blk["kind"]
