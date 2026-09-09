@@ -104,21 +104,19 @@ export const experiments: ExperimentConfig[] = [
     name: "声速光速的测量",
     category: "波动",
     description:
-      "空气共振法与水中相位法测声速、飞行时间法测声速（选做）；正弦法与李萨如法测光速",
+      "实验一 · 超声声速：共振干涉法（空气）与相位比较法（水）测声速、时差法（选做）；实验二 · 光速：相位法（正弦波）与李萨如法测光速、方波相位法（选做）",
     processingTime: "~1分钟",
     recordSheet: "/record-sheets/sound_light_record_sheet.pdf",
     measurements: [
-      "S2 共振位置 l (mm)",
-      "S2 位置 l (mm，水中)",
-      "传播距离 L (mm)",
-      "飞行时间 T (μs)",
-      "反射镜位置 x₁ / x₂ (mm)",
+      "S2 共振位置 l (mm，空气 / 水)",
+      "传播距离 L (mm) 与飞行时间 T (μs)",
       "差频周期 T / 相位差 Δt (μs)",
+      "反射镜位置 x₁ / x₂ (mm)",
     ],
     subExperiments: [
       {
         id: "air_resonance",
-        name: "空气中共振法测声速",
+        name: "① 共振干涉法（空气）",
         required: true,
         description: "驻波共振位置 12 点逐差法：v = 2f·Δl̄，与温度修正理论声速对比",
         resultFields: [
@@ -130,7 +128,7 @@ export const experiments: ExperimentConfig[] = [
       },
       {
         id: "water_phase",
-        name: "水中相位法测声速",
+        name: "② 相位比较法（水）",
         required: true,
         description: "水中相位匹配位置逐差法测声速，含 A 类不确定度 U_A",
         resultFields: [
@@ -141,9 +139,9 @@ export const experiments: ExperimentConfig[] = [
       },
       {
         id: "tof",
-        name: "飞行时间法测声速（选做）",
+        name: "③ 时差法 · 水（选做）",
         required: false,
-        description: "脉冲波 L / T 直接测速：等间距 20 mm 共 8 点",
+        description: "脉冲波 L / T 直接测速：等间距 20 mm 连续 12 组",
         resultFields: [
           { key: "v_mean", label: "平均声速", unit: "m/s" },
           { key: "v_std", label: "标准差", unit: "m/s" },
@@ -151,7 +149,7 @@ export const experiments: ExperimentConfig[] = [
       },
       {
         id: "light_sine",
-        name: "光速测量（正弦法）",
+        name: "① 相位法（正弦波）",
         required: true,
         description: "差频正弦相位法：λ = (T̄/Δt̄)·2Δx̄，c = f_t·λ",
         resultFields: [
@@ -160,8 +158,18 @@ export const experiments: ExperimentConfig[] = [
         ],
       },
       {
+        id: "light_square",
+        name: "② 相位法（方波，选做）",
+        required: false,
+        description: "换方波挡位重测：方法与正弦波完全相同",
+        resultFields: [
+          { key: "c_exp", label: "实验光速", unit: "m/s" },
+          { key: "error_rel", label: "相对误差", unit: "%" },
+        ],
+      },
+      {
         id: "light_lissajous",
-        name: "光速测量（李萨如法）",
+        name: "③ 李萨如图形法",
         required: true,
         description: "李萨如 π 相位变化：λ = 4Δx̄，c = f_t·λ",
         resultFields: [

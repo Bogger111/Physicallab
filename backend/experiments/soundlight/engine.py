@@ -378,6 +378,8 @@ _CALC = {
 
 def analyze(method, rows, params=None):
     """Full pipeline: validation + computation + main figure + arrays (for reports)."""
+    if method == "light_square":  # 选做：相位法测光速（方波），方法与正弦波完全相同
+        method = "light_sine"
     if method not in _CALC:
         return {"status": "validation_error",
                 "errors": [f"未知实验方法：{method}，可选 {list(_CALC.keys())}"],

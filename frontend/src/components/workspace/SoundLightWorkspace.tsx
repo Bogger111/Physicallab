@@ -57,18 +57,19 @@ interface MethodSpec {
 }
 
 const METHODS: MethodSpec[] = [
+  // ── 实验一：超声声速测量 ──
   {
     id: "air_resonance",
-    name: "空气中共振法测声速",
+    name: "① 共振干涉法（空气）",
     required: true,
-    desc: "S2 同方向连续移动，记录 12 个驻波共振位置（相邻间距 ≈ λ/2），逐差法求 Δl̄。",
+    desc: "实验一 · 必做。S2 同方向连续移动，记录 12 个驻波共振位置（相邻间距 ≈ λ/2），逐差法求 Δl̄。",
     tables: [
       {
         note: "温度用于理论声速修正 v = 331.45 × (1 + t/273.15)",
         rows: 12,
         cols: [
           { label: "序号", readOnly: true },
-          { label: "S2 位置 l (mm)", key: "l" },
+          { label: "空气中共振法 l (mm)", key: "l" },
         ],
       },
     ],
@@ -79,16 +80,16 @@ const METHODS: MethodSpec[] = [
   },
   {
     id: "water_phase",
-    name: "水中相位法测声速",
+    name: "② 相位比较法（水）",
     required: true,
-    desc: "水中移动 S2 至李萨如为直线的 12 个相位匹配位置，逐差法处理并计算 A 类不确定度。",
+    desc: "实验一 · 必做。水中移动 S2 至李萨如为直线的 12 个相位匹配位置（与空气共用表 1-1），逐差法处理并计算 A 类不确定度。",
     tables: [
       {
         note: "频率约 1 MHz（以实际为准）",
         rows: 12,
         cols: [
           { label: "序号", readOnly: true },
-          { label: "S2 位置 l (mm)", key: "l" },
+          { label: "水中相位法 l (mm)", key: "l" },
         ],
       },
     ],
@@ -96,9 +97,9 @@ const METHODS: MethodSpec[] = [
   },
   {
     id: "tof",
-    name: "飞行时间法测声速（选做）",
+    name: "③ 时差法 · 水",
     required: false,
-    desc: "脉冲波模式测水中声速：S2 每次移动等间距 20 mm，连续记录 12 组距离 L 与飞行时间 T，逐点 v = L/T。",
+    desc: "实验一 · 选做。脉冲波模式测水中声速：S2 每次移动等间距 20 mm，连续记录 12 组距离 L 与飞行时间 T，逐点 v = L/T。",
     tables: [
       {
         note: "每次移动 20 mm，共 12 组",
@@ -112,14 +113,15 @@ const METHODS: MethodSpec[] = [
     ],
     params: [],
   },
+  // ── 实验二：光速测量 ──
   {
     id: "light_sine",
-    name: "光速测量（正弦法）",
+    name: "① 相位法（正弦波）",
     required: true,
-    desc: "差频正弦相位法：先测差频周期 T，再移动反射镜记录相位差 Δt 与位置 x₁→x₂。",
+    desc: "实验二 · 必做。差频正弦相位法：先测 3 组差频周期 T，再移动反射镜记录 3 组相位差 Δt 与位置 x₁→x₂（表 2-1 / 2-2）。",
     tables: [
       {
-        title: "差频周期 T",
+        title: "表 2-1 周期测量",
         rows: 3,
         cols: [
           { label: "序号", readOnly: true },
@@ -127,7 +129,34 @@ const METHODS: MethodSpec[] = [
         ],
       },
       {
-        title: "相位差与位移",
+        title: "表 2-2 相位移动",
+        rows: 3,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "相位差 Δt (μs)", key: "dt" },
+          { label: "x₁ (mm)", key: "x1" },
+          { label: "x₂ (mm)", key: "x2" },
+        ],
+      },
+    ],
+    params: [{ key: "f_mhz", label: "调制频率 f_t", unit: "MHz", def: "150" }],
+  },
+  {
+    id: "light_square",
+    name: "② 相位法（方波）",
+    required: false,
+    desc: "实验二 · 选做。示波器换方波挡位，方法与正弦波完全相同：同测差频周期 T 与 3 组相位差 Δt、x₁→x₂。",
+    tables: [
+      {
+        title: "周期测量",
+        rows: 3,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "周期 T (μs)", key: "T" },
+        ],
+      },
+      {
+        title: "相位移动",
         rows: 3,
         cols: [
           { label: "序号", readOnly: true },
@@ -141,9 +170,9 @@ const METHODS: MethodSpec[] = [
   },
   {
     id: "light_lissajous",
-    name: "光速测量（李萨如法）",
+    name: "③ 李萨如图形法",
     required: true,
-    desc: "X-Y 模式：反射镜从直线图形移动到反斜率直线（π 相位差，对应 Δx = λ/4），共 3 组。",
+    desc: "实验二 · 必做。X-Y 模式：反射镜从直线图形移动到反斜率直线（π 相位差，对应 Δx = λ/4），共 3 组（表 2-3）。",
     tables: [
       {
         rows: 3,
@@ -163,6 +192,7 @@ const METHOD_ICON: Record<string, React.ElementType> = {
   water_phase: Waves,
   tof: Clock3,
   light_sine: Gauge,
+  light_square: Gauge,
   light_lissajous: Orbit,
 };
 
@@ -192,8 +222,9 @@ function DataEcho({
     })
   );
   const extra: string[] = [];
-  if (methodId === "light_sine" || methodId === "light_lissajous") extra.push("Δx (mm)");
-  if (methodId === "light_sine") extra.push("Δx/Δt (mm/μs)");
+  if (methodId === "light_sine" || methodId === "light_square" || methodId === "light_lissajous")
+    extra.push("Δx (mm)");
+  if (methodId === "light_sine" || methodId === "light_square") extra.push("Δx/Δt (mm/μs)");
   if (methodId === "tof") extra.push("v = L/T (m/s)");
   const n =
     Math.max(1, ...base.map((b) => rowsPayload[b.key]?.length ?? 0), spec.tables.reduce((a, t) => Math.max(a, t.rows), 0));
@@ -480,7 +511,7 @@ export default function SoundLightWorkspace() {
                 进实验室前，先打印这张表
               </h2>
               <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-stone-500">
-                覆盖 5 种测量方法（空气共振 / 水中相位 / 飞行时间 / 光速正弦 / 光速李萨如）的空白记录表。
+                按讲义结构覆盖 2 个实验 6 个方法：超声声速（共振干涉 / 相位比较 / 时差·选做），光速（正弦相位 / 方波·选做 / 李萨如）。竖版 A4 紧凑表，白底黑框。
               </p>
             </div>
             <div className="card p-7 text-center shadow-soft sm:p-9">
@@ -559,8 +590,10 @@ export default function SoundLightWorkspace() {
                     )}
                   >
                     {done && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
-                    {m.name}
-                    {!m.required && <span className="font-normal opacity-60">选做</span>}
+                    <span>{m.name}</span>
+                    {!m.required && (
+                      <span className="font-normal opacity-60">· 选做</span>
+                    )}
                   </button>
                 );
               })}
