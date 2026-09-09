@@ -33,6 +33,7 @@ import {
   type ProcessResponse,
 } from "@/lib/api";
 import DataInputTable from "@/components/workspace/DataInputTable";
+import SoundLightWorkspace from "@/components/workspace/SoundLightWorkspace";
 import { cn } from "@/lib/utils";
 
 type Step = "record" | "input" | "confirm" | "results";
@@ -51,7 +52,7 @@ const SUB_ICON: Record<string, React.ElementType> = {
   circular: Orbit,
 };
 
-export default function WorkspacePage({
+function PolarizationWorkspace({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -1007,4 +1008,18 @@ function formatNumber(n: number): string {
   if (Math.abs(n) >= 1) return n.toFixed(4);
   if (Math.abs(n) >= 0.01) return n.toFixed(4);
   return n.toExponential(4);
+}
+
+// Route dispatch: sound-light uses its own workspace; everything else falls
+// back to the polarization-style guided workspace.
+export default function ExperimentWorkspaceRoute({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  if (id === "sound-light") {
+    return <SoundLightWorkspace />;
+  }
+  return <PolarizationWorkspace params={params} />;
 }

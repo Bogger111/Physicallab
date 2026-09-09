@@ -82,6 +82,11 @@ export function getRecordSheetUrl(experimentId: string): string {
 
 // ---------------------------------------------------------- file downloads
 
+const EXP_CN: Record<string, string> = {
+  polarization: "偏振光与双折射实验",
+  "sound-light": "声速光速的测量",
+};
+
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -94,15 +99,19 @@ function triggerDownload(blob: Blob, filename: string) {
 }
 
 export async function downloadRecordSheet(
-  fmt: "docx" | "pdf"
+  fmt: "docx" | "pdf",
+  expId: string = "polarization"
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/record-sheets/polarization.${fmt}`);
+  const res = await fetch(`${API_BASE}/api/record-sheets/${expId}.${fmt}`);
   if (!res.ok) throw new Error(`记录表下载失败 (${res.status})`);
-  triggerDownload(await res.blob(), `偏振光与双折射实验-数据记录表.${fmt}`);
+  const name = EXP_CN[expId] ?? "实验";
+  triggerDownload(await res.blob(), `${name}-数据记录表.${fmt}`);
 }
 
-export async function previewRecordSheet(): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/record-sheets/polarization.pdf`);
+export async function previewRecordSheet(
+  expId: string = "polarization"
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/record-sheets/${expId}.pdf`);
   if (!res.ok) throw new Error(`记录表生成失败 (${res.status})`);
   const url = URL.createObjectURL(await res.blob());
   window.open(url, "_blank", "noopener");
@@ -112,10 +121,11 @@ export async function previewRecordSheet(): Promise<void> {
 export async function downloadReport(
   part: "basic" | "advanced",
   fmt: "docx" | "pdf",
-  data: ProcessRequest
+  data: ProcessRequest,
+  expId: string = "polarization"
 ): Promise<void> {
   const res = await fetch(
-    `${API_BASE}/api/experiments/polarization/report?part=${part}&fmt=${fmt}`,
+    `${API_BASE}/api/experiments/${expId}/report?part=${part}&fmt=${fmt}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -133,5 +143,49 @@ export async function downloadReport(
     throw new Error(msg);
   }
   const label = part === "basic" ? "基准部分" : "拓展部分";
-  triggerDownload(await res.blob(), `偏振光与双折射实验-报告-${label}.${fmt}`);
+  const name = EXP_CN[expId] ?? "实验";
+  triggerDownload(await res.blob(), `${name}-报告-${label}.${fmt}`);
+}
+
+// ---------------------------------------------------------- exp02 sound-light
+
+export interface SoundLightResultField {
+  key: string;
+  label: string;
+  value: number;
+  unit: string;
+}
+
+export interface SoundLightProcessResponse {
+  status: "success" | "validation_error" | "calculation_error";
+  results: SoundLightResultField[];
+  plots: Record<string, string>;
+  errors?: string[];
+  error?: string;
+}
+
+export async function processSoundLight(
+  method: string,
+  rows: Record<string, (number | null)[]>,
+  params: Record<string, number>
+): Promise<SoundLightProcessResponse> {
+  const res = await fetch(`${API_BASE}/api/experiments/sound-light/process`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ method, rows, params }),
+  });
+  return res.json();
+}
+
+export type SoundLightMethodData = Record<
+  string,
+  { rows: Record<string, (number | null)[]>; params: Record<string, number> }
+>;
+
+export async function downloadSoundLightReport(
+  part: "basic" | "advanced",
+  fmt: "docx" | "pdf",
+  data: SoundLightMethodData
+): Promise<void> {
+  await downloadReport(part, fmt, data as unknown as ProcessRequest, "sound-light");
 }

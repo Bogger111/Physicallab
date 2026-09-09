@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const CAT_STYLE: Record<string, string> = {
   光学: "bg-amber-100 text-amber-800 ring-amber-200",
   力学: "bg-sky-100 text-sky-800 ring-sky-200",
+  波动: "bg-emerald-100 text-emerald-800 ring-emerald-200",
   热学: "bg-orange-100 text-orange-800 ring-orange-200",
   电磁学: "bg-fuchsia-100 text-fuchsia-800 ring-fuchsia-200",
   近代物理: "bg-teal-100 text-teal-800 ring-teal-200",

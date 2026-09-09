@@ -1,0 +1,748 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  ArrowRight,
+  FileText,
+  Table2,
+  ChartSpline,
+  FileDown,
+  Download,
+  Eye,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Sigma,
+  Waves,
+  Clock3,
+  Ruler,
+  Gauge,
+  Orbit,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import DataInputTable from "@/components/workspace/DataInputTable";
+import {
+  processSoundLight,
+  downloadRecordSheet,
+  previewRecordSheet,
+  downloadSoundLightReport,
+  type SoundLightProcessResponse,
+} from "@/lib/api";
+
+const EXP_ID = "sound-light";
+
+type Step = "record" | "input" | "results";
+
+const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
+  { id: "record", label: "数据记录表", icon: FileText },
+  { id: "input", label: "录入数据", icon: Table2 },
+  { id: "results", label: "结果", icon: ChartSpline },
+];
+
+interface ColDef {
+  label: string;
+  readOnly?: boolean;
+  key?: string; // column key sent to backend (editable columns)
+}
+
+interface MethodSpec {
+  id: string;
+  name: string;
+  required: boolean;
+  desc: string;
+  tables: { title?: string; note?: string; rows: number; cols: ColDef[] }[];
+  params: { key: string; label: string; unit: string; def: string }[];
+}
+
+const METHODS: MethodSpec[] = [
+  {
+    id: "air_resonance",
+    name: "空气中共振法测声速",
+    required: true,
+    desc: "S2 同方向连续移动，记录 12 个驻波共振位置（相邻间距 ≈ λ/2），逐差法求 Δl̄。",
+    tables: [
+      {
+        note: "温度用于理论声速修正 v = 331.45 × (1 + t/273.15)",
+        rows: 12,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "S2 位置 l (mm)", key: "l" },
+        ],
+      },
+    ],
+    params: [
+      { key: "temperature_degC", label: "环境温度 t", unit: "°C", def: "25" },
+      { key: "f_khz", label: "共振频率 f", unit: "kHz", def: "38" },
+    ],
+  },
+  {
+    id: "water_phase",
+    name: "水中相位法测声速",
+    required: true,
+    desc: "水中移动 S2 至李萨如为直线的 12 个相位匹配位置，逐差法处理并计算 A 类不确定度。",
+    tables: [
+      {
+        note: "频率约 1 MHz（以实际为准）",
+        rows: 12,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "S2 位置 l (mm)", key: "l" },
+        ],
+      },
+    ],
+    params: [{ key: "f_mhz", label: "频率 f", unit: "MHz", def: "1" }],
+  },
+  {
+    id: "tof",
+    name: "飞行时间法测声速（选做）",
+    required: false,
+    desc: "脉冲波模式：等间距 20 mm 移动，记录距离 L 与飞行时间 T，逐点 v = L/T。",
+    tables: [
+      {
+        rows: 8,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "距离 L (mm)", key: "L" },
+          { label: "飞行时间 T (μs)", key: "T" },
+        ],
+      },
+    ],
+    params: [],
+  },
+  {
+    id: "light_sine",
+    name: "光速测量（正弦法）",
+    required: true,
+    desc: "差频正弦相位法：先测差频周期 T，再移动反射镜记录相位差 Δt 与位置 x₁→x₂。",
+    tables: [
+      {
+        title: "差频周期 T",
+        rows: 3,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "周期 T (μs)", key: "T" },
+        ],
+      },
+      {
+        title: "相位差与位移",
+        rows: 3,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "相位差 Δt (μs)", key: "dt" },
+          { label: "x₁ (mm)", key: "x1" },
+          { label: "x₂ (mm)", key: "x2" },
+        ],
+      },
+    ],
+    params: [{ key: "f_mhz", label: "调制频率 f_t", unit: "MHz", def: "150" }],
+  },
+  {
+    id: "light_lissajous",
+    name: "光速测量（李萨如法）",
+    required: true,
+    desc: "X-Y 模式：反射镜从直线图形移动到反斜率直线（π 相位差，对应 Δx = λ/4），共 3 组。",
+    tables: [
+      {
+        rows: 3,
+        cols: [
+          { label: "序号", readOnly: true },
+          { label: "x₁ (mm)", key: "x1" },
+          { label: "x₂ (mm)", key: "x2" },
+        ],
+      },
+    ],
+    params: [{ key: "f_mhz", label: "调制频率 f_t", unit: "MHz", def: "150" }],
+  },
+];
+
+const METHOD_ICON: Record<string, React.ElementType> = {
+  air_resonance: Waves,
+  water_phase: Waves,
+  tof: Clock3,
+  light_sine: Gauge,
+  light_lissajous: Orbit,
+};
+
+function makeRows(rows: number, extraCols: number): string[][] {
+  return Array.from({ length: rows }, (_, i) => [
+    String(i + 1),
+    ...Array.from({ length: extraCols }, () => ""),
+  ]);
+}
+
+export default function SoundLightWorkspace() {
+  const [step, setStep] = useState<Step>("record");
+  const [method, setMethod] = useState<string>("air_resonance");
+  // cell data: key `${method}#${tableIndex}`
+  const [cell, setCell] = useState<Record<string, string[][]>>({});
+  const [params, setParams] = useState<Record<string, Record<string, string>>>({});
+  const [busy, setBusy] = useState(false);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [dlError, setDlError] = useState<string | null>(null);
+  // per processed method: response + submitted data
+  const [processed, setProcessed] = useState<
+    Record<
+      string,
+      {
+        res: SoundLightProcessResponse;
+        rows: Record<string, (number | null)[]>;
+        params: Record<string, number>;
+      }
+    >
+  >({});
+  const [currentResult, setCurrentResult] = useState<string | null>(null);
+
+  const spec = METHODS.find((m) => m.id === method)!;
+
+  const getRows = (mId: string, ti: number): string[][] => {
+    const mspec = METHODS.find((m) => m.id === mId)!;
+    const table = mspec.tables[ti];
+    const key = `${mId}#${ti}`;
+    if (!cell[key]) {
+      const editable = table.cols.filter((c) => !c.readOnly).length;
+      return makeRows(table.rows, editable);
+    }
+    return cell[key];
+  };
+
+  const setRows = (mId: string, ti: number, data: string[][]) =>
+    setCell((prev) => ({ ...prev, [`${mId}#${ti}`]: data }));
+
+  const getParams = (mId: string): Record<string, string> => {
+    const mspec = METHODS.find((m) => m.id === mId)!;
+    const cur = params[mId] ?? {};
+    const out: Record<string, string> = {};
+    mspec.params.forEach((p) => {
+      out[p.key] = cur[p.key] ?? p.def;
+    });
+    return out;
+  };
+
+  const buildPayload = useCallback(
+    (mId: string) => {
+      const mspec = METHODS.find((m) => m.id === mId)!;
+      const rowsOut: Record<string, (number | null)[]> = {};
+      mspec.tables.forEach((table, ti) => {
+        const rows = getRows(mId, ti);
+        table.cols.forEach((col, ci) => {
+          if (!col.key || col.readOnly) return;
+          rowsOut[col.key] = rows.map((r) => {
+            const v = r[ci];
+            if (v === undefined || v.trim() === "") return null;
+            const n = parseFloat(v);
+            return Number.isFinite(n) ? n : null;
+          });
+        });
+      });
+      const pOut: Record<string, number> = {};
+      Object.entries(getParams(mId)).forEach(([k, v]) => {
+        const n = parseFloat(v);
+        if (Number.isFinite(n)) pOut[k] = n;
+      });
+      return { rows: rowsOut, params: pOut };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [cell, params, method]
+  );
+
+  const handleProcess = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const payload = buildPayload(method);
+      const res = await processSoundLight(method, payload.rows, payload.params);
+      if (res.status !== "success") {
+        setError(res.errors?.join("；") || res.error || "数据处理失败");
+        return;
+      }
+      setProcessed((prev) => ({ ...prev, [method]: { res, ...payload } }));
+      setCurrentResult(method);
+      setStep("results");
+    } catch {
+      setError("网络错误，请确认后端服务已启动 (http://localhost:8001)");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const runDownload = async (key: string, action: () => Promise<void>) => {
+    if (busyKey) return;
+    setBusyKey(key);
+    setDlError(null);
+    try {
+      await action();
+    } catch (e) {
+      setDlError(e instanceof Error ? e.message : "下载失败");
+    } finally {
+      setBusyKey(null);
+    }
+  };
+
+  const processedKeys = Object.keys(processed);
+  const reportData = Object.fromEntries(
+    processedKeys.map((k) => [k, { rows: processed[k].rows, params: processed[k].params }])
+  );
+  const cur = currentResult && processed[currentResult] ? processed[currentResult].res : null;
+  const stepIndex = STEPS.findIndex((s) => s.id === step);
+
+  return (
+    <div className="min-h-screen">
+      {/* top bar */}
+      <div className="border-b border-stone-200/70 bg-white">
+        <div className="container-x flex h-14 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <Link
+              href="/experiments/sound-light"
+              className="inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-2 text-[13px] font-medium text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-800"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              返回
+            </Link>
+            <span aria-hidden className="h-4 w-px shrink-0 bg-stone-200" />
+            <div className="flex min-w-0 items-baseline gap-2">
+              <h1 className="truncate text-sm font-bold text-stone-900">声速光速的测量</h1>
+              <span className="hidden shrink-0 text-xs font-medium text-stone-400 sm:inline">
+                数据处理工作台
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* stepper */}
+      <div className="border-b border-stone-200/60 bg-white/70 backdrop-blur">
+        <div className="container-x flex items-center py-4">
+          {STEPS.map((s, i) => {
+            const isActive = s.id === step;
+            const isCompleted = i < stepIndex;
+            const Icon = s.icon;
+            return (
+              <div key={s.id} className={cn("flex items-center", i > 0 && "flex-1")}>
+                {i > 0 && (
+                  <div className="relative mx-3 h-[2px] flex-1 overflow-hidden rounded-full bg-stone-200 sm:mx-4">
+                    {isCompleted && (
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+                    )}
+                  </div>
+                )}
+                <button
+                  onClick={() => isCompleted && setStep(s.id)}
+                  disabled={!isCompleted && !isActive}
+                  aria-current={isActive ? "step" : undefined}
+                  className={cn("flex items-center gap-2.5 rounded-full", (isCompleted || isActive) && "cursor-pointer")}
+                >
+                  <span
+                    className={cn(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all",
+                      isCompleted &&
+                        "bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-600/25",
+                      isActive &&
+                        "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 ring-4 ring-indigo-500/20",
+                      !isCompleted && !isActive && "bg-stone-100 text-stone-400"
+                    )}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-[18px] w-[18px]" strokeWidth={2.4} />
+                    ) : (
+                      <Icon className="h-[17px] w-[17px]" strokeWidth={2.1} />
+                    )}
+                  </span>
+                  <span
+                    className={cn(
+                      "hidden text-sm font-semibold sm:inline",
+                      isActive ? "text-stone-900" : isCompleted ? "text-stone-600" : "text-stone-400"
+                    )}
+                  >
+                    {s.label}
+                  </span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="container-x py-8 sm:py-10">
+        {/* ---------- STEP 1 · record sheet ---------- */}
+        {step === "record" && (
+          <div className="mx-auto max-w-xl animate-rise-in">
+            <div className="mb-7 text-center">
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-500">
+                Step 01 · 数据记录表
+              </p>
+              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900">
+                进实验室前，先打印这张表
+              </h2>
+              <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-stone-500">
+                覆盖 5 种测量方法（空气共振 / 水中相位 / 飞行时间 / 光速正弦 / 光速李萨如）的空白记录表。
+              </p>
+            </div>
+            <div className="card p-7 text-center shadow-soft sm:p-9">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-600/30">
+                <FileText className="h-10 w-10 text-white" strokeWidth={1.8} />
+              </div>
+              <p className="text-lg font-bold text-stone-900">声速光速的测量 · 数据记录表</p>
+              <p className="mt-1.5 text-sm text-stone-400">PDF / Word · 紧凑打印版 · 表格无底色</p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <button
+                  onClick={() => runDownload("preview", () => previewRecordSheet(EXP_ID))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:opacity-50"
+                >
+                  <Eye className="h-4 w-4" /> 预览
+                </button>
+                <button
+                  onClick={() => runDownload("docx", () => downloadRecordSheet("docx", EXP_ID))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-stone-900 px-5 text-sm font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-stone-700 disabled:opacity-50"
+                >
+                  {busyKey === "docx" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+                  下载 Word
+                </button>
+                <button
+                  onClick={() => runDownload("pdf", () => downloadRecordSheet("pdf", EXP_ID))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {busyKey === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                  下载 PDF
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => setStep("input")}
+              className="group mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 text-[15px] font-semibold text-white shadow-lg shadow-stone-900/20 transition-all hover:-translate-y-0.5 hover:bg-stone-800"
+            >
+              打印好了，开始录入数据
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
+        )}
+
+        {/* ---------- STEP 2 · input ---------- */}
+        {step === "input" && (
+          <div className="mx-auto max-w-4xl animate-rise-in">
+            <div className="mb-7">
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-500">
+                Step 02 · 录入数据
+              </p>
+              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900">
+                选择测量方法，录入读数
+              </h2>
+              <p className="mt-1 text-sm text-stone-500">
+                一个方法算完可以继续录入下一个；全部完成后在结果页下载报告。
+              </p>
+            </div>
+
+            {/* method selector */}
+            <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="测量方法">
+              {METHODS.map((m) => {
+                const active = method === m.id;
+                const done = !!processed[m.id];
+                return (
+                  <button
+                    key={m.id}
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setMethod(m.id)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-semibold transition-all",
+                      active
+                        ? "border-stone-900 bg-stone-900 text-white shadow-md shadow-stone-900/20"
+                        : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-800"
+                    )}
+                  >
+                    {done && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+                    {m.name}
+                    {!m.required && <span className="font-normal opacity-60">选做</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* current method panel */}
+            <div key={method} className="card animate-fade-in overflow-hidden shadow-soft">
+              <div className="flex items-center gap-3 border-b border-stone-100 bg-stone-50/60 px-6 py-4">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-sm shadow-indigo-600/25">
+                  {(() => {
+                    const Icon = METHOD_ICON[spec.id] ?? Ruler;
+                    return <Icon className="h-[18px] w-[18px]" strokeWidth={2} />;
+                  })()}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-[15px] font-bold text-stone-900">{spec.name}</h3>
+                  <p className="truncate text-xs leading-relaxed text-stone-500">{spec.desc}</p>
+                </div>
+                {spec.required ? (
+                  <span className="ml-auto shrink-0 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-600">必做</span>
+                ) : (
+                  <span className="ml-auto shrink-0 rounded bg-stone-100 px-1.5 py-0.5 text-[10px] font-bold text-stone-400">选做</span>
+                )}
+              </div>
+
+              <div className="space-y-5 p-6">
+                {/* params */}
+                {spec.params.length > 0 && (
+                  <div className="flex flex-wrap items-end gap-5 rounded-xl border border-stone-200/80 bg-stone-50/50 p-4">
+                    <p className="w-full text-xs font-bold text-stone-500">实验参数</p>
+                    {spec.params.map((p) => (
+                      <label key={p.key} className="flex flex-col gap-1.5">
+                        <span className="text-xs font-medium text-stone-400">
+                          {p.label} ({p.unit})
+                        </span>
+                        <input
+                          type="number"
+                          step="any"
+                          value={getParams(method)[p.key]}
+                          onChange={(e) =>
+                            setParams((prev) => ({
+                              ...prev,
+                              [method]: { ...(prev[method] ?? {}), [p.key]: e.target.value },
+                            }))
+                          }
+                          className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 text-right text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {/* tables */}
+                {spec.tables.map((table, ti) => (
+                  <div key={ti}>
+                    {table.title && (
+                      <p className="mb-2 text-sm font-bold text-stone-700">{table.title}</p>
+                    )}
+                    {table.note && (
+                      <p className="mb-2 rounded-lg bg-indigo-50/80 px-3 py-2 text-xs leading-relaxed text-indigo-900/80 ring-1 ring-inset ring-indigo-100">
+                        {table.note}
+                      </p>
+                    )}
+                    <DataInputTable
+                      headers={table.cols.map((c) => ({ label: c.label, readOnly: c.readOnly }))}
+                      data={getRows(method, ti)}
+                      onChange={(d) => setRows(method, ti, d)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {error && (
+              <div
+                role="alert"
+                className="mt-5 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-relaxed text-red-700"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+              <button
+                onClick={() => setStep("record")}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900"
+              >
+                <ArrowLeft className="h-4 w-4" /> 上一步
+              </button>
+              <button
+                onClick={handleProcess}
+                disabled={busy}
+                className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-7 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {busy ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> 正在计算…
+                  </>
+                ) : (
+                  <>
+                    {spec.name.split("（")[0]} · 生成结果
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ---------- STEP 3 · results ---------- */}
+        {step === "results" && (
+          <div className="mx-auto max-w-4xl animate-rise-in">
+            {cur ? (
+              <>
+                <div className="mb-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-emerald-200/70 bg-gradient-to-r from-emerald-50 via-white to-emerald-50/50 p-6 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-4">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30">
+                      <CheckCircle2 className="h-6 w-6" />
+                    </span>
+                    <div>
+                      <p className="text-lg font-extrabold tracking-tight text-stone-900">
+                        {METHODS.find((m) => m.id === currentResult)?.name} · 计算完成
+                      </p>
+                      <p className="mt-0.5 text-sm text-stone-500">
+                        已处理 {processedKeys.length}/5 个方法，可继续录入其余方法或下载报告
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setStep("input")}
+                    className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-700 transition-colors hover:border-stone-400 hover:text-stone-900"
+                  >
+                    <Sigma className="h-4 w-4" /> 继续录入其他方法
+                  </button>
+                </div>
+
+                <div className="card overflow-hidden shadow-soft">
+                  <div className="flex items-center gap-3 border-b border-stone-100 bg-stone-50/60 px-6 py-4">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-sm shadow-indigo-600/25">
+                      {(() => {
+                        const Icon = METHOD_ICON[currentResult ?? ""] ?? Ruler;
+                        return <Icon className="h-[18px] w-[18px]" strokeWidth={2} />;
+                      })()}
+                    </span>
+                    <h3 className="text-[15px] font-bold text-stone-900">计算结果</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-px bg-stone-100 sm:grid-cols-3 lg:grid-cols-5">
+                    {cur.results.map((f) => (
+                      <div key={f.key} className="bg-white px-5 py-4">
+                        <p className="mb-1.5 truncate text-[11px] font-medium text-stone-400">{f.label}</p>
+                        <p className="text-lg font-extrabold tracking-tight tabular-nums text-stone-900">
+                          {formatVal(f.value)}
+                          {f.unit && <span className="ml-1.5 text-xs font-medium text-stone-400">{f.unit}</span>}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  {cur.plots?.main && (
+                    <div className="border-t border-stone-100 bg-stone-50/40 p-5 sm:p-6">
+                      <div className="flex justify-center rounded-xl border border-stone-200/70 bg-white p-3 sm:p-5">
+                        <img
+                          src={`data:image/png;base64,${cur.plots.main}`}
+                          alt={`${spec.name} 拟合图像`}
+                          className="max-h-[440px] w-auto object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <p className="py-16 text-center text-stone-400">还没有计算结果</p>
+            )}
+
+            {/* deliverables */}
+            {processedKeys.length > 0 && (
+              <div className="card mt-6 overflow-hidden shadow-soft">
+                <div className="flex items-center gap-3 border-b border-stone-100 bg-stone-50/60 px-6 py-4">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-sm shadow-indigo-600/25">
+                    <FileDown className="h-[18px] w-[18px]" strokeWidth={2} />
+                  </span>
+                  <div>
+                    <h3 className="text-[15px] font-bold text-stone-900">报告交付文件</h3>
+                    <p className="text-xs text-stone-400">
+                      已含 {processedKeys.join("、").length > 0 ? processedKeys.length : 0} 个方法的图与数据；每个部分 = Word + 紧凑 PDF
+                    </p>
+                  </div>
+                </div>
+                <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+                  <div className="flex flex-col justify-between gap-3 rounded-xl border border-stone-200/80 p-4">
+                    <div>
+                      <p className="text-sm font-bold text-stone-900">报告 · 基准部分</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-stone-400">
+                        各方法原始数据 + 结果 + 图像
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          runDownload("basic-docx", () => downloadSoundLightReport("basic", "docx", reportData))
+                        }
+                        disabled={busyKey !== null}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
+                      >
+                        {busyKey === "basic-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                        Word 版
+                      </button>
+                      <button
+                        onClick={() =>
+                          runDownload("basic-pdf", () => downloadSoundLightReport("basic", "pdf", reportData))
+                        }
+                        disabled={busyKey !== null}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                        {busyKey === "basic-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                        紧凑 PDF
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-col justify-between gap-3 rounded-xl border border-stone-200/80 p-4">
+                    <div>
+                      <p className="text-sm font-bold text-stone-900">报告 · 拓展部分</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-stone-400">
+                        误差 / 不确定度 / 方法对比图
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          runDownload("adv-docx", () => downloadSoundLightReport("advanced", "docx", reportData))
+                        }
+                        disabled={busyKey !== null}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
+                      >
+                        {busyKey === "adv-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                        Word 版
+                      </button>
+                      <button
+                        onClick={() =>
+                          runDownload("adv-pdf", () => downloadSoundLightReport("advanced", "pdf", reportData))
+                        }
+                        disabled={busyKey !== null}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                        {busyKey === "adv-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                        紧凑 PDF
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {dlError && (
+                  <p className="px-6 pb-4 text-xs font-medium text-red-500" role="alert">
+                    {dlError}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <button
+                onClick={() => setStep("input")}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-6 text-sm font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900"
+              >
+                <ArrowLeft className="h-4 w-4" /> 返回录入
+              </button>
+              <Link
+                href="/experiments/sound-light"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-stone-900 px-6 text-sm font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-stone-700"
+              >
+                返回实验详情 <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function formatVal(n: number): string {
+  const abs = Math.abs(n);
+  if (Number.isInteger(n)) return n.toString();
+  if (abs >= 1e5) return n.toExponential(4).replace("e+", "×10^").replace("e-", "×10^-");
+  if (abs >= 100) return n.toFixed(1);
+  if (abs >= 1) return n.toFixed(3);
+  return n.toFixed(4);
+}

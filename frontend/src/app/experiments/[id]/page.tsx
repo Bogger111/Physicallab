@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 const CAT_CHIP: Record<string, string> = {
   光学: "bg-amber-100 text-amber-800 ring-amber-200",
   力学: "bg-sky-100 text-sky-800 ring-sky-200",
+  波动: "bg-emerald-100 text-emerald-800 ring-emerald-200",
   热学: "bg-orange-100 text-orange-800 ring-orange-200",
   电磁学: "bg-fuchsia-100 text-fuchsia-800 ring-fuchsia-200",
   近代物理: "bg-teal-100 text-teal-800 ring-teal-200",
@@ -140,7 +141,7 @@ export default function ExperimentDetailPage({
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <button
-                onClick={() => grab("cover-pdf", () => downloadRecordSheet("pdf"))}
+                onClick={() => grab("cover-pdf", () => downloadRecordSheet("pdf", experiment.id))}
                 disabled={sheetBusy !== null}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white/80 px-6 text-[15px] font-semibold text-stone-700 backdrop-blur transition-colors hover:border-stone-400 hover:bg-white disabled:opacity-50"
               >
@@ -241,7 +242,7 @@ export default function ExperimentDetailPage({
               </div>
               <div className="flex shrink-0 flex-wrap gap-2.5">
                 <button
-                  onClick={() => grab("preview", previewRecordSheet)}
+                  onClick={() => grab("preview", () => previewRecordSheet(experiment.id))}
                   disabled={sheetBusy !== null}
                   className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900 disabled:opacity-50"
                 >
@@ -249,7 +250,7 @@ export default function ExperimentDetailPage({
                   预览
                 </button>
                 <button
-                  onClick={() => grab("sheet-docx", () => downloadRecordSheet("docx"))}
+                  onClick={() => grab("sheet-docx", () => downloadRecordSheet("docx", experiment.id))}
                   disabled={sheetBusy !== null}
                   className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-stone-900 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-stone-700 disabled:opacity-50"
                 >
@@ -261,7 +262,7 @@ export default function ExperimentDetailPage({
                   下载 Word
                 </button>
                 <button
-                  onClick={() => grab("sheet-pdf", () => downloadRecordSheet("pdf"))}
+                  onClick={() => grab("sheet-pdf", () => downloadRecordSheet("pdf", experiment.id))}
                   disabled={sheetBusy !== null}
                   className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm shadow-indigo-600/25 transition-colors hover:bg-indigo-700 disabled:opacity-50"
                 >

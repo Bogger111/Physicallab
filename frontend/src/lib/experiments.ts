@@ -99,6 +99,78 @@ export const experiments: ExperimentConfig[] = [
       },
     ],
   },
+  {
+    id: "sound-light",
+    name: "声速光速的测量",
+    category: "波动",
+    description:
+      "空气共振法与水中相位法测声速、飞行时间法测声速（选做）；正弦法与李萨如法测光速",
+    processingTime: "~1分钟",
+    recordSheet: "/record-sheets/sound_light_record_sheet.pdf",
+    measurements: [
+      "S2 共振位置 l (mm)",
+      "S2 位置 l (mm，水中)",
+      "传播距离 L (mm)",
+      "飞行时间 T (μs)",
+      "反射镜位置 x₁ / x₂ (mm)",
+      "差频周期 T / 相位差 Δt (μs)",
+    ],
+    subExperiments: [
+      {
+        id: "air_resonance",
+        name: "空气中共振法测声速",
+        required: true,
+        description: "驻波共振位置 12 点逐差法：v = 2f·Δl̄，与温度修正理论声速对比",
+        resultFields: [
+          { key: "v_exp", label: "实验声速", unit: "m/s" },
+          { key: "v_theory", label: "理论声速", unit: "m/s" },
+          { key: "error_rel", label: "相对误差", unit: "%" },
+          { key: "delta_l_mean", label: "Δl 均值", unit: "mm" },
+        ],
+      },
+      {
+        id: "water_phase",
+        name: "水中相位法测声速",
+        required: true,
+        description: "水中相位匹配位置逐差法测声速，含 A 类不确定度 U_A",
+        resultFields: [
+          { key: "v_exp", label: "水中声速", unit: "m/s" },
+          { key: "u_a", label: "A 类不确定度", unit: "m/s" },
+          { key: "delta_l_mean", label: "Δl 均值", unit: "mm" },
+        ],
+      },
+      {
+        id: "tof",
+        name: "飞行时间法测声速（选做）",
+        required: false,
+        description: "脉冲波 L / T 直接测速：等间距 20 mm 共 8 点",
+        resultFields: [
+          { key: "v_mean", label: "平均声速", unit: "m/s" },
+          { key: "v_std", label: "标准差", unit: "m/s" },
+        ],
+      },
+      {
+        id: "light_sine",
+        name: "光速测量（正弦法）",
+        required: true,
+        description: "差频正弦相位法：λ = (T̄/Δt̄)·2Δx̄，c = f_t·λ",
+        resultFields: [
+          { key: "c_exp", label: "实验光速", unit: "m/s" },
+          { key: "error_rel", label: "相对误差", unit: "%" },
+        ],
+      },
+      {
+        id: "light_lissajous",
+        name: "光速测量（李萨如法）",
+        required: true,
+        description: "李萨如 π 相位变化：λ = 4Δx̄，c = f_t·λ",
+        resultFields: [
+          { key: "c_exp", label: "实验光速", unit: "m/s" },
+          { key: "error_rel", label: "相对误差", unit: "%" },
+        ],
+      },
+    ],
+  },
 ];
 
 export function getExperiment(id: string): ExperimentConfig | undefined {
@@ -108,6 +180,7 @@ export function getExperiment(id: string): ExperimentConfig | undefined {
 export const categories = [
   "全部",
   "力学",
+  "波动",
   "热学",
   "光学",
   "电磁学",
