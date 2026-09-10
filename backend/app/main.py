@@ -1,19 +1,87 @@
 """PhysicsLab FastAPI backend."""
 
+import math
 import os
 import json
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
 from typing import Optional, List, Dict, Any
 
 # Reliable base paths
 BACKEND_ROOT = Path(os.path.dirname(os.path.abspath(__file__))).parent
 
-app = FastAPI(title="PhysicsLab API", version="1.0.0")
+
+class SafeJSONResponse(JSONResponse):
+    """JSON response that tolerates non-finite floats from the numeric engines.
+
+    The engines legitimately produce inf/-inf/nan for degenerate-but-real student
+    data (e.g. an intensity reading equal to the background I0 makes the extinction
+    ratio I_max/I_min infinite). Python's json emits those as the bare tokens
+    Infinity/NaN unless allow_nan=False, and Starlette's JSONResponse passes
+    allow_nan=False, so the whole response blew up with
+    ``ValueError: Out of range float values are not JSON compliant`` -> an
+    unhandled 500. Because that 500 is produced outside the CORS layer it carried
+    no Access-Control-Allow-Origin header, so the browser reported it to the user
+    as a bogus "网络错误，请确认后端服务已启动". Emit null instead.
+    """
+
+    @classmethod
+    def sanitize(cls, obj: Any) -> Any:
+        if isinstance(obj, float):  # numpy.float64 subclasses float, so this covers it
+            return obj if math.isfinite(obj) else None
+        if isinstance(obj, dict):
+            return {k: cls.sanitize(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [cls.sanitize(v) for v in obj]
+        return obj
+
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            self.sanitize(content),
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+
+class ErrorGuardMiddleware(BaseHTTPMiddleware):
+    """Turn any unhandled exception into a readable JSON 500.
+
+    ``add_middleware`` order matters: this is registered *before* CORSMiddleware so
+    CORS ends up outermost and still stamps the CORS headers onto the error reply.
+    Without that, the browser hides the real error behind a CORS failure.
+    """
+
+    def __init__(self, app: ASGIApp) -> None:
+        super().__init__(app)
+
+    async def dispatch(self, request, call_next):
+        try:
+            return await call_next(request)
+        except Exception as exc:  # pragma: no cover - exercised by the regression test
+            return SafeJSONResponse(
+                status_code=500,
+                content={
+                    "detail": "计算服务出现内部错误，请检查输入数据后重试；若持续出现请反馈。",
+                    "error": type(exc).__name__,
+                    "path": request.url.path,
+                },
+            )
+
+
+app = FastAPI(
+    title="PhysicsLab API",
+    version="1.0.0",
+    default_response_class=SafeJSONResponse,
+)
+app.add_middleware(ErrorGuardMiddleware)
 
 _default_cors_origins = [
     "http://localhost:3000",

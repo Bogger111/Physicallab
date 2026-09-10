@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { getExperiment } from "@/lib/experiments";
 import {
+  API_BASE,
   processPolarization,
   downloadRecordSheet,
   previewRecordSheet,
@@ -202,8 +203,12 @@ function PolarizationWorkspace({
       }
       setResult(res);
       setStep("results");
-    } catch {
-      setError("网络错误，请确认后端服务已启动 (http://localhost:8001)");
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      setError(
+        `计算未完成：${detail}。服务地址 ${API_BASE}，首次访问可能有约 10 秒冷启动，稍等后重试即可。` +
+          "已录入的数据仍保留在本页，不需要重新输入。"
+      );
     } finally {
       setLoading(false);
     }
@@ -977,7 +982,10 @@ function PolarizationWorkspace({
   );
 }
 
-function formatNumber(n: number): string {
+function formatNumber(n: number | null | undefined): string {
+  // Non-finite results (e.g. an extinction ratio when a reading sits at or below
+  // the background I0) reach the UI as null; show a dash rather than crashing.
+  if (n === null || n === undefined || !Number.isFinite(n)) return "—";
   if (Number.isInteger(n)) return n.toString();
   if (Math.abs(n) >= 100) return n.toFixed(2);
   if (Math.abs(n) >= 1) return n.toFixed(4);

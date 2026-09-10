@@ -8,6 +8,7 @@ the Word (python-docx) or PDF (reportlab) backend.
 from __future__ import annotations
 
 import io
+import math
 import base64
 from datetime import datetime
 from functools import lru_cache
@@ -196,10 +197,29 @@ def _fmt(v) -> str:
         f = float(v)
     except (TypeError, ValueError):
         return str(v)
+    if not math.isfinite(f):
+        # Degenerate-but-real student data can push a ratio to +/-inf (e.g. an
+        # intensity reading at or below the background I0). int(inf)/int(nan)
+        # raise OverflowError/ValueError further down, so short-circuit here.
+        return "—"
     if f == int(f) and abs(f) < 1e12:
         return str(int(f))
     s = f"{f:.4f}".rstrip("0").rstrip(".")
     return s if s else "0"
+
+
+# Non-finite sentinel for display inside mathtext. A backslash literal is
+# illegal inside an f-string expression before Python 3.12, so keep it here.
+_INF_TEX = r"\infty"
+
+
+def _fnum(v, spec: str, nonfinite: str = "—") -> str:
+    """Format a summary value for an f-string, tolerating inf/nan."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return nonfinite
+    return format(f, spec) if math.isfinite(f) else nonfinite
 
 
 def setup_blocks() -> list[dict]:
@@ -1296,7 +1316,7 @@ def _polarization_analysis(run: dict) -> list[dict]:
             latex(fr"I'_{{L,i}}=I_{{L,i}}-{bg:g},\quad I'_{{R,i}}=I_{{R,i}}-{bg:g},\quad \overline{{I}}_i=\frac{{I'_{{L,i}}+I'_{{R,i}}}}{{2}}"),
             latex(r"x_i=\cos^2\!\left(\theta_i\frac{\pi}{180}\right),\quad \overline{I}_i=ax_i+b"),
             latex(fr"a={rr['slope']:.4f},\quad b={rr['intercept']:.4f},\quad R^2={rr['r_squared']:.6f}"),
-            latex(fr"K=\frac{{I_{{\max}}}}{{I_{{\min}}}}={s['extinction_ratio']:.1f},\quad P=\frac{{I_{{\max}}-I_{{\min}}}}{{I_{{\max}}+I_{{\min}}}}={s['degree_of_polarization']:.6f}"),
+            latex(fr"K=\frac{{I_{{\max}}}}{{I_{{\min}}}}={_fnum(s['extinction_ratio'], '.1f', _INF_TEX)},\quad P=\frac{{I_{{\max}}-I_{{\min}}}}{{I_{{\max}}+I_{{\min}}}}={_fnum(s['degree_of_polarization'], '.6f')}"),
         ]
     if "halfwave" in r:
         rr, s = r["halfwave"], r["halfwave"]["summary"]
@@ -1318,11 +1338,11 @@ def _polarization_analysis(run: dict) -> list[dict]:
             {"kind": "note", "text":
              "光强扣除背景后，先由实验极值得到振幅参数 A，再由理论公式计算极值比；同时使用全部有效点进行非线性拟合。"},
             latex(r"I(\phi)=A^2\!\left(\sin^2\theta\sin^2\phi+\cos^2\theta\cos^2\phi\right)"),
-            latex(fr"I_{{\max}}={s['I_max_exp']:.4f},\quad I_{{\min}}={s['I_min_exp']:.4f},\quad R_{{\rm exp}}={s['ratio_exp']:.4f}"),
-            latex(fr"A_{{\max}}=\sqrt{{\frac{{I_{{\max}}}}{{\max(\sin^2 {th:g}^\circ,\cos^2 {th:g}^\circ)}}}}={s['A_from_max']:.4f}"),
-            latex(fr"A_{{\min}}=\sqrt{{\frac{{I_{{\min}}}}{{\min(\sin^2 {th:g}^\circ,\cos^2 {th:g}^\circ)}}}}={s['A_from_min']:.4f}"),
-            latex(fr"\overline{{A}}=\frac{{A_{{\max}}+A_{{\min}}}}{{2}}={s['A_avg']:.4f},\quad R_{{\rm th}}={s['ratio_theory']:.4f}"),
-            latex(fr"\delta_R=\frac{{|R_{{\rm exp}}-R_{{\rm th}}|}}{{R_{{\rm th}}}}\times100\%={s['relative_diff_pct']:.2f}\%"),
+            latex(fr"I_{{\max}}={_fnum(s['I_max_exp'], '.4f')},\quad I_{{\min}}={_fnum(s['I_min_exp'], '.4f')},\quad R_{{\rm exp}}={_fnum(s['ratio_exp'], '.4f', _INF_TEX)}"),
+            latex(fr"A_{{\max}}=\sqrt{{\frac{{I_{{\max}}}}{{\max(\sin^2 {th:g}^\circ,\cos^2 {th:g}^\circ)}}}}={_fnum(s['A_from_max'], '.4f', _INF_TEX)}"),
+            latex(fr"A_{{\min}}=\sqrt{{\frac{{I_{{\min}}}}{{\min(\sin^2 {th:g}^\circ,\cos^2 {th:g}^\circ)}}}}={_fnum(s['A_from_min'], '.4f', _INF_TEX)}"),
+            latex(fr"\overline{{A}}=\frac{{A_{{\max}}+A_{{\min}}}}{{2}}={_fnum(s['A_avg'], '.4f')},\quad R_{{\rm th}}={_fnum(s['ratio_theory'], '.4f', _INF_TEX)}"),
+            latex(fr"\delta_R=\frac{{|R_{{\rm exp}}-R_{{\rm th}}|}}{{R_{{\rm th}}}}\times100\%={_fnum(s['relative_diff_pct'], '.2f')}\%"),
         ]
         if rr.get("A_fit") is not None:
             blocks.append(latex(fr"A_{{\rm fit}}={rr['A_fit']:.4f},\quad \theta_{{\rm fit}}={rr['theta_fit']:.2f}^\circ"))
@@ -1335,7 +1355,7 @@ def _polarization_analysis(run: dict) -> list[dict]:
              "因此 CV 和 Imax/Imin 用于量化稳定性。"},
             latex(fr"\overline{{I}}=\frac{{1}}{{n}}\sum_{{i=1}}^n I_i={s['I_mean']:.4f}\,\mathrm{{\mu W}}"),
             latex(fr"s_I=\sqrt{{\frac{{\sum_i(I_i-\overline{{I}})^2}}{{n-1}}}}={s['std_dev']:.4f}\,\mathrm{{\mu W}}"),
-            latex(fr"CV=\frac{{s_I}}{{\overline{{I}}}}\times100\%={s['cv_pct']:.2f}\%,\quad \frac{{I_{{\max}}}}{{I_{{\min}}}}={s['ratio']:.4f}"),
+            latex(fr"CV=\frac{{s_I}}{{\overline{{I}}}}\times100\%={_fnum(s['cv_pct'], '.2f')}\%,\quad \frac{{I_{{\max}}}}{{I_{{\min}}}}={_fnum(s['ratio'], '.4f', _INF_TEX)}"),
         ]
     return blocks
 
@@ -1346,11 +1366,11 @@ def _polarization_discussion(run: dict) -> list[dict]:
     if "malus" in s:
         conclusions.append(f"马吕斯拟合 R²={s['malus']['r_squared']:.6f}")
     if "halfwave" in s:
-        conclusions.append(f"半波片斜率={s['halfwave']['slope']:.4f}，相对理论值 2 的偏差={s['halfwave']['slope_deviation_pct']:.2f}%")
+        conclusions.append(f"半波片斜率={_fnum(s['halfwave']['slope'], '.4f')}，相对理论值 2 的偏差={_fnum(s['halfwave']['slope_deviation_pct'], '.2f')}%")
     if "quarterwave" in s:
-        conclusions.append(f"四分之一波片极值比={s['quarterwave']['ratio_exp']:.4f}，理论值={s['quarterwave']['ratio_theory']:.4f}")
+        conclusions.append(f"四分之一波片极值比={_fnum(s['quarterwave']['ratio_exp'], '.4f')}，理论值={_fnum(s['quarterwave']['ratio_theory'], '.4f')}")
     if "circular" in s:
-        conclusions.append(f"圆偏振光 CV={s['circular']['cv_pct']:.2f}%")
+        conclusions.append(f"圆偏振光 CV={_fnum(s['circular']['cv_pct'], '.2f')}%")
     return [
         {"kind": "h3", "text": "4.1　拓展图形解读"},
         {"kind": "note", "text":

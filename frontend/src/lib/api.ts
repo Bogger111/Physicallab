@@ -1,6 +1,19 @@
 // An empty value is intentional for the same-origin Oracle deployment.
 // Nullish fallback keeps local development pointed at the standalone API.
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
+
+/**
+ * Pull a human-readable message out of a failed response. The backend answers
+ * crashes with {detail, error} and validation problems with {status, errors}.
+ */
+async function failureMessage(res: Response): Promise<string> {
+  try {
+    const body = await res.json();
+    return body?.detail || body?.errors?.join("；") || body?.error || `服务返回 HTTP ${res.status}`;
+  } catch {
+    return `服务返回 HTTP ${res.status}`;
+  }
+}
 
 export interface MalusRow {
   theta: number;
@@ -75,6 +88,7 @@ export async function processPolarization(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+  if (!res.ok) throw new Error(await failureMessage(res));
   return res.json();
 }
 
@@ -187,6 +201,7 @@ export async function processSoundLight(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ method, rows, params }),
   });
+  if (!res.ok) throw new Error(await failureMessage(res));
   return res.json();
 }
 
