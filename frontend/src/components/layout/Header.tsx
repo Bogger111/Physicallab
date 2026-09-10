@@ -23,7 +23,7 @@ export default function Header() {
             <span className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/0 to-white/25" />
           </span>
           <span className="text-[17px] font-extrabold leading-none tracking-tight text-stone-900">
-            Physics<span className="text-indigo-600">Lab</span>
+            PhysLab <span className="text-indigo-600">Killer</span>
           </span>
         </Link>
 

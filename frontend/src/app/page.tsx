@@ -288,7 +288,7 @@ export default function HomePage() {
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600">
               <FlaskConical className="h-3.5 w-3.5 text-white" strokeWidth={2.2} />
             </span>
-            <span className="text-sm font-semibold text-stone-700">PhysicsLab</span>
+            <span className="text-sm font-semibold text-stone-700">PhysLab Killer</span>
             <span aria-hidden className="h-3.5 w-px bg-stone-300" />
             <span className="text-xs text-stone-400">大学物理实验数据处理助手</span>
           </div>
