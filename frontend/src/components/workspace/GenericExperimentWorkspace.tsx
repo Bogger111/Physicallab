@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -27,6 +27,11 @@ import {
   type GenericProcessResponse,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import {
+  completionState,
+  nextGridCell,
+  type CompletionMethod,
+} from "./generic-workspace-logic";
 
 type Draft = Record<string, { rows: Record<string, string>[]; params: Record<string, string> }>;
 
@@ -74,6 +79,7 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const inputRefs = useRef<(HTMLInputElement | null)[][]>([]);
 
   useEffect(() => {
     let alive = true;
@@ -89,9 +95,12 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
     return () => { alive = false; };
   }, [id]);
 
-  const payload = useCallback((): GenericExperimentData => {
+  const payload = useCallback((methodIds?: string[]): GenericExperimentData => {
     if (!config) return {};
-    return Object.fromEntries(config.methods.map((method) => {
+    const included = methodIds ? new Set(methodIds) : null;
+    return Object.fromEntries(config.methods
+      .filter((method) => !included || included.has(method.id))
+      .map((method) => {
       const source = draft[method.id];
       return [method.id, {
         params: Object.fromEntries((method.params ?? []).map((parameter) => [
@@ -106,6 +115,38 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
   }, [config, draft]);
 
   const current = useMemo(() => config?.methods.find((method) => method.id === active), [config, active]);
+  const completionMethods = useMemo<CompletionMethod[]>(
+    () => (config?.methods ?? []).map((method) => ({
+      id: method.id,
+      name: method.name,
+      required: method.required,
+      paramKeys: (method.params ?? []).map((parameter) => parameter.key),
+      columnKeys: method.columns.map((column) => column.key),
+    })),
+    [config]
+  );
+  const completion = useMemo(
+    () => completionState(completionMethods, draft),
+    [completionMethods, draft]
+  );
+  const basicReady = completion.requiredAllComplete;
+
+  const handleGridKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => {
+    if (!current || !event.key.startsWith("Arrow")) return;
+    event.preventDefault();
+    const destination = nextGridCell(
+      event.key,
+      rowIndex,
+      columnIndex,
+      draft[current.id]?.rows.length ?? 0,
+      current.columns.length
+    );
+    if (destination) inputRefs.current[destination[0]]?.[destination[1]]?.focus();
+  };
 
   const updateCell = (methodId: string, rowIndex: number, key: string, value: string) => {
     setDraft((previous) => ({
@@ -140,6 +181,8 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
     if (response.status !== "success") setError(response.errors.join("；") || "没有足够的有效数据");
   });
 
+  const reportPayload = (): GenericExperimentData => payload(completion.completedMethodIds);
+
   if (loading) return <div className="container-x flex min-h-[55vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-indigo-600" /></div>;
   if (!config || !current) return <div className="container-x py-16 text-center text-red-600">{error ?? "实验配置不存在"}</div>;
 
@@ -161,7 +204,9 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
         {config.methods.map((method, index) => (
           <button key={method.id} onClick={() => setActive(method.id)} className={cn("shrink-0 rounded-xl border px-4 py-2.5 text-left transition-colors", active === method.id ? "border-indigo-600 bg-indigo-600 text-white" : "border-stone-200 bg-white text-stone-600 hover:border-stone-300")}>
             <span className="block text-xs font-bold">{index + 1}. {method.name}</span>
-            <span className={cn("mt-0.5 block text-[10px]", active === method.id ? "text-indigo-100" : "text-stone-400")}>{method.required ? "必做" : "选做"}</span>
+            <span className={cn("mt-0.5 block text-[10px]", active === method.id ? "text-indigo-100" : "text-stone-400")}>
+              {method.required ? "必做" : "选做"}{completion.completedMethodIds.includes(method.id) ? " · 已填" : ""}
+            </span>
           </button>
         ))}
       </div>
@@ -173,28 +218,129 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
         <div className="p-5 sm:p-6">
           {!!current.params?.length && (
             <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {current.params.map((parameter) => <label key={parameter.key} className="text-xs font-semibold text-stone-500">{parameter.label} {parameter.unit && `(${parameter.unit})`}<input type="number" step="any" value={draft[current.id]?.params[parameter.key] ?? ""} onChange={(event) => updateParam(current.id, parameter.key, event.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-stone-200 px-3 text-right font-mono text-sm outline-none focus:border-indigo-400" /></label>)}
+              {current.params.map((parameter) => (
+                <label key={parameter.key} className="text-xs font-semibold text-stone-500">
+                  {parameter.label} {parameter.unit && `(${parameter.unit})`}
+                  <input
+                    type="number"
+                    step="any"
+                    value={draft[current.id]?.params[parameter.key] ?? ""}
+                    onChange={(event) => updateParam(current.id, parameter.key, event.target.value)}
+                    onWheel={(event) => event.currentTarget.blur()}
+                    className="mt-1.5 h-10 w-full rounded-lg border border-stone-200 px-3 text-right font-mono text-sm outline-none focus:border-indigo-400"
+                  />
+                </label>
+              ))}
             </div>
           )}
           <div className="overflow-x-auto rounded-xl border border-stone-200">
             <table className="w-full min-w-[560px] border-collapse text-sm">
               <thead><tr>{current.columns.map((column) => <th key={column.key} className="whitespace-nowrap border-b border-stone-200 bg-stone-50 px-3 py-3 text-xs font-bold text-stone-500">{column.label}{column.unit && <span className="ml-1 font-normal text-stone-400">({column.unit})</span>}</th>)}</tr></thead>
-              <tbody>{draft[current.id]?.rows.map((row, rowIndex) => <tr key={rowIndex} className="hover:bg-indigo-50/30">{current.columns.map((column) => <td key={column.key} className="border-b border-stone-100 p-0"><input type="number" step="any" value={row[column.key] ?? ""} onChange={(event) => updateCell(current.id, rowIndex, column.key, event.target.value)} onWheel={(event) => event.currentTarget.blur()} className="h-9 w-full min-w-24 border-0 bg-transparent px-3 text-right font-mono text-[13px] outline-none focus:bg-indigo-50" /></td>)}</tr>)}</tbody>
+              <tbody>
+                {draft[current.id]?.rows.map((row, rowIndex) => (
+                  <tr key={rowIndex} className="hover:bg-indigo-50/30">
+                    {current.columns.map((column, columnIndex) => (
+                      <td key={column.key} className="border-b border-stone-100 p-0">
+                        <input
+                          ref={(element) => {
+                            inputRefs.current[rowIndex] ??= [];
+                            inputRefs.current[rowIndex][columnIndex] = element;
+                          }}
+                          type="number"
+                          step="any"
+                          value={row[column.key] ?? ""}
+                          onChange={(event) => updateCell(current.id, rowIndex, column.key, event.target.value)}
+                          onKeyDown={(event) => handleGridKeyDown(event, rowIndex, columnIndex)}
+                          onWheel={(event) => event.currentTarget.blur()}
+                          className="h-9 w-full min-w-24 border-0 bg-transparent px-3 text-right font-mono text-[13px] outline-none focus:bg-indigo-50"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <div className="mt-6 flex flex-col items-start justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-5 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-3"><FlaskConical className="h-5 w-5 text-indigo-600" /><div><p className="text-sm font-bold text-stone-900">统一处理全部已填写子实验</p><p className="text-xs text-stone-400">空白行会被忽略；必做数据不足时给出逐项提示</p></div></div>
-        <div className="flex gap-2"><button onClick={() => { setDraft(makeDraft(config)); setResult(null); setError(null); }} className="inline-flex h-10 items-center gap-2 rounded-xl border border-stone-300 px-4 text-sm font-semibold text-stone-600"><RotateCcw className="h-4 w-4" />清空</button><button onClick={process} disabled={!!busy} className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white disabled:opacity-50">{busy === "process" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}生成结果</button></div>
+      <div className={cn(
+        "mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center",
+        completion.requiredAllComplete ? "border-emerald-200 bg-emerald-50/50" : "border-amber-200 bg-amber-50/50"
+      )}>
+        <div className="flex items-start gap-3">
+          {completion.requiredAllComplete
+            ? <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+            : <FlaskConical className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />}
+          <div>
+            <p className="text-sm font-bold text-stone-900">
+              必做实验完成度：{completion.completedRequiredCount}/{completion.requiredCount}
+            </p>
+            <p className="mt-1 text-xs text-stone-500">
+              {completion.requiredAllComplete
+                ? "必做数据已填完整，可直接生成完整报告；选做实验填完整后自动并入。"
+                : `请先填完：${completion.missingRequiredNames.join("、")}`}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => { setDraft(makeDraft(config)); setResult(null); setError(null); }} className="inline-flex h-10 items-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-600"><RotateCcw className="h-4 w-4" />清空</button>
+          <button
+            onClick={process}
+            disabled={!!busy}
+            title="预览当前已填写子实验的计算结果"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 text-sm font-semibold text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {busy === "process" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+            预览结果
+          </button>
+          <button
+            onClick={() => act("docx", () => downloadGenericReport(id, "docx", reportPayload()))}
+            disabled={!!busy || !basicReady}
+            title={basicReady ? "直接生成完整报告 Word" : "请先填写完全部必做实验"}
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+          ><FileText className="h-4 w-4" />报告 Word</button>
+          <button
+            onClick={() => act("pdf", () => downloadGenericReport(id, "pdf", reportPayload()))}
+            disabled={!!busy || !basicReady}
+            title={basicReady ? "直接生成完整报告 PDF" : "请先填写完全部必做实验"}
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+          ><Download className="h-4 w-4" />报告 PDF</button>
+        </div>
       </div>
 
       {error && <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />{error}</div>}
 
       {result?.status === "success" && (
         <div className="mt-8 space-y-6">
-          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 sm:flex-row sm:items-center"><div className="flex items-center gap-3"><CheckCircle2 className="h-6 w-6 text-emerald-600" /><div><p className="font-bold text-stone-900">计算完成</p><p className="text-xs text-stone-500">{Object.keys(result.results).length} 个子实验已生成结果</p></div></div><div className="flex gap-2"><button onClick={() => act("docx", () => downloadGenericReport(id, "docx", payload()))} disabled={!!busy} className="inline-flex h-10 items-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white"><FileText className="h-4 w-4" />完整报告 Word</button><button onClick={() => act("pdf", () => downloadGenericReport(id, "pdf", payload()))} disabled={!!busy} className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white"><Download className="h-4 w-4" />完整报告 PDF</button></div></div>
+          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+              <div>
+                <p className="font-bold text-stone-900">计算完成</p>
+                <p className="text-xs text-stone-500">{Object.keys(result.results).length} 个子实验已生成结果</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => act("docx", () => downloadGenericReport(id, "docx", reportPayload()))}
+                disabled={!!busy || !basicReady}
+                title={basicReady ? "下载完整报告 Word" : "填写完全部必做实验后才能生成报告"}
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+              ><FileText className="h-4 w-4" />完整报告 Word</button>
+              <button
+                onClick={() => act("pdf", () => downloadGenericReport(id, "pdf", reportPayload()))}
+                disabled={!!busy || !basicReady}
+                title={basicReady ? "下载完整报告 PDF" : "填写完全部必做实验后才能生成报告"}
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+              ><Download className="h-4 w-4" />完整报告 PDF</button>
+            </div>
+          </div>
+          {!basicReady && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              报告尚未解锁：请先填写完{completion.missingRequiredNames.join("、")}。
+            </div>
+          )}
           {result.errors.length > 0 && <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">部分数据未纳入：{result.errors.join("；")}</div>}
           {config.methods.map((method) => {
             const values = result.results[method.id]; if (!values) return null;

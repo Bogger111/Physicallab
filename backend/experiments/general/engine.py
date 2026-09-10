@@ -69,16 +69,34 @@ def _fit(x, y) -> dict:
 
 
 def _plot(x, series: list[tuple[list[float], str, str]], xlabel: str,
-          ylabel: str, title: str, fit_lines: bool = False) -> str:
+          ylabel: str, title: str, fit_lines: bool = False,
+          connect_points: bool = False,
+          fit_indices: list[int] | None = None) -> str:
     fig, ax = plt.subplots(figsize=(7.2, 4.5))
     for y, label, color in series:
-        ax.scatter(x, y, s=30, color=color, edgecolors="white", linewidths=.5,
-                   label=label, zorder=3)
+        if connect_points:
+            ax.plot(x, y, marker="o", markersize=4.5, color=color,
+                    linewidth=1.6, label=label, zorder=3)
+        else:
+            ax.scatter(x, y, s=30, color=color, edgecolors="white", linewidths=.5,
+                       label=label, zorder=3)
         if fit_lines and len(x) >= 2 and np.ptp(x) > 0:
             fit = _fit(x, y)
             xx = np.linspace(min(x), max(x), 100)
             ax.plot(xx, fit["slope"] * xx + fit["intercept"], color=color,
-                    linewidth=1.6)
+                    linewidth=1.6, label=f"{label} 线性拟合")
+        if fit_indices:
+            valid = [index for index in fit_indices if 0 <= index < len(x) and index < len(y)]
+            if len(valid) >= 2:
+                local_x = np.asarray([x[index] for index in valid], dtype=float)
+                local_y = np.asarray([y[index] for index in valid], dtype=float)
+                fit = _fit(local_x, local_y)
+                xx = np.linspace(float(local_x.min()), float(local_x.max()), 100)
+                ax.scatter(local_x, local_y, s=58, facecolors="none", edgecolors=color,
+                           linewidths=1.4, label=f"{label} 局部拟合点", zorder=4)
+                ax.plot(xx, fit["slope"] * xx + fit["intercept"], color=color,
+                        linestyle="--", linewidth=1.8,
+                        label=f"{label} 局部线性拟合", zorder=4)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title, fontweight="bold")
@@ -163,7 +181,7 @@ def _photoelectric(method, rows, p):
         return result,derived,_plot(scaled.tolist(),[(us.tolist(),"截止电压","#2563eb")],"ν / 10¹⁴ Hz","US / V","截止电压与频率",True)
     if method.startswith("iv_"):
         vals=_numbers(rows,"voltage","current"); x,y=map(list,zip(*vals))
-        return {"max_current":max(y),"min_current":min(y)},[],_plot(x,[(y,method.replace("iv_","")+" nm","#7c3aed")],"UAK / V","I","光电管伏安特性")
+        return {"max_current":max(y),"min_current":min(y)},[],_plot(x,[(y,method.replace("iv_","")+" nm","#7c3aed")],"UAK / V","I","光电管伏安特性",connect_points=True)
     vals=[]
     for row in rows:
         try: wl=float(row["wavelength"]); d=float(row["diameter"]); currents=[float(row[k]) for k in ("i1","i2","i3") if row.get(k) not in (None,"")]
@@ -181,14 +199,14 @@ def _franck(method, rows, p):
         vals=_numbers(rows,"voltage","current"); x,y=map(list,zip(*vals))
         xlabel = "UKG1 / V" if method == "higher_curve" else "VG2K / V"
         title = "较高激发能级曲线" if method == "higher_curve" else "弗兰克-赫兹特性曲线"
-        return {"data_points":len(vals),"current_max":max(y)},[],_plot(x,[(y,"实验曲线","#2563eb")],xlabel,"IP / nA",title)
+        return {"data_points":len(vals),"current_max":max(y)},[],_plot(x,[(y,"实验曲线","#2563eb")],xlabel,"IP / nA",title,connect_points=True)
     if method == "parameter_curve":
         vals=_numbers(rows,"voltage","current_reference","current_variant")
         x,reference,variant=map(list,zip(*vals))
         differences=[abs(a-b) for a,b in zip(reference,variant)]
         return {"data_points":len(vals),"max_difference":max(differences)},[],_plot(
             x,[(reference,"基准参数","#2563eb"),(variant,"改变参数后","#f59e0b")],
-            "VG2K / V","IP / nA","工作参数对曲线的影响")
+            "VG2K / V","IP / nA","工作参数对曲线的影响",connect_points=True)
     peaks=[v[0] for v in _numbers(rows,"peak_voltage")]
     if len(peaks)<3: raise ValueError("至少需要 3 个连续峰值电压")
     diffs=[(peaks[i+3]-peaks[i])/3 for i in range(len(peaks)-3)] if len(peaks)>=6 else np.diff(peaks).tolist()
@@ -208,7 +226,7 @@ def _solar(method, rows, p):
         return {"unshaded_isc":base,"minimum_ratio":min(y)/base*100 if base else math.nan},[{"condition":a,"isc":b,"retained_pct":b/base*100 if base else math.nan} for a,b in vals],_plot(x,[(y,"短路电流","#16a34a")],"工况编号","Isc / mA","遮挡影响")
     if method.startswith("charge_"):
         vals=_numbers(rows,"time","voltage","current"); t,u,i=map(np.asarray,zip(*vals)); power=u*i; energy=float(np.trapezoid(power,t)*.06) if len(t)>1 else 0
-        return {"energy":energy,"final_voltage":float(u[-1]),"duration":float(t[-1]-t[0])},[{"time":float(a),"voltage":float(b),"current":float(c),"power":float(d)} for a,b,c,d in zip(t,u,i,power)],_plot(t.tolist(),[(power.tolist(),"充电功率","#7c3aed")],"t / min","P / mW","超级电容充电功率")
+        return {"energy":energy,"final_voltage":float(u[-1]),"duration":float(t[-1]-t[0])},[{"time":float(a),"voltage":float(b),"current":float(c),"power":float(d)} for a,b,c,d in zip(t,u,i,power)],_plot(t.tolist(),[(power.tolist(),"充电功率","#7c3aed")],"t / min","P / mW","超级电容充电功率",connect_points=True)
     if method == "fan":
         vals=_numbers(rows,"voltage","current"); powers=[u*i for u,i in vals]
         return {"power_before":powers[0],"power_after":powers[1] if len(powers)>1 else math.nan},[],None
@@ -224,12 +242,12 @@ def _solar(method, rows, p):
 def _gmr(method, rows, p):
     if method == "transfer":
         vals=_numbers(rows,"excitation","output"); current,out=map(list,zip(*vals)); b=[.31416*v for v in current]; f=_fit(b,out)
-        return {"sensitivity":f["slope"],"r_squared":f["r_squared"],"b_max":max(map(abs,b))},[{"field":x,"output":y} for x,y in zip(b,out)],_plot(b,[(out,"磁电转换","#2563eb")],"B / Gs","Vout / mV","GMR 磁电转换")
+        return {"sensitivity":f["slope"],"r_squared":f["r_squared"],"b_max":max(map(abs,b))},[{"field":x,"output":y} for x,y in zip(b,out)],_plot(b,[(out,"磁电转换","#2563eb")],"B / Gs","Vout / mV","GMR 磁电转换",fit_lines=True,connect_points=True)
     if method == "resistance":
         vals=_numbers(rows,"excitation","ir_a","ir_b"); supply=p.get("supply",2); b=[.31416*v[0] for v in vals]; ra=[2*supply/(v[1]/1000) for v in vals]; rb=[2*supply/(v[2]/1000) for v in vals]
         g=lambda r:(max(r)-min(r))/min(r)*100
         ga,gb=g(ra),g(rb)
-        return {"gmr_a":ga,"gmr_b":gb,"sensitive_state":1 if ga>=gb else 2},[{"field":x,"ra":a,"rb":bb} for x,a,bb in zip(b,ra,rb)],_plot(b,[(ra,"状态 A","#2563eb"),(rb,"状态 B","#f59e0b")],"B / Gs","R / Ω","内部磁阻特性")
+        return {"gmr_a":ga,"gmr_b":gb,"sensitive_state":1 if ga>=gb else 2},[{"field":x,"ra":a,"rb":bb} for x,a,bb in zip(b,ra,rb)],_plot(b,[(ra,"状态 A","#2563eb"),(rb,"状态 B","#f59e0b")],"B / Gs","R / Ω","内部磁阻特性",connect_points=True)
     vals=_numbers(rows,"current","output25","output100"); i,o25,o100=map(list,zip(*vals)); f25=_fit([v/1000 for v in i],o25); f100=_fit([v/1000 for v in i],o100)
     return {"sensitivity25":f25["slope"],"sensitivity100":f100["slope"]},[],_plot(i,[(o25,"25 mV 偏置","#2563eb"),(o100,"100 mV 偏置","#f59e0b")],"I / mA","Vout / mV","无接触电流标定",True)
 
@@ -271,7 +289,7 @@ def _viscosity(method, rows, p):
                 "re_max":max(item["re"] for item in derived)},derived,_plot(
                     [item["diameter"] for item in derived],
                     [([item["re"] for item in derived],"Re","#7c3aed")],
-                    "d / mm","Re","球径与雷诺数")
+                    "d / mm","Re","球径与雷诺数",connect_points=True)
     vals=[]
     for row in rows:
         try: temp=float(row["temperature"]); ts=[float(row[k]) for k in ("t1","t2","t3","t4") if row.get(k) not in (None,"")]
@@ -281,7 +299,7 @@ def _viscosity(method, rows, p):
     for temp,t in vals:
         v=L/t; eta=g*d*d*(rho-rho0)/(18*v*(1+2.4*d/D)); re=rho0*v*d/eta; corrected=eta if re<.1 else eta*(1-3*re/16) if re<1 else eta
         derived.append({"temperature":temp,"t_mean":t,"velocity":v,"eta":eta,"re":re,"eta_corrected":corrected})
-    return {"eta_20":derived[0]["eta_corrected"],"re_min":min(d["re"] for d in derived),"re_max":max(d["re"] for d in derived)},derived,_plot([d["temperature"] for d in derived],[([d["eta_corrected"] for d in derived],"η′","#dc2626")],"T / °C","η′ / Pa·s","粘滞系数与温度")
+    return {"eta_20":derived[0]["eta_corrected"],"re_min":min(d["re"] for d in derived),"re_max":max(d["re"] for d in derived)},derived,_plot([d["temperature"] for d in derived],[([d["eta_corrected"] for d in derived],"η′","#dc2626")],"T / °C","η′ / Pa·s","粘滞系数与温度",connect_points=True)
 
 
 def _surface(method, rows, p):
@@ -301,9 +319,9 @@ def _thermal(method, rows, p):
         return {k:_mean(v) for k,v in zip(keys,cols)},[],None
     if method == "heating":
         vals=_numbers(rows,"time","ta","tc"); t,ta,tc=map(list,zip(*vals)); last=min(5,len(vals)); t1=_mean(ta[-last:]); t2=_mean(tc[-last:]); drift=max(max(ta[-last:])-min(ta[-last:]),max(tc[-last:])-min(tc[-last:]))
-        return {"t1":t1,"t2":t2,"steady_drift":drift},[],_plot(t,[(ta,"上盘 TA","#dc2626"),(tc,"下盘 TC","#2563eb")],"t / min","T / °C","升温与稳态过程")
+        return {"t1":t1,"t2":t2,"steady_drift":drift},[],_plot(t,[(ta,"上盘 TA","#dc2626"),(tc,"下盘 TC","#2563eb")],"t / min","T / °C","升温与稳态过程",connect_points=True)
     vals=_numbers(rows,"time","temperature"); t,temp=map(np.asarray,zip(*vals)); target=p.get("t2",35); order=np.argsort(np.abs(temp-target))[:min(10,len(temp))]; f=_fit(t[order],temp[order]); rate=abs(f["slope"]); m=p.get("mass",500)/1000; c=p.get("specific_heat",394); rc=p.get("dc",100)/2000; hc=p.get("hc",10)/1000; rb=p.get("db",100)/2000; hb=p.get("hb",8)/1000; dt=p.get("t1",50)-p.get("t2",35); xi=(2*rc+hc)/(2*rc+2*hc); lam=m*c*rate*hb/(math.pi*rb*rb*dt)*xi
-    return {"cooling_rate":rate,"lambda":lam,"geometry_factor":xi,"r_squared":f["r_squared"]},[],_plot(t.tolist(),[(temp.tolist(),"冷却曲线","#2563eb")],"t / s","TC / °C","自然冷却曲线")
+    return {"cooling_rate":rate,"lambda":lam,"geometry_factor":xi,"r_squared":f["r_squared"]},[],_plot(t.tolist(),[(temp.tolist(),"冷却曲线","#2563eb")],"t / s","TC / °C","自然冷却曲线",connect_points=True,fit_indices=order.tolist())
 
 
 def _michelson(method, rows, p):

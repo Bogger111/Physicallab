@@ -158,6 +158,34 @@ def test_catalogue_and_generic_api_contract():
     assert response.json()["status"] == "success"
 
 
+@pytest.mark.parametrize("experiment_id", [item["id"] for item in CONFIGS])
+def test_general_report_rejects_data_when_required_methods_are_missing(experiment_id):
+    client = TestClient(app)
+    config = next(item for item in CONFIGS if item["id"] == experiment_id)
+    first_required = next(method for method in config["methods"] if method["required"])
+    data = dict(fixtures()[experiment_id])
+    data.pop(first_required["id"])
+    response = client.post(
+        f"/api/experiments/{experiment_id}/report?fmt=pdf",
+        json={"data": data},
+    )
+    assert response.status_code == 400
+    assert "必做实验" in response.json()["detail"]
+    assert first_required["name"] in response.json()["detail"]
+
+
+def test_general_report_rejects_an_incomplete_required_table():
+    client = TestClient(app)
+    data = fixtures()["multimeter"]
+    data["voltage"]["rows"][-1]["measured"] = None
+    response = client.post(
+        "/api/experiments/multimeter/report?fmt=pdf",
+        json={"data": data},
+    )
+    assert response.status_code == 400
+    assert "直流电压" in response.json()["detail"]
+
+
 def test_lecture_required_and_optional_content_is_represented():
     configs = {config["id"]: config for config in CONFIGS}
     assert configs.keys() == LECTURE_METHODS.keys()

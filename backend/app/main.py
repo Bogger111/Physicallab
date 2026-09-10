@@ -534,6 +534,32 @@ async def get_generic_record_sheet(experiment_id: str, fmt: str):
                     headers={"Content-Disposition": _attachment(filename)})
 
 
+def _validate_required_generic_data(config: dict, data: Dict[str, Dict[str, Any]]) -> None:
+    missing = []
+    for method in config.get("methods", []):
+        if not method.get("required"):
+            continue
+        submitted = data.get(method["id"])
+        rows = submitted.get("rows", []) if submitted else []
+        columns = [column["key"] for column in method.get("columns", [])]
+        expected_rows = method.get("rowCount", 0)
+        complete = (
+            len(rows) >= expected_rows
+            and all(
+                row.get(key) not in (None, "")
+                for row in rows[:expected_rows]
+                for key in columns
+            )
+        )
+        if not complete:
+            missing.append(method["name"])
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"请先填写完全部必做实验：{'、'.join(missing)}",
+        )
+
+
 @app.post("/api/experiments/{experiment_id}/report")
 async def generic_experiment_report(experiment_id: str,
                                     req: GenericExperimentRequest,
@@ -543,6 +569,7 @@ async def generic_experiment_report(experiment_id: str,
         raise HTTPException(status_code=400, detail="fmt 必须是 docx 或 pdf")
     if not req.data:
         raise HTTPException(status_code=400, detail="未提供任何实验数据")
+    _validate_required_generic_data(config, req.data)
     from experiments.general import docs
     try:
         content = docs.report_bytes(experiment_id, req.data, fmt)
