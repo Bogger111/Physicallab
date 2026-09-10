@@ -141,3 +141,7 @@ cd backend
 ## GitHub Pages 部署边界
 
 GitHub Pages 只能托管 `frontend/` 的静态页面，不能运行 FastAPI、NumPy、SciPy 或报告生成服务。要让在线工作台真正计算数据，后端必须部署到独立的 HTTPS 服务，并通过 `NEXT_PUBLIC_API_URL` 配置给前端；如果只发布 Pages 而不部署后端，实验浏览和静态记录表可以打开，数据处理与报告下载将不可用。
+
+## Cloudflare 部署
+
+项目提供 Cloudflare Pages + Containers 配置。前端静态导出仍在 `frontend/`，后端 Docker 镜像和 Container Worker 位于 `backend/Dockerfile` 与 `cloudflare/`。完整步骤见 `docs/deployment.md`。Cloudflare Pages 的 `NEXT_PUBLIC_BASE_PATH` 应为空；前端的 `NEXT_PUBLIC_API_URL` 必须指向已部署的 Container Worker HTTPS 地址。

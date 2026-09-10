@@ -1,0 +1,13 @@
+{
+  "name": "physicslab-cloudflare-container",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy --config wrangler.jsonc"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "latest"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}
