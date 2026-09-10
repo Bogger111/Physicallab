@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 export interface MalusRow {
   theta: number;
@@ -7,17 +7,17 @@ export interface MalusRow {
 }
 
 export interface HalfWaveInitial {
-  c_deg: number;
+  c_deg: number | null;
   c_min: number;
-  p2_deg: number;
+  p2_deg: number | null;
   p2_min: number;
 }
 
 export interface HalfWaveRow {
   offset: number;
-  c_deg: number;
+  c_deg: number | null;
   c_min: number;
-  p2_deg: number;
+  p2_deg: number | null;
   p2_min: number;
 }
 
@@ -85,6 +85,17 @@ export function getRecordSheetUrl(experimentId: string): string {
 const EXP_CN: Record<string, string> = {
   polarization: "偏振光与双折射实验",
   "sound-light": "声速光速的测量",
+  multimeter: "万用表的组装与校准",
+  bridge: "交直流电桥的原理及应用",
+  photoelectric: "光电效应与普朗克常数",
+  "franck-hertz": "弗兰克-赫兹实验",
+  "solar-cell": "太阳能电池特性",
+  gmr: "巨磁电阻效应及应用",
+  nmr: "核磁共振实验",
+  viscosity: "落球法测液体粘滞系数",
+  "surface-tension": "液体表面张力系数测量",
+  "thermal-conductivity": "稳态法测固体导热系数",
+  michelson: "迈克尔逊干涉实验",
 };
 
 function triggerDownload(blob: Blob, filename: string) {
@@ -119,13 +130,12 @@ export async function previewRecordSheet(
 }
 
 export async function downloadReport(
-  part: "basic" | "advanced",
   fmt: "docx" | "pdf",
   data: ProcessRequest,
   expId: string = "polarization"
 ): Promise<void> {
   const res = await fetch(
-    `${API_BASE}/api/experiments/${expId}/report?part=${part}&fmt=${fmt}`,
+    `${API_BASE}/api/experiments/${expId}/report?fmt=${fmt}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -142,9 +152,8 @@ export async function downloadReport(
     }
     throw new Error(msg);
   }
-  const label = part === "basic" ? "基准部分" : "拓展部分";
   const name = EXP_CN[expId] ?? "实验";
-  triggerDownload(await res.blob(), `${name}-报告-${label}.${fmt}`);
+  triggerDownload(await res.blob(), `${name}-完整报告.${fmt}`);
 }
 
 // ---------------------------------------------------------- exp02 sound-light
@@ -161,6 +170,8 @@ export interface SoundLightProcessResponse {
   results: SoundLightResultField[];
   plots: Record<string, string>;
   errors?: string[];
+  method?: string;
+  method_name?: string;
   error?: string;
 }
 
@@ -183,12 +194,11 @@ export type SoundLightMethodData = Record<
 >;
 
 export async function downloadSoundLightReport(
-  part: "basic" | "advanced",
   fmt: "docx" | "pdf",
   data: SoundLightMethodData
 ): Promise<void> {
   const res = await fetch(
-    `${API_BASE}/api/experiments/sound-light/report?part=${part}&fmt=${fmt}`,
+    `${API_BASE}/api/experiments/sound-light/report?fmt=${fmt}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -205,6 +215,94 @@ export async function downloadSoundLightReport(
     }
     throw new Error(msg);
   }
-  const label = part === "basic" ? "基准部分" : "拓展部分";
-  triggerDownload(await res.blob(), `声速光速的测量-报告-${label}.${fmt}`);
+  triggerDownload(await res.blob(), `声速光速的测量-完整报告.${fmt}`);
+}
+
+// ------------------------------------------------ configuration-driven labs
+
+export interface GenericColumn {
+  key: string;
+  label: string;
+  unit: string;
+}
+
+export interface GenericParameter extends GenericColumn {
+  default: number;
+}
+
+export interface GenericResultField {
+  key: string;
+  label: string;
+  unit: string;
+}
+
+export interface GenericMethod {
+  id: string;
+  name: string;
+  required: boolean;
+  description: string;
+  rowCount: number;
+  columns: GenericColumn[];
+  params?: GenericParameter[];
+  prefill?: Record<string, number[]>;
+  results: GenericResultField[];
+}
+
+export interface GenericExperimentConfig {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  processingTime: string;
+  measurements: string[];
+  methods: GenericMethod[];
+}
+
+export type GenericExperimentData = Record<
+  string,
+  { rows: Record<string, number | null>[]; params: Record<string, number> }
+>;
+
+export interface GenericProcessResponse {
+  status: "success" | "validation_error";
+  results: Record<string, Record<string, number>>;
+  plots: Record<string, string>;
+  derived: Record<string, Record<string, number>[]>;
+  errors: string[];
+}
+
+export async function fetchGenericConfig(id: string): Promise<GenericExperimentConfig> {
+  const res = await fetch(`${API_BASE}/api/experiments/${id}/config`);
+  if (!res.ok) throw new Error(`实验配置加载失败 (${res.status})`);
+  return res.json();
+}
+
+export async function processGenericExperiment(
+  id: string,
+  data: GenericExperimentData
+): Promise<GenericProcessResponse> {
+  const res = await fetch(`${API_BASE}/api/experiments/${id}/process`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data }),
+  });
+  if (!res.ok) throw new Error(`数据处理失败 (${res.status})`);
+  return res.json();
+}
+
+export async function downloadGenericReport(
+  id: string,
+  fmt: "docx" | "pdf",
+  data: GenericExperimentData
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/experiments/${id}/report?fmt=${fmt}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data }),
+  });
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new Error(payload.detail || `报告生成失败 (${res.status})`);
+  }
+  triggerDownload(await res.blob(), `${EXP_CN[id] ?? "实验"}-完整报告.${fmt}`);
 }

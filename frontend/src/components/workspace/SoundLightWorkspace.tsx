@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DataInputTable from "@/components/workspace/DataInputTable";
+import soundLightConfig from "../../../../backend/experiments/soundlight/config.json";
 import {
   processSoundLight,
   downloadRecordSheet,
@@ -57,7 +58,7 @@ interface MethodSpec {
   params: { key: string; label: string; unit: string; def: string }[];
 }
 
-const METHODS: MethodSpec[] = [
+const METHOD_LAYOUTS: MethodSpec[] = [
   // ── 实验一：超声声速测量 ──
   {
     id: "air_resonance",
@@ -66,7 +67,7 @@ const METHODS: MethodSpec[] = [
     desc: "实验一 · 必做。S2 同方向连续移动，记录 12 个驻波共振位置（相邻间距 ≈ λ/2），逐差法求 Δl̄。",
     tables: [
       {
-        note: "温度用于理论声速修正 v = 331.45 × (1 + t/273.15)",
+        note: "温度用于理论声速修正 v = 331.45 × √(1 + t/273.15)",
         rows: 12,
         cols: [
           { label: "序号", readOnly: true },
@@ -187,6 +188,50 @@ const METHODS: MethodSpec[] = [
     params: [{ key: "f_mhz", label: "调制频率 f_t", unit: "MHz", def: "150" }],
   },
 ];
+
+interface SourceMethodConfig {
+  id: string;
+  type: "required" | "optional";
+  table_cols: { key: string; label: string; unit: string; count: number }[];
+  params: { key: string; label: string; unit: string; default: number }[];
+}
+
+// Field keys, units, row counts, required flags and defaults come from the
+// backend config. This file keeps only UI grouping/copy such as “表 2-1”.
+const METHODS: MethodSpec[] = (soundLightConfig as SourceMethodConfig[]).map((source) => {
+  const layout = METHOD_LAYOUTS.find((item) => item.id === source.id);
+  if (!layout) throw new Error(`缺少方法 ${source.id} 的前端布局定义`);
+  const columns = new Map(source.table_cols.map((column) => [column.key, column]));
+  return {
+    ...layout,
+    required: source.type === "required",
+    tables: layout.tables.map((table) => {
+      const sourceColumns = table.cols
+        .filter((column) => column.key)
+        .map((column) => columns.get(column.key!))
+        .filter((column): column is SourceMethodConfig["table_cols"][number] => Boolean(column));
+      return {
+        ...table,
+        rows: Math.max(...sourceColumns.map((column) => column.count)),
+        cols: table.cols.map((column) => {
+          if (!column.key) return column;
+          const sourceColumn = columns.get(column.key);
+          if (!sourceColumn) throw new Error(`方法 ${source.id} 缺少字段 ${column.key}`);
+          return {
+            ...column,
+            label: `${sourceColumn.label} (${sourceColumn.unit})`,
+          };
+        }),
+      };
+    }),
+    params: source.params.map((param) => ({
+      key: param.key,
+      label: param.label,
+      unit: param.unit,
+      def: String(param.default),
+    })),
+  };
+});
 
 const METHOD_ICON: Record<string, React.ElementType> = {
   air_resonance: Waves,
@@ -603,7 +648,7 @@ export default function SoundLightWorkspace() {
                 选择测量方法，录入读数
               </h2>
               <p className="mt-1 text-sm text-stone-500">
-                逐方法填数据即可，无需逐个先算：4 个必做填完就能「一口气」生成基准报告（表格 → 数据处理）；想先看某个方法的图与误差，再单独点它的「生成结果」。选做方法填入后并入基准报告，否则自动跳过。
+                逐方法填数据即可，无需逐个先算：4 个必做填完就能「一口气」生成完整报告（表格 → 图片 → 数据处理 → 拓展与总结）；想先看某个方法的结果，可单独点它的「生成结果」。选做方法填入后并入完整报告，否则自动跳过。
               </p>
             </div>
 
@@ -635,7 +680,7 @@ export default function SoundLightWorkspace() {
               })}
             </div>
 
-            {/* one-click basic report */}
+            {/* one-click unified report */}
             <div
               className={cn(
                 "mb-6 flex flex-col gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center",
@@ -649,7 +694,7 @@ export default function SoundLightWorkspace() {
                   {requiredAllFilled ? (
                     <>
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      必做数据已齐（{requiredFilledCount}/{requiredMethods.length}）——可一键生成基准报告
+                      必做数据已齐（{requiredFilledCount}/{requiredMethods.length}）——可一键生成完整报告
                     </>
                   ) : (
                     <>
@@ -659,7 +704,7 @@ export default function SoundLightWorkspace() {
                   )}
                 </p>
                 <p className="mt-0.5 text-xs leading-relaxed text-stone-500">
-                  基准报告 = 原始数据表（讲义表 1-1 / 2-1 / 2-2 / 2-3 填入实测值）→ 数据处理（逐差、不确定度、误差）；本实验讲义未要求作图，图与误差深化在拓展报告单独生成。
+                  完整报告按四部分排列：全部表格 → 全部图片 → 详细数据处理 → 拓展、建议、误差分析与总结。
                   {!requiredAllFilled && missingFill.length > 0 && (
                     <span className="mt-0.5 block font-semibold text-amber-600">
                       还差：{missingFill.join("、")}
@@ -670,27 +715,27 @@ export default function SoundLightWorkspace() {
               <div className="flex shrink-0 gap-2">
                 <button
                   onClick={() =>
-                    runDownload("quick-basic-docx", () =>
-                      downloadSoundLightReport("basic", "docx", filledAllReportData())
+                    runDownload("quick-report-docx", () =>
+                      downloadSoundLightReport("docx", filledAllReportData())
                     )
                   }
                   disabled={busyKey !== null || !requiredAllFilled}
                   className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-stone-900 px-4 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-40"
                 >
-                  {busyKey === "quick-basic-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
-                  基准 · Word
+                  {busyKey === "quick-report-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                  完整 · Word
                 </button>
                 <button
                   onClick={() =>
-                    runDownload("quick-basic-pdf", () =>
-                      downloadSoundLightReport("basic", "pdf", filledAllReportData())
+                    runDownload("quick-report-pdf", () =>
+                      downloadSoundLightReport("pdf", filledAllReportData())
                     )
                   }
                   disabled={busyKey !== null || !requiredAllFilled}
                   className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-40"
                 >
-                  {busyKey === "quick-basic-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                  基准 · 紧凑 PDF
+                  {busyKey === "quick-report-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                  完整 · PDF
                 </button>
               </div>
             </div>
@@ -882,11 +927,11 @@ export default function SoundLightWorkspace() {
                   <div>
                     <h3 className="text-[15px] font-bold text-stone-900">报告交付文件</h3>
                     <p className="text-xs text-stone-400">
-                      基准报告：必做方法全部计算后一键生成（表格 → 数据处理）；拓展报告：图片与误差深化单独生成。每部分 = Word + 紧凑 PDF
+                      一份完整报告：表格 → 图片 → 详细数据处理 → 拓展、建议、误差分析与总结
                     </p>
                   </div>
                 </div>
-                <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+                <div className="p-5 sm:p-6">
                   <div
                     className={cn(
                       "flex flex-col justify-between gap-3 rounded-xl border p-4",
@@ -896,9 +941,9 @@ export default function SoundLightWorkspace() {
                     )}
                   >
                     <div>
-                      <p className="text-sm font-bold text-stone-900">报告 · 基准部分（按讲义）</p>
+                      <p className="text-sm font-bold text-stone-900">完整实验报告</p>
                       <p className="mt-0.5 text-xs leading-relaxed text-stone-400">
-                        原始数据规范作表 → 逐差 / 不确定度 / 误差处理，含误差来源分析；本实验讲义未要求作图，图全部在拓展报告
+                        A4 纵向紧凑排版，四部分强制分页；表格整表保留，公式以 LaTeX 风格展示
                       </p>
                       {!basicReady && (
                         <p className="mt-1.5 text-xs font-semibold text-amber-600">
@@ -909,52 +954,22 @@ export default function SoundLightWorkspace() {
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
-                          runDownload("basic-docx", () => downloadSoundLightReport("basic", "docx", reportData))
+                          runDownload("report-docx", () => downloadSoundLightReport("docx", reportData))
                         }
                         disabled={busyKey !== null || !basicReady}
                         className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
                       >
-                        {busyKey === "basic-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                        {busyKey === "report-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
                         Word 版
                       </button>
                       <button
                         onClick={() =>
-                          runDownload("basic-pdf", () => downloadSoundLightReport("basic", "pdf", reportData))
+                          runDownload("report-pdf", () => downloadSoundLightReport("pdf", reportData))
                         }
                         disabled={busyKey !== null || !basicReady}
                         className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
                       >
-                        {busyKey === "basic-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                        紧凑 PDF
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex flex-col justify-between gap-3 rounded-xl border border-stone-200/80 p-4">
-                    <div>
-                      <p className="text-sm font-bold text-stone-900">报告 · 拓展部分（图与误差深化）</p>
-                      <p className="mt-0.5 text-xs leading-relaxed text-stone-400">
-                        拟合原图 / 逐差与逐点误差 / 方法对比等插图与分析——讲义未要求内容均在此，可单独生成
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          runDownload("adv-docx", () => downloadSoundLightReport("advanced", "docx", reportData))
-                        }
-                        disabled={busyKey !== null}
-                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
-                      >
-                        {busyKey === "adv-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
-                        Word 版
-                      </button>
-                      <button
-                        onClick={() =>
-                          runDownload("adv-pdf", () => downloadSoundLightReport("advanced", "pdf", reportData))
-                        }
-                        disabled={busyKey !== null}
-                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
-                      >
-                        {busyKey === "adv-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                        {busyKey === "report-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                         紧凑 PDF
                       </button>
                     </div>

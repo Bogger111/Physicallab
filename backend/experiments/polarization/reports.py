@@ -243,12 +243,14 @@ def fig_circular_band(r: dict) -> bytes:
 
 
 def fig_params_compare(r_malus, r_hw, r_qw) -> bytes:
-    """Bar summary: slope deviation & key ratios vs theory — quick quality glance."""
+    """Bar summary of fitted/derived parameters with valid reference values only."""
     fig, axes = plt.subplots(1, 3, figsize=(10.4, 3.6))
-    # malus slope vs theory
+    # Malus I0 is fitted from this data set; no universal theoretical 100 μW.
     a1 = axes[0]
-    a1.bar(["实验斜率", "理论 100"], [r_malus["slope"], 100.0], color=[_BLUE, _GRAY], width=0.5)
-    a1.set_title(f"马吕斯 I0（偏差 {abs(r_malus['slope'] - 100) / 100 * 100:.2f}%）", fontsize=10.5, fontweight="bold")
+    a1.bar(["斜率 I0", "截距"], [r_malus["slope"], r_malus["intercept"]],
+           color=[_BLUE, _ORANGE], width=0.5)
+    a1.set_title(f"马吕斯拟合参数（R² = {r_malus['r_squared']:.5f}）",
+                 fontsize=10.5, fontweight="bold")
     # halfwave slope
     a2 = axes[1]
     a2.bar(["实验斜率", "理论 2"], [r_hw["slope"], 2.0], color=[_BLUE, _GRAY], width=0.5)
@@ -262,7 +264,7 @@ def fig_params_compare(r_malus, r_hw, r_qw) -> bytes:
     for ax in axes:
         ax.grid(axis="y", alpha=0.35)
         ax.tick_params(labelsize=8.5)
-    fig.suptitle("关键参数与理论值对比", fontsize=12, fontweight="bold", y=1.03)
+    fig.suptitle("关键参数汇总", fontsize=12, fontweight="bold", y=1.03)
     fig.tight_layout()
     return _fig_bytes(fig)
 
@@ -273,7 +275,7 @@ ADVANCED_SPEC = [
     ("残差分析", "半波片：转角测量误差分析（残差 + 相对偏差）", fig_halfwave_residuals, "halfwave"),
     ("理论对比", "λ/4 波片：I(φ) 直角坐标对比与残差", fig_quarterwave_cartesian, "quarterwave"),
     ("恒定性检验", "圆偏振光：检偏器旋转时光强恒定性检验", fig_circular_band, "circular"),
-    ("参数汇总", "关键参数与理论值对比", fig_params_compare, "all"),
+    ("参数汇总", "关键参数汇总", fig_params_compare, "all"),
 ]
 
 ADVANCED_CAPTIONS = [c for _, c, _, _ in ADVANCED_SPEC]

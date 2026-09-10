@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
 # Reliable base paths
@@ -47,16 +47,16 @@ class MalusData(BaseModel):
     rows: List[MalusRow]
 
 class HalfWaveInitial(BaseModel):
-    c_deg: float
+    c_deg: Optional[float] = None
     c_min: float = 0.0
-    p2_deg: float
+    p2_deg: Optional[float] = None
     p2_min: float = 0.0
 
 class HalfWaveRow(BaseModel):
     offset: float
-    c_deg: float
+    c_deg: Optional[float] = None
     c_min: float = 0.0
-    p2_deg: float
+    p2_deg: Optional[float] = None
     p2_min: float = 0.0
 
 class HalfWaveData(BaseModel):
@@ -96,8 +96,10 @@ async def root():
 @app.get("/api/experiments")
 async def list_experiments():
     """List all available experiments."""
-    return {
-        "experiments": [
+    soundlight_config_path = BACKEND_ROOT / "experiments" / "soundlight" / "config.json"
+    with soundlight_config_path.open(encoding="utf-8") as config_file:
+        soundlight_methods = json.load(config_file)
+    experiments = [
             {
                 "id": "polarization",
                 "name": "偏振光与双折射",
@@ -121,19 +123,35 @@ async def list_experiments():
                 "id": "sound-light",
                 "name": "声速光速的测量",
                 "category": "波动",
-                "description": "空气共振法、水中相位法、飞行时间法测声速；正弦法与李萨如法测光速",
+                "description": "空气共振法、水中相位法、飞行时间法测声速；正弦、方波相位法与李萨如法测光速",
                 "sub_experiments": [
-                    {"id": "air_resonance", "name": "空气中共振法测声速", "required": True},
-                    {"id": "water_phase", "name": "水中相位法测声速", "required": True},
-                    {"id": "tof", "name": "飞行时间法测声速", "required": False},
-                    {"id": "light_sine", "name": "光速测量（正弦法）", "required": True},
-                    {"id": "light_lissajous", "name": "光速测量（李萨如法）", "required": True},
+                    {"id": method["id"], "name": method["name"],
+                     "required": method["type"] == "required"}
+                    for method in soundlight_methods
                 ],
                 "record_sheet": "/api/record-sheets/sound-light",
                 "processing_time": "~1分钟",
             }
         ]
-    }
+    from experiments.general.engine import CONFIGS
+    experiments.extend({
+        "id": config["id"],
+        "name": config["name"],
+        "category": config["category"],
+        "description": config["description"],
+        "sub_experiments": [
+            {"id": method["id"], "name": method["name"],
+             "required": method.get("required", False)}
+            for method in config["methods"]
+        ],
+        "measurements": [
+            {"key": f"measurement_{index}", "label": label, "unit": ""}
+            for index, label in enumerate(config["measurements"], start=1)
+        ],
+        "record_sheet": f"/api/record-sheets/{config['id']}",
+        "processing_time": config["processingTime"],
+    } for config in CONFIGS)
+    return {"experiments": experiments}
 
 
 @app.get("/api/record-sheets/polarization")
@@ -239,24 +257,25 @@ async def get_polarization_record_sheet_pdf():
 
 
 @app.post("/api/experiments/polarization/report")
-async def polarization_report(req: ProcessRequest, part: str = "basic", fmt: str = "docx"):
-    """Generate a part report (basic | advanced) as Word or compact PDF."""
+async def polarization_report(req: ProcessRequest, fmt: str = "docx",
+                              part: Optional[str] = None):
+    """Generate the unified four-section report as Word or compact PDF.
+
+    ``part`` remains accepted for compatibility but no longer changes output.
+    """
     from experiments.polarization import docbuild
 
     data = _request_to_data(req)
     if not data:
         raise HTTPException(status_code=400, detail="未提供任何实验数据")
-    if part not in ("basic", "advanced"):
-        raise HTTPException(status_code=400, detail="part 必须是 basic 或 advanced")
     if fmt not in ("docx", "pdf"):
         raise HTTPException(status_code=400, detail="fmt 必须是 docx 或 pdf")
     try:
-        content = docbuild.part_bytes(part, data, bg_uw=req.bg_uw,
-                                      theta_qwp=req.theta_qwp, fmt=fmt)
+        content = docbuild.report_bytes(data, bg_uw=req.bg_uw,
+                                        theta_qwp=req.theta_qwp, fmt=fmt)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"报告生成失败: {e}")
-    label = "基准部分" if part == "basic" else "拓展部分"
-    fname = f"偏振光与双折射实验-报告-{label}.{'docx' if fmt == 'docx' else 'pdf'}"
+    fname = f"偏振光与双折射实验-完整报告.{'docx' if fmt == 'docx' else 'pdf'}"
     mime = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             if fmt == "docx" else "application/pdf")
     return Response(content=content, media_type=mime,
@@ -299,18 +318,18 @@ async def get_polarization_config():
 class SoundLightProcessRequest(BaseModel):
     """Single-method processing: {method, rows, params}."""
     method: str
-    rows: Dict[str, List[Any]] = {}
-    params: Dict[str, Any] = {}
+    rows: Dict[str, List[Optional[float]]] = Field(default_factory=dict)
+    params: Dict[str, float] = Field(default_factory=dict)
 
 
 class SoundLightReportRequest(BaseModel):
     """Report generation: {data: {method_id: {rows, params}, ...}}."""
-    data: Dict[str, Dict[str, Any]] = {}
+    data: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 
 @app.get("/api/experiments/sound-light/config")
 async def get_soundlight_config():
-    """Return the exp02 method config array (5 methods) for the frontend."""
+    """Return the exp02 method config array (6 methods) for the frontend."""
     config_path = BACKEND_ROOT / "experiments" / "soundlight" / "config.json"
     if config_path.exists():
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -350,26 +369,89 @@ async def get_soundlight_record_sheet_pdf():
 
 
 @app.post("/api/experiments/sound-light/report")
-async def soundlight_report(req: SoundLightReportRequest, part: str = "basic", fmt: str = "docx"):
-    """Generate an exp02 part report (basic | advanced) as Word or compact PDF.
+async def soundlight_report(req: SoundLightReportRequest, fmt: str = "docx",
+                            part: Optional[str] = None):
+    """Generate the unified exp02 four-section report as Word or compact PDF.
 
     Body: {"data": {"<method_id>": {"rows": {...}, "params": {...}}, ...}}
     Only methods with submitted data are included in the report.
+    ``part`` remains accepted for compatibility but no longer changes output.
     """
     if not req.data:
         raise HTTPException(status_code=400, detail="未提供任何实验数据")
-    if part not in ("basic", "advanced"):
-        raise HTTPException(status_code=400, detail="part 必须是 basic 或 advanced")
     if fmt not in ("docx", "pdf"):
         raise HTTPException(status_code=400, detail="fmt 必须是 docx 或 pdf")
     from experiments.soundlight import docs
     try:
-        content = docs.report_bytes(part, req.data, fmt)
+        content = docs.report_bytes(req.data, fmt)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"报告生成失败: {e}")
-    label = "基准部分" if part == "basic" else "拓展部分"
-    fname = f"声速光速的测量-报告-{label}.{'docx' if fmt == 'docx' else 'pdf'}"
+    fname = f"声速光速的测量-完整报告.{'docx' if fmt == 'docx' else 'pdf'}"
     mime = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             if fmt == "docx" else "application/pdf")
     return Response(content=content, media_type=mime,
                     headers={"Content-Disposition": _attachment(fname)})
+
+
+# ════════════════════════════════════════════════════════════════════
+#  Configuration-driven experiments (all labs after the first two)
+# ════════════════════════════════════════════════════════════════════
+
+class GenericExperimentRequest(BaseModel):
+    data: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+
+
+def _generic_config(experiment_id: str) -> dict:
+    from experiments.general.engine import CONFIG_BY_ID
+    config = CONFIG_BY_ID.get(experiment_id)
+    if not config:
+        raise HTTPException(status_code=404, detail="实验配置不存在")
+    return config
+
+
+@app.get("/api/experiments/{experiment_id}/config")
+async def get_generic_experiment_config(experiment_id: str):
+    return _generic_config(experiment_id)
+
+
+@app.post("/api/experiments/{experiment_id}/process")
+async def process_generic_experiment(experiment_id: str,
+                                     req: GenericExperimentRequest):
+    _generic_config(experiment_id)
+    from experiments.general.engine import process_experiment
+    return process_experiment(experiment_id, req.data)
+
+
+@app.get("/api/record-sheets/{experiment_id}.{fmt}")
+async def get_generic_record_sheet(experiment_id: str, fmt: str):
+    config = _generic_config(experiment_id)
+    if fmt not in ("docx", "pdf"):
+        raise HTTPException(status_code=400, detail="fmt 必须是 docx 或 pdf")
+    from experiments.general import docs
+    content = docs.record_bytes(experiment_id, fmt)
+    mime = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            if fmt == "docx" else "application/pdf")
+    filename = f"{config['name']}-数据记录表.{fmt}"
+    return Response(content=content, media_type=mime,
+                    headers={"Content-Disposition": _attachment(filename)})
+
+
+@app.post("/api/experiments/{experiment_id}/report")
+async def generic_experiment_report(experiment_id: str,
+                                    req: GenericExperimentRequest,
+                                    fmt: str = "docx"):
+    config = _generic_config(experiment_id)
+    if fmt not in ("docx", "pdf"):
+        raise HTTPException(status_code=400, detail="fmt 必须是 docx 或 pdf")
+    if not req.data:
+        raise HTTPException(status_code=400, detail="未提供任何实验数据")
+    from experiments.general import docs
+    try:
+        content = docs.report_bytes(experiment_id, req.data, fmt)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"报告生成失败: {exc}")
+    mime = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            if fmt == "docx" else "application/pdf")
+    filename = f"{config['name']}-完整报告.{fmt}"
+    return Response(content=content, media_type=mime,
+                    headers={"Content-Disposition": _attachment(filename)})

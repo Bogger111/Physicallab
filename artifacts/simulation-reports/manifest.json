@@ -1,0 +1,122 @@
+{
+  "validation_boundary": "synthetic fixtures and unit tests only; not complete real-data validation",
+  "reports": {
+    "polarization": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\polarization.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\polarization.docx",
+      "pdf_pages": 8,
+      "section_start_pages": {
+        "第三部分": 7,
+        "第四部分": 8
+      }
+    },
+    "sound-light": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\sound-light.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\sound-light.docx",
+      "pdf_pages": 9,
+      "section_start_pages": {
+        "第三部分": 7,
+        "第四部分": 9
+      }
+    },
+    "multimeter": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\multimeter.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\multimeter.docx",
+      "pdf_pages": 9,
+      "section_start_pages": {
+        "第三部分": 7,
+        "第四部分": 9
+      }
+    },
+    "bridge": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\bridge.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\bridge.docx",
+      "pdf_pages": 7,
+      "section_start_pages": {
+        "第三部分": 5,
+        "第四部分": 7
+      }
+    },
+    "photoelectric": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\photoelectric.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\photoelectric.docx",
+      "pdf_pages": 7,
+      "section_start_pages": {
+        "第三部分": 6,
+        "第四部分": 7
+      }
+    },
+    "franck-hertz": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\franck-hertz.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\franck-hertz.docx",
+      "pdf_pages": 7,
+      "section_start_pages": {
+        "第三部分": 6,
+        "第四部分": 7
+      }
+    },
+    "solar-cell": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\solar-cell.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\solar-cell.docx",
+      "pdf_pages": 8,
+      "section_start_pages": {
+        "第三部分": 6,
+        "第四部分": 8
+      }
+    },
+    "gmr": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\gmr.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\gmr.docx",
+      "pdf_pages": 7,
+      "section_start_pages": {
+        "第三部分": 5,
+        "第四部分": 7
+      }
+    },
+    "nmr": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\nmr.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\nmr.docx",
+      "pdf_pages": 5,
+      "section_start_pages": {
+        "第三部分": 4,
+        "第四部分": 5
+      }
+    },
+    "viscosity": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\viscosity.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\viscosity.docx",
+      "pdf_pages": 5,
+      "section_start_pages": {
+        "第三部分": 4,
+        "第四部分": 5
+      }
+    },
+    "surface-tension": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\surface-tension.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\surface-tension.docx",
+      "pdf_pages": 7,
+      "section_start_pages": {
+        "第三部分": 6,
+        "第四部分": 7
+      }
+    },
+    "thermal-conductivity": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\thermal-conductivity.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\thermal-conductivity.docx",
+      "pdf_pages": 5,
+      "section_start_pages": {
+        "第三部分": 4,
+        "第四部分": 5
+      }
+    },
+    "michelson": {
+      "pdf": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\michelson.pdf",
+      "docx": "D:\\AI\\physicslab\\artifacts\\simulation-reports\\michelson.docx",
+      "pdf_pages": 4,
+      "section_start_pages": {
+        "第三部分": 3,
+        "第四部分": 4
+      }
+    }
+  }
+}

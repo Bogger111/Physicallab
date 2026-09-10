@@ -32,7 +32,9 @@ from __future__ import annotations
 
 import base64
 import io
+import json
 import math
+from pathlib import Path
 
 import numpy as np
 import matplotlib
@@ -53,37 +55,21 @@ RED = "#dc2626"
 GREEN = "#10b981"
 GRAY = "#6b7280"
 
-_METHOD_NAMES = {
-    "air_resonance": "空气中共振法测声速",
-    "water_phase": "水中相位法测声速",
-    "tof": "飞行时间法测声速",
-    "light_sine": "光速测量（正弦法）",
-    "light_lissajous": "光速测量（李萨如法）",
-}
+with (Path(__file__).with_name("config.json")).open(encoding="utf-8") as _config_file:
+    _CONFIG = json.load(_config_file)
+_METHOD_CONFIG = {item["id"]: item for item in _CONFIG}
+_METHOD_NAMES = {method: item["name"] for method, item in _METHOD_CONFIG.items()}
 
-# method -> [(column key, required length, 中文列描述), ...]
+# Calculation validation and the public config consume the same field schema.
 _COLUMNS = {
-    "air_resonance": [("l", 12, "共振位置 l (mm)")],
-    "water_phase": [("l", 12, "同相位位置 l (mm)")],
-    "tof": [("L", 12, "传播距离 L (mm)"), ("T", 12, "飞行时间 T (μs)")],
-    "light_sine": [
-        ("T", 3, "差频周期 T (μs)"),
-        ("dt", 3, "相位差 Δt (μs)"),
-        ("x1", 3, "反射镜位置 x1 (mm)"),
-        ("x2", 3, "反射镜位置 x2 (mm)"),
-    ],
-    "light_lissajous": [
-        ("x1", 3, "直线位置 x1 (mm)"),
-        ("x2", 3, "反斜率直线位置 x2 (mm)"),
-    ],
+    method: [(column["key"], column["count"],
+              f'{column["label"]} ({column["unit"]})')
+             for column in item["table_cols"]]
+    for method, item in _METHOD_CONFIG.items()
 }
-
 _PARAM_DEFAULTS = {
-    "air_resonance": {"temperature_degC": 25.0, "f_khz": 38.0},
-    "water_phase": {"f_mhz": 1.0},
-    "tof": {},
-    "light_sine": {"f_mhz": 150.0, "c_ref": 299800000.0},
-    "light_lissajous": {"f_mhz": 150.0, "c_ref": 299800000.0},
+    method: {param["key"]: param["default"] for param in item["params"]}
+    for method, item in _METHOD_CONFIG.items()
 }
 
 V0 = 331.45   # 0 °C 空气中声速参考值 (m/s)
@@ -132,7 +118,10 @@ def _parse_col(rows, key, need_len, label, errors):
             if v == "":
                 continue
         try:
-            out[i] = float(v)
+            value = float(v)
+            if isinstance(v, bool) or not math.isfinite(value):
+                raise ValueError("需要有限数值")
+            out[i] = value
             n_valid += 1
         except (TypeError, ValueError):
             errors.append(f"{label}：第 {i + 1} 个数据无法识别为数字")
@@ -148,8 +137,15 @@ def _parse_params(method, params):
     for key, dflt in defaults.items():
         try:
             used[key] = float(params.get(key, dflt))
-        except (TypeError, ValueError):
-            used[key] = dflt
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"参数 {key} 必须为有效数值") from exc
+        if isinstance(params.get(key), bool) or not math.isfinite(used[key]):
+            raise ValueError(f"参数 {key} 必须为有限数值")
+        if key == "temperature_degC":
+            if used[key] <= -T0:
+                raise ValueError("环境温度必须高于绝对零度")
+        elif used[key] <= 0:
+            raise ValueError(f"参数 {key} 必须大于零")
     return used
 
 
@@ -180,7 +176,7 @@ def _positions_fig(xs, ls, title, dlm, lam_mm, extra):
     return _fig_b64(fig)
 
 
-def _tof_fig(L, T, slope, r2, v_mean):
+def _tof_fig(L, T, slope, intercept, r2, v_mean):
     """L(mm) 横轴 vs T(μs) 纵轴；拟合斜率单位为 μs/mm（= 1/(mm/μs)），
     声速 v = 1/斜率 mm/μs × 1000 = 1000/斜率 (m/s)。"""
     v_fit = 1000.0 / slope if slope else float("nan")
@@ -188,8 +184,9 @@ def _tof_fig(L, T, slope, r2, v_mean):
     ax.grid(True, ls=":", lw=0.6, alpha=0.7)
     ax.scatter(L, T, s=42, color=ORANGE, zorder=3, label="测量点")
     xs = np.linspace(min(L), max(L), 50)
-    ax.plot(xs, slope * xs, color=RED, lw=1.6, label="线性拟合 T = a·L")
-    txt = (f"拟合斜率 a = {slope:.4f} μs/mm\n"
+    ax.plot(xs, slope * xs + intercept, color=RED, lw=1.6,
+            label="线性拟合 T = a·L + b")
+    txt = (f"拟合斜率 a = {slope:.4f} μs/mm；截距 b = {intercept:.4f} μs\n"
            f"换算 v = 1000/a ≈ {v_fit:.1f} m/s；R² = {r2:.4f}\n"
            f"逐点平均速度 v = {v_mean:.1f} m/s")
     ax.text(0.03, 0.95, txt, transform=ax.transAxes, fontsize=9.5, va="top",
@@ -202,20 +199,21 @@ def _tof_fig(L, T, slope, r2, v_mean):
     return _fig_b64(fig)
 
 
-def _light_sine_fig(dt, dx2, slope, c_exp, err_rel, c_ref):
+def _light_sine_fig(dt, dx2, slope, intercept, c_exp, err_rel, c_ref, wave):
     fig, ax = plt.subplots(figsize=(8.2, 4.4))
     ax.grid(True, ls=":", lw=0.6, alpha=0.7)
     ax.scatter(dt, dx2, s=42, color=BLUE, zorder=3, label="测量点")
     if slope is not None:
         xs = np.linspace(min(dt), max(dt), 20)
-        ax.plot(xs, slope * xs, color=RED, lw=1.6, label="线性拟合")
+        ax.plot(xs, slope * xs + intercept, color=RED, lw=1.6,
+                label="线性拟合（含截距）")
     txt = (f"c_exp ≈ {c_exp:.3e} m/s\n"
            f"相对误差 ≈ {err_rel:.2f} %（c_ref = {c_ref:.3e} m/s）")
     ax.text(0.03, 0.95, txt, transform=ax.transAxes, fontsize=9.5, va="top",
             bbox=dict(boxstyle="round,pad=0.35", fc="#f1f5f9", ec=BLUE, alpha=0.92))
     ax.set_xlabel("相位差 Δt (μs)")
     ax.set_ylabel("往返光程 2Δx (mm)")
-    ax.set_title("光速正弦法：2Δx 随 Δt 变化")
+    ax.set_title(f"光速相位法（{wave}）：2Δx 随 Δt 变化")
     ax.legend(loc="lower right", fontsize=8)
     fig.tight_layout()
     return _fig_b64(fig)
@@ -245,7 +243,7 @@ def _light_lissajous_fig(dx, dxm):
 def _calc_air_resonance(cols, p):
     l = cols["l"]
     n = len(l)
-    dl = [(l[i + 6] - l[i]) / 6.0 for i in range(n - 6)]
+    dl = [abs(l[i + 6] - l[i]) / 6.0 for i in range(n - 6)]
     dlm = _mean(dl)
     lam_m = 2.0 * dlm * 1e-3          # mm -> m
     f_hz = p["f_khz"] * 1000.0
@@ -275,7 +273,7 @@ def _calc_air_resonance(cols, p):
 def _calc_water_phase(cols, p):
     l = cols["l"]
     n = len(l)
-    dl = [(l[i + 6] - l[i]) / 6.0 for i in range(n - 6)]
+    dl = [abs(l[i + 6] - l[i]) / 6.0 for i in range(n - 6)]
     dlm = _mean(dl)
     f_hz = p["f_mhz"] * 1e6
     lam_m = 2.0 * dlm * 1e-3
@@ -315,13 +313,13 @@ def _calc_tof(cols, p):
         {"key": "v_mean", "label": "平均声速 v", "value": _sig(v_mean), "unit": "m/s"},
         {"key": "v_std", "label": "标准差", "value": _sig(v_std), "unit": "m/s"},
     ]
-    b64 = _tof_fig(L, T, float(slope), float(r2), v_mean)
+    b64 = _tof_fig(L, T, float(slope), float(intercept), float(r2), v_mean)
     arrays = {"L": L, "T": T, "v": v, "v_mean": v_mean, "v_std": v_std,
-              "slope": float(slope), "r2": float(r2)}
+              "slope": float(slope), "intercept": float(intercept), "r2": float(r2)}
     return results, b64, arrays
 
 
-def _calc_light_sine(cols, p):
+def _calc_light_sine(cols, p, wave="正弦波"):
     T = cols["T"]
     dt = cols["dt"]
     x1 = cols["x1"]
@@ -331,12 +329,11 @@ def _calc_light_sine(cols, p):
     tm = _mean(T)
     dtm = _mean(dt)
     # 讲义【数据处理】：计算 Δx/Δt 的平均值 → 逐点 r_i = Δx_i/Δt_i (mm/μs) 再取平均 r_mean
-    r = [(dx[i] / dt[i]) if dt[i] else float("nan") for i in range(len(dt))]
-    r_finite = [v for v in r if v == v]
-    r_mean = _mean(r_finite) if r_finite else float("nan")
+    r = [dx[i] / dt[i] for i in range(len(dt))]
+    r_mean = _mean(r)
     # 差频原理：c = 2·f_t·T·(Δx/Δt)。量纲：λ(mm)=2·T(μs)·r_mean(mm/μs)，
     # λ(m)=λ(mm)·1e-3，c_exp = f_t(Hz)·λ(m)。
-    lam_mm = 2.0 * tm * r_mean if r_finite else float("nan")
+    lam_mm = 2.0 * tm * r_mean
     lam_m = lam_mm * 1e-3
     f_hz = p["f_mhz"] * 1e6
     c_exp = f_hz * lam_m
@@ -352,11 +349,12 @@ def _calc_light_sine(cols, p):
         {"key": "delta_t_mean", "label": "相位差均值 Δt", "value": round(dtm, 3), "unit": "μs"},
         {"key": "delta_x_mean", "label": "Δx 均值", "value": round(dxm, 1), "unit": "mm"},
     ]
-    slope = None
+    slope, intercept = None, 0.0
     if np.ptp(dt) > 1e-9:
         slope, intercept = np.polyfit(dt, [2.0 * v for v in dx], 1)
-    b64 = _light_sine_fig(dt, [2.0 * v for v in dx], float(slope) if slope is not None else None,
-                          c_exp, err_rel, c_ref)
+    b64 = _light_sine_fig(dt, [2.0 * v for v in dx],
+                          float(slope) if slope is not None else None,
+                          float(intercept), c_exp, err_rel, c_ref, wave)
     arrays = {"T": T, "dt": dt, "x1": x1, "x2": x2, "dx": dx, "dxm": dxm,
               "r": r, "r_mean": r_mean, "t_mean": tm, "dt_mean": dtm,
               "lam_mm": lam_mm, "c_exp": c_exp, "err_abs": err_abs,
@@ -400,13 +398,14 @@ _CALC = {
 
 def analyze(method, rows, params=None):
     """Full pipeline: validation + computation + main figure + arrays (for reports)."""
-    if method == "light_square":  # 选做：相位法测光速（方波），方法与正弦波完全相同
+    requested_method = method
+    if method == "light_square":  # 讲义第 7 页：方法同正弦波；保留独立方法身份
         method = "light_sine"
     if method not in _CALC:
         return {"status": "validation_error",
                 "errors": [f"未知实验方法：{method}，可选 {list(_CALC.keys())}"],
                 "results": [], "plots": {}, "arrays": {},
-                "params_used": {}, "method": method}
+                "params_used": {}, "method": requested_method}
     errors = []
     cols = {}
     for key, need_len, label in _COLUMNS[method]:
@@ -424,23 +423,50 @@ def analyze(method, rows, params=None):
     if errors:
         return {"status": "validation_error", "errors": errors,
                 "results": [], "plots": {}, "arrays": {},
-                "params_used": {}, "method": method}
+                "params_used": {}, "method": requested_method}
     try:
         params_used = _parse_params(method, params)
-        results, b64, arrays = _CALC[method](cols, params_used)
+        for key in ("T", "dt"):
+            if key in cols and any(v <= 0 for v in cols[key]):
+                raise ValueError(f"{key} 必须全部大于零，不能删除无效测量点后计算")
+        if method == "tof":
+            if any(v <= 0 for v in cols["L"]):
+                raise ValueError("传播距离 L 必须大于零")
+            if len(set(cols["L"])) < 2:
+                raise ValueError("飞行时间拟合需要至少两个不同的传播距离")
+        if method in ("air_resonance", "water_phase"):
+            spans = [cols["l"][i + 6] - cols["l"][i] for i in range(6)]
+            if any(v == 0 for v in spans) or not (all(v > 0 for v in spans)
+                                                  or all(v < 0 for v in spans)):
+                raise ValueError("逐差方向必须一致且间距非零，请核对记录顺序与位置读数")
+        if method in ("light_sine", "light_lissajous"):
+            if any(x1 == x2 for x1, x2 in zip(cols["x1"], cols["x2"])):
+                raise ValueError("每组反射镜位置 x1 与 x2 必须不同")
+        if requested_method == "light_square":
+            results, b64, arrays = _calc_light_sine(cols, params_used, wave="方波")
+        else:
+            results, b64, arrays = _CALC[method](cols, params_used)
+        for value in arrays.values():
+            values = value if isinstance(value, list) else [value]
+            if any(not math.isfinite(v) for v in values):
+                raise ValueError("计算结果超出有限数值范围，请检查输入")
+        if method == "tof" and arrays["slope"] <= 0:
+            raise ValueError("飞行时间应随传播距离增加，当前拟合斜率不为正")
     except Exception as exc:  # 除零等数值意外
         return {"status": "validation_error",
                 "errors": [f"计算失败：{exc}"],
                 "results": [], "plots": {}, "arrays": {},
-                "params_used": {}, "method": method}
+                "params_used": {}, "method": requested_method}
     return {"status": "success", "errors": [],
             "results": results, "plots": {"main": b64},
             "arrays": arrays, "params_used": params_used,
-            "method": method, "method_name": _METHOD_NAMES[method]}
+            "method": requested_method,
+            "method_name": _METHOD_NAMES[requested_method]}
 
 
 def process_method(method, rows, params=None):
     """前端处理接口：返回 {status, errors, results, plots}。"""
     full = analyze(method, rows, params)
     return {"status": full["status"], "errors": full["errors"],
-            "results": full["results"], "plots": full["plots"]}
+            "results": full["results"], "plots": full["plots"],
+            "method": full.get("method"), "method_name": full.get("method_name")}

@@ -3,7 +3,7 @@
 
 record_blocks()                      空白数据记录表（遗留实现，供 docs.record_bytes；主接口 /api/record-sheets/sound-light.* 现由 record_clean.record_bytes 提供）
 report_blocks(part, methods_data)    基准 / 拓展部分报告（供 /api/experiments/sound-light/report）
-report_bytes(part, methods_data, fmt) 渲染为 docx/pdf 字节
+report_bytes(methods_data, fmt) 渲染统一四部分报告的 docx/pdf 字节
 """
 
 from __future__ import annotations
@@ -33,11 +33,10 @@ RED = "#dc2626"
 GREEN = "#10b981"
 GRAY = "#6b7280"
 
-ORDER = ["air_resonance", "water_phase", "tof", "light_sine", "light_lissajous"]
+ORDER = [item["id"] for item in sl._CONFIG]
 METHOD_NAME = sl._METHOD_NAMES
 METHOD_REQUIRED = {
-    "air_resonance": True, "water_phase": True, "tof": False,
-    "light_sine": True, "light_lissajous": True,
+    item["id"]: item["type"] == "required" for item in sl._CONFIG
 }
 
 # ──────────────────────────────────────────────── formatting helpers
@@ -250,7 +249,8 @@ def _adv_light_compare_fig(entries, c_ref):
     names = [e[0] for e in entries]
     vals = [e[1] / 1e8 for e in entries]
     x = np.arange(len(entries))
-    bars = ax.bar(x, vals, width=0.45, color=[BLUE, GREEN][:len(entries)], alpha=0.85)
+    palette = [BLUE, GREEN, ORANGE]
+    ax.bar(x, vals, width=0.45, color=palette[:len(entries)], alpha=0.85)
     ax.axhline(c_ref / 1e8, color=RED, ls="--", lw=1.6, label=f"c_ref = {c_ref/1e8:.3f}×10^8 m/s")
     for xi, (nm, c, err) in zip(x, entries):
         ax.text(xi, vals[xi] + 0.003, f"{vals[xi]:.3f}\n({err:.2f}%)",
@@ -258,7 +258,7 @@ def _adv_light_compare_fig(entries, c_ref):
     ax.set_xticks(x)
     ax.set_xticklabels(names, fontsize=9.5)
     ax.set_ylabel("c_exp (10^8 m/s)")
-    ax.set_title("光速测量：正弦法与李萨如法结果对比")
+    ax.set_title("光速测量：已提交方法结果对比")
     ax.legend(fontsize=8.5)
     fig.tight_layout()
     return _fig_b64(fig)
@@ -297,6 +297,7 @@ def _res(run, key):
 import math
 
 from experiments.record_clean import sl_table_spec as rc_spec
+from experiments.report_layout import four_section_report, latex
 
 # ================================================================
 # 基准报告：① 原始数据表（与空白记录表逐列同构）② 数据处理
@@ -315,10 +316,7 @@ _METHOD_DISP = {
 _WAVE_CN = {"light_sine": "正弦波", "light_square": "方波"}
 
 # 所有“已提交并校验通过”的方法，含 light_square（engine 内部并入正弦法计算）
-_PRESENT_ORDER = [
-    ("air_resonance", True), ("water_phase", True), ("tof", False),
-    ("light_sine", True), ("light_square", False), ("light_lissajous", True),
-]
+_PRESENT_ORDER = [(method, METHOD_REQUIRED[method]) for method in ORDER]
 
 C0_MS = 2.998e8            # 真空/空气光速参考值 (m/s)，讲义口径
 
@@ -462,19 +460,19 @@ def _diff_table(l, dl):
         j = i + 6
         rows.append([
             {"text": str(i + 1)},
-            {"text": f"Δl{i + 1} = (l{i + 7} − l{i + 1})/6"
-                     f" = ({_f(l[j], 2)} − {_f(l[i], 2)})/6 = {_f(l[j] - l[i], 2)}/6"},
+            {"text": f"Δl{i + 1} = |l{i + 7} − l{i + 1}|/6"
+                     f" = |{_f(l[j], 2)} − {_f(l[i], 2)}|/6"
+                     f" = {_f(abs(l[j] - l[i]), 2)}/6"},
             {"text": _f(dl[i], 4)},
         ])
     return _tab(rows, [1.8, 12.6, 3.4], font=8, row_h=0.42)
 
 
-def _mean_line(tag, dl, unit="mm"):
+def _mean_line(tag, dl, mean, unit="mm"):
     """Δl 平均 = (Δl1 + … + Δl6)/6 = (六个数值之和)/6 = 结果。"""
     s6 = [_f(v, 4) for v in dl]
-    total = sum(float(s) for s in s6)
     return (f"{tag} = (Δl1 + Δl2 + Δl3 + Δl4 + Δl5 + Δl6)/6"
-            f" = ({' + '.join(s6)})/6 = {_f(total / 6.0, 4)} {unit}")
+            f" = ({' + '.join(s6)})/6 ≈ {_f(mean, 4)} {unit}")
 
 
 def _proc_1a(air) -> list[dict]:
@@ -486,29 +484,29 @@ def _proc_1a(air) -> list[dict]:
         _h3("处理 1a：共振干涉法测空气中声速（必做）"),
         _cap("原始数据为 表1-1 第 2 列 l1 至 l12（单位 mm）。相邻共振位置相差半个波长，"
              "用隔 6 次相减的逐差法求平均半波长：Δl1 = (l7 − l1)/6，Δl2 = (l8 − l2)/6，"
-             "…，Δl6 = (l12 − l6)/6。六组逐差逐行如下："),
+             "…，Δl6 = (l12 − l6)/6。六组逐差明细见第一部分对应表格。"),
     ]
     out.append(_diff_table(l, dl))
-    mean_s = _mean_line("Δl 平均（半波长）", dl)
+    mean_s = _mean_line("Δl 平均（半波长）", dl, a["dlm"])
     out.append(_cap(mean_s + "。"))
-    # 由显示值构造 λ 与 v 的代入链
-    mean4 = sum(float(_f(v, 4)) for v in dl) / 6.0
-    lam_mm = 2.0 * round(mean4, 4)
+    # 展示值可以修约；最终结果直接使用 engine 保存的完整精度结果。
+    mean4 = a["dlm"]
+    lam_mm = a["lam_mm"]
     lam_mm_s = _f(lam_mm, 4)                      # 9.1144
     lam_m_s = _f(lam_mm / 1000.0, 7)              # 0.0091144
-    v_s = _f(f_hz * float(lam_m_s), 2)            # 346.35
+    v_s = _f(a["v_exp"], 2)
     out.append(_cap(f"波长与实验声速：λ = 2×Δl 平均 = 2×{_f(round(mean4, 4), 4)}"
                     f" = {lam_mm_s} mm = {lam_m_s} m；"
                     f"实验声速 v = f×λ = {_f(f_hz, 0)}×{lam_m_s} = {v_s} m/s"
                     f"（f = {f_khz:g} kHz = {_f(f_hz, 0)} Hz；"
                     f"v = 2×f×Δl 平均 代入同值）。"))
     sq = math.sqrt(1.0 + t_c / 273.15)
-    v_th = 331.45 * sq
+    v_th = a["v_theory"]
     out.append(_cap(f"理论声速（温度修正，讲义理想气体公式）："
                     f"v = 331.45×√(1 + t/273.15) = 331.45×√(1 + {t_c:g}/273.15)"
                     f" = 331.45×{_f(sq, 5)} = {_f(v_th, 2)} m/s（室温 t = {t_c:g} °C）。"))
-    e_abs = abs(float(v_s) - float(_f(v_th, 2)))
-    e_rel = e_abs / float(_f(v_th, 2)) * 100.0
+    e_abs = a["err_abs"]
+    e_rel = a["err_rel"]
     out.append(_cap(f"误差比较：绝对误差 = |实验值 − 理论值| = |{v_s} − {_f(v_th, 2)}|"
                     f" = {_f(e_abs, 2)} m/s；相对误差 = ({_f(e_abs, 2)}/{_f(v_th, 2)})×100%"
                     f" = {_f(e_rel, 2)}%。"))
@@ -524,17 +522,16 @@ def _proc_1b(wat) -> list[dict]:
     out = [
         _h3("处理 1b：相位比较法测水中声速（必做）"),
         _cap("原始数据为 表1-1 第 3 列（单位 mm）。逐差法与处理 1a 相同："
-             "Δl1 = (l7 − l1)/6，…，Δl6 = (l12 − l6)/6。六组逐差逐行如下："),
+             "Δl1 = (l7 − l1)/6，…，Δl6 = (l12 − l6)/6。六组逐差明细见第一部分对应表格。"),
     ]
     out.append(_diff_table(l, dl))
-    mean_s = _mean_line("Δl 平均（半波长）", dl)
+    mean_s = _mean_line("Δl 平均（半波长）", dl, a["dlm"])
     out.append(_cap(mean_s + "。"))
-    mean4 = sum(float(_f(v, 4)) for v in dl) / 6.0
-    mean4 = round(mean4, 4)
-    lam_mm = 2.0 * mean4
+    mean4 = a["dlm"]
+    lam_mm = a["lam_mm"]
     lam_mm_s = _f(lam_mm, 4)
     lam_m_s = _f(lam_mm / 1000.0, 7)
-    v_s = _f(f_hz * float(lam_m_s), 1)
+    v_s = _f(a["v"], 1)
     out.append(_cap(f"水中声速：λ = 2×Δl 平均 = 2×{_f(mean4, 4)} = {lam_mm_s} mm"
                     f" = {lam_m_s} m；v = f×λ = {_f(f_hz, 0)}×{lam_m_s} = {v_s} m/s"
                     f"（或 v = 2×f×Δl 平均 = 2×{_f(f_hz, 0)}×{_f(mean4 / 1000.0, 7)}"
@@ -545,7 +542,7 @@ def _proc_1b(wat) -> list[dict]:
     dev_rows = [[{"text": "组号"}, {"text": "偏差（mm）"}, {"text": "偏差平方（mm²）"}]]
     sq_total = 0.0
     for i, d in enumerate(dl):
-        dev = float(_f(d, 4)) - mean4
+        dev = d - mean4
         sq = dev * dev
         sq_total += sq
         dev_rows.append([{"text": str(i + 1)},
@@ -553,14 +550,14 @@ def _proc_1b(wat) -> list[dict]:
                          {"text": _f(sq, 8)}])
     out.append(_tab(dev_rows, [1.8, 7.6, 8.4], font=8, row_h=0.42))
     sq_s = _f(sq_total, 8)
-    s_dl = math.sqrt(float(sq_s) / 5.0)
+    s_dl = a["s"]
     out.append(_cap(f"贝塞尔公式：s(Δl) = √(偏差平方和/(n − 1))"
                     f" = √({sq_s}/5) = {_f(s_dl, 5)} mm"
-                    f"（偏差平方和即上表末行之和）。"))
-    ua_dl = 2.571 * float(_f(s_dl, 5)) / math.sqrt(6.0)
+                    f"（偏差平方和取自第一部分的偏差明细表）。"))
+    ua_dl = a["ua_dl_mm"]
     ua_dl_mm_s = _f(ua_dl, 5)
-    ua_dl_m_s = _f(ua_dl / 1000.0, 8)
-    ua_v_s = _f(2.0 * f_hz * float(ua_dl_m_s), 1)
+    ua_dl_m_s = _f(a["ua_dl_m"], 8)
+    ua_v_s = _f(a["u_a_v"], 1)
     out.append(_cap(f"Δl 的 A 类不确定度（记为 UA(Δl)）："
                     f"UA(Δl) = 2.571×s(Δl)/√6 = 2.571×{_f(s_dl, 5)}/2.44949"
                     f" = {ua_dl_mm_s} mm = {ua_dl_m_s} m；"
@@ -568,7 +565,7 @@ def _proc_1b(wat) -> list[dict]:
                     f" = 2×{_f(f_hz, 0)}×{ua_dl_m_s} = {ua_v_s} m/s。"))
     out.append(_cap(f"结果：v ± UA(v) = {v_s} ± {ua_v_s} m/s"
                     f"（与水中声速常用参考值 1480 m/s 相差"
-                    f" {_f(abs(float(v_s) - 1480.0) / 1480.0 * 100.0, 1)}%）。"))
+                    f" {_f(abs(a['v'] - 1480.0) / 1480.0 * 100.0, 1)}%）。"))
     out.append({"kind": "spacer", "cm": 0.03})
     return out
 
@@ -579,7 +576,7 @@ def _proc_1c(tof) -> list[dict]:
     out = [
         _h3("处理 1c：时差法测水中声速（选做）"),
         _cap("逐点速度：每个传播距离 L(mm) 换算为 m、对应飞行时间 T(μs) 换算为 s 后相除，"
-             "即每点 v = L(mm)/T(μs)×1000（m/s）。逐点计算如下："),
+             "即每点 v = L(mm)/T(μs)×1000（m/s）。逐点结果见第一部分对应表格。"),
     ]
     rows = [[{"text": "测量次数"}, {"text": "L (mm)"}, {"text": "T (μs)"},
              {"text": "v (m/s)"}]]
@@ -606,34 +603,34 @@ def _proc_2a(mid, run) -> list[dict]:
     out = [_h3(f"处理 2a：相位差法（{wv}）测空气中光速（{tag}）")]
     # ① T 平均
     ts = [_f(v, 3) for v in a["T"]]
-    t_sum = sum(float(s) for s in ts)
-    t_mean = t_sum / 3.0
+    t_sum = sum(a["T"])
+    t_mean = a["t_mean"]
     out.append(_cap(f"差频周期平均值（表2-1 数据，单位 μs；T1、T2、T3 为三次读数）："
                     f"T = (T1 + T2 + T3)/3 = ({' + '.join(ts)})/3"
                     f" = {_f(t_sum, 3)}/3 = {_f(t_mean, 3)} μs。"))
     # ② r 平均
     rs = [_f(v, 3) for v in a["r"]]
-    r_sum = sum(float(s) for s in rs)
-    r_mean = r_sum / 3.0
+    r_sum = sum(a["r"])
+    r_mean = a["r_mean"]
     out.append(_cap(f"表2-2 的 Δx/Δt 派生列即各行读数之比（单位 mm/μs），记为 r1、r2、r3；"
                     f"其平均（讲义：计算 Δx/Δt 的平均值）：r 平均 = (r1 + r2 + r3)/3"
                     f" = ({' + '.join(rs)})/3 = {_f(r_sum, 3)}/3"
                     f" = {_f(r_mean, 3)} mm/μs。"))
     # ③ λ ④ c
-    lam_mm = 2.0 * float(_f(t_mean, 3)) * float(_f(r_mean, 3))
+    lam_mm = a["lam_mm"]
     lam_mm_s = _f(lam_mm, 2)
     lam_m_s = _f(lam_mm / 1000.0, 5)
-    c_s = _f(f_hz * float(lam_m_s), 0)
+    c_s = _f(a["c_exp"], 0)
     out.append(_cap(f"调制波长（差频法公式 λ = 2×T×r，T、r 用上面的平均值）：λ(mm) = 2×{_f(t_mean, 3)}"
                     f"×{_f(r_mean, 3)} = {lam_mm_s} mm = {lam_m_s} m。"))
     out.append(_cap(f"实验光速：c = f×λ = {_f(f_hz, 0)}×{lam_m_s}"
-                    f" = {c_s} m/s ≈ {_f(float(c_s) / 1e8, 3)}×10⁸ m/s"
+                    f" = {c_s} m/s ≈ {_f(a['c_exp'] / 1e8, 3)}×10⁸ m/s"
                     f"（调制频率 f = {f_mhz:g} MHz = {_f(f_hz, 0)} Hz）。"))
     # ⑤ 误差
     c0 = float(p.get("c_ref", C0_MS))
-    e_abs = abs(float(c_s) - c0)
-    e_rel = e_abs / c0 * 100.0
-    out.append(_cap(f"与空气中光速理论值 c0 = 2.998×10⁸ m/s 比较："
+    e_abs = a["err_abs"]
+    e_rel = a["err_rel"]
+    out.append(_cap(f"与本次光速参考值 c0 = {_f(c0, 0)} m/s 比较："
                     f"绝对误差 = |c − c0| = |{c_s} − {_f(c0, 0)}|"
                     f" = {_f(e_abs, 0)} m/s ≈ {_f(e_abs / 1e4, 1)}×10⁴ m/s；"
                     f"相对误差 = ({_f(e_abs / 1e4, 1)}×10⁴/{_f(c0, 0)})×100%"
@@ -649,27 +646,28 @@ def _proc_2b(lis) -> list[dict]:
     out = [_h3("处理 2b：李萨如图形法测空气中光速（必做）")]
     # ① Δx 平均
     dxs = [_f(v, 2) for v in a["dx"]]
-    dx_sum = sum(float(s) for s in dxs)
-    dx_mean = dx_sum / 3.0
+    dx_sum = sum(a["dx"])
+    dx_mean = a["dxm"]
     out.append(_cap(f"Δx = |x2 − x1|（表2-3 数据，单位 mm）："
                     f"Δx 平均 = (Δx1 + Δx2 + Δx3)/3 = ({' + '.join(dxs)})/3"
                     f" = {_f(dx_sum, 2)}/3 = {_f(dx_mean, 2)} mm。"))
     # ② λ ③ c
-    lam_mm = 4.0 * float(_f(dx_mean, 2))
+    lam_mm = a["lam_mm"]
     lam_mm_s = _f(lam_mm, 2)
     lam_m_s = _f(lam_mm / 1000.0, 5)
-    c_s = _f(f_hz * float(lam_m_s), 0)
+    c_s = _f(a["c_exp"], 0)
     out.append(_cap("李萨如图由直线变为反斜率直线时相位差改变 π，对应光程差 λ/2、"
                     "反射镜移动 Δx = λ/4："))
     out.append(_cap(f"λ = 4×Δx 平均 = 4×{_f(dx_mean, 2)} = {lam_mm_s} mm"
                     f" = {lam_m_s} m。"))
     out.append(_cap(f"实验光速 c = f×λ = {_f(f_hz, 0)}×{lam_m_s}"
-                    f" = {c_s} m/s ≈ {_f(float(c_s) / 1e8, 3)}×10⁸ m/s"
+                    f" = {c_s} m/s ≈ {_f(a['c_exp'] / 1e8, 3)}×10⁸ m/s"
                     f"（调制频率 f = {f_mhz:g} MHz）。"))
     c0 = float(p.get("c_ref", C0_MS))
-    e_abs = abs(float(c_s) - c0)
-    e_rel = e_abs / c0 * 100.0
-    out.append(_cap(f"与 c0 = 2.998×10⁸ m/s 比较：绝对误差 = |{c_s} − {_f(c0, 0)}|"
+    e_abs = a["err_abs"]
+    e_rel = a["err_rel"]
+    out.append(_cap(f"与本次光速参考值 c0 = {_f(c0, 0)} m/s 比较："
+                    f"绝对误差 = |{c_s} − {_f(c0, 0)}|"
                     f" = {_f(e_abs, 0)} m/s ≈ {_f(e_abs / 1e4, 2)}×10⁴ m/s；"
                     f"相对误差 = ({_f(e_abs / 1e4, 2)}×10⁴/{_f(c0, 0)})×100%"
                     f" = {_f(e_rel, 2)}%。"))
@@ -723,8 +721,8 @@ def _err_sources_blocks(pres) -> list[dict]:
                   "light_lissajous": "光速（李萨如法）"}[mid]
             concl.append(f"{nm} c = {_f(a['c_exp'] / 1e8, 3)}×10⁸ m/s，"
                          f"相对误差 {_f(a['err_rel'], 2)}%")
-    tail = "。总体看，各方法实验值与理论值/参考值的偏差均在合理范围（声速相对误差与" \
-           "不确定度量级一致、光速小于 0.5%），测量与数据处理正确，结果可信。"
+    tail = ("。以上仅为提交数据的计算结果；是否符合实验要求需结合原始记录、"
+            "仪器条件与误差分析判断。")
     b.append(_cap("总体结论：" + "；".join(concl) + tail))
     b.append({"kind": "spacer", "cm": 0.03})
     return b
@@ -779,7 +777,14 @@ def _basic_blocks(methods_data) -> list[dict]:
     # ② 数据处理
     b.append({"kind": "h2", "text": "二、数据处理"})
     b.append(_cap("以下每一步都给出公式、实测数值代入与结果；数值取自本地数据分析结果"
-                  "（与在线处理接口同源同公式）。"))
+                  "（与在线处理接口同源同公式）。中间值为显示而修约，等式中的数值代入为"
+                  "近似展示；最终结果始终使用完整精度计算。"))
+    b.append({"kind": "note",
+              "text": "说明：数据处理由 PhysicsLab 本地完成；声速/光速取 4 位有效数字、"
+                      "相对误差保留两位小数，逐差间距保留毫米级 4 位小数；本实验讲义"
+                      "未要求作图，相关图形见拓展部分。报告各数据表与空白记录表逐列同构，"
+                      "留空列（表2-1 相邻参考点间距、表2-2 参考点移动方格数）为录入界面"
+                      "没有的读数。"})
     by = dict(pres)
     if "air_resonance" in by:
         b += _proc_1a(by["air_resonance"])
@@ -793,13 +798,8 @@ def _basic_blocks(methods_data) -> list[dict]:
     if "light_lissajous" in by:
         b += _proc_2b(by["light_lissajous"])
     # ③ 误差来源分析 + 结论
+    b.append({"kind": "pagebreak"})
     b += _err_sources_blocks(pres)
-    b.append({"kind": "note",
-              "text": "说明：数据处理由 PhysicsLab 本地完成；声速/光速取 4 位有效数字、"
-                      "相对误差保留两位小数，逐差间距保留毫米级 4 位小数；本实验讲义"
-                      "未要求作图，相关图形见拓展部分。报告各数据表与空白记录表逐列同构，"
-                      "留空列（表2-1 相邻参考点间距、表2-2 参考点移动方格数）为录入界面"
-                      "没有的读数。"})
     return b
 
 
@@ -807,7 +807,7 @@ def _advanced_blocks(methods_data) -> list[dict]:
     b = _head_blocks(
         "拓展部分",
         "各方法原始数据主图（自基准报告移入）与误差分析：逐差分布（含 ±1σ 带）、逐点速度一致性、"
-        "光速两法对比，以及结论与误差讨论留白（仅包含已提交且通过校验的方法）。")
+        "光速各方法对比，以及结论与误差讨论留白（仅包含已提交且通过校验的方法）。")
     present = []
     for mid in ORDER:
         run = _run(mid, methods_data)
@@ -824,7 +824,7 @@ def _advanced_blocks(methods_data) -> list[dict]:
                       "caption": f"原图 · {METHOD_NAME[mid]}（基准报告主图，移入拓展部分）"})
             if mid == "tof":
                 note = "此图即原基准主图：T 随 L 线性拟合，斜率 a 单位 μs/mm，换算声速 v = 1000/a。"
-            elif mid == "light_sine":
+            elif mid in ("light_sine", "light_square"):
                 note = "此图即原基准主图：往返光程 2Δx 随相位差 Δt 变化；逐点比值 Δx/Δt 见基准报告表2-2。"
             elif mid == "light_lissajous":
                 note = "此图即原基准主图：各次测量 Δx 与均值线（λ = 4×Δx_mean）。"
@@ -851,24 +851,25 @@ def _advanced_blocks(methods_data) -> list[dict]:
                       "text": "分析要点：各点 v_i 应围绕均值随机涨落；观察首末点偏差可判断 L 起点读数与触发时刻的系统误差。"})
             b.append({"kind": "spacer", "cm": 0.12})
     light_entries = []
-    for mid in ("light_sine", "light_lissajous"):
+    for mid in ("light_sine", "light_square", "light_lissajous"):
         for m2, run in present:
             if m2 == mid:
                 arr = run.get("arrays", {})
-                short = "正弦法" if mid == "light_sine" else "李萨如法"
+                short = {"light_sine": "正弦法", "light_square": "方波法",
+                         "light_lissajous": "李萨如法"}[mid]
                 light_entries.append((short, arr["c_exp"], arr["err_rel"]))
     if light_entries:
         c_ref = 299800000.0
-        for mid in ("light_sine", "light_lissajous"):
+        for mid in ("light_sine", "light_square", "light_lissajous"):
             for m2, run in present:
                 if m2 == mid:
                     c_ref = run.get("params_used", {}).get("c_ref", c_ref)
         n += 1
-        b.append({"kind": "h2", "text": f"图 {n} · 光速测量：正弦法与李萨如法结果对比"})
+        b.append({"kind": "h2", "text": f"图 {n} · 光速测量：已提交方法结果对比"})
         b.append({"kind": "image", "b64": _adv_light_compare_fig(light_entries, c_ref),
                   "width_cm": 15.6})
         b.append({"kind": "note",
-                  "text": "分析要点：两法实验光速与 c_ref 的相对误差、两法之间的一致性；"
+                  "text": "分析要点：各方法实验光速与 c_ref 的相对误差、方法之间的一致性；"
                           "误差主要来源（Δx 读数、ΔT/Δt 时基判读、频率标称值偏差）讨论。"})
         b.append({"kind": "spacer", "cm": 0.12})
     b.append({"kind": "h2", "text": "结论与误差讨论"})
@@ -879,14 +880,195 @@ def _advanced_blocks(methods_data) -> list[dict]:
     return b
 
 
-def report_blocks(part: str, methods_data: dict) -> list[dict]:
-    if part == "advanced":
-        return _advanced_blocks(methods_data or {})
-    return _basic_blocks(methods_data or {})
+def _successful_runs(methods_data: dict) -> tuple[list[tuple[str, dict]], list[tuple[str, dict]]]:
+    present, failed = [], []
+    for mid, _required in _PRESENT_ORDER:
+        run = _run(mid, methods_data)
+        if run is None:
+            continue
+        (present if run["status"] == "success" else failed).append((mid, run))
+    return present, failed
 
 
-def report_bytes(part: str, methods_data: dict, fmt: str = "docx") -> bytes:
-    blocks = report_blocks(part, methods_data)
+def _result_table(run: dict) -> dict:
+    rows = [[{"text": "结果量"}, {"text": "数值"}, {"text": "单位"}]]
+    for item in run.get("results", []):
+        rows.append([
+            {"text": item["label"]},
+            {"text": str(item["value"])},
+            {"text": item.get("unit", "")},
+        ])
+    return _tab(rows, [8.4, 5.2, 4.2], font=8, row_h=0.44)
+
+
+def _process_blocks(mid: str, run: dict) -> list[dict]:
+    if mid == "air_resonance":
+        return _proc_1a(run)
+    if mid == "water_phase":
+        return _proc_1b(run)
+    if mid == "tof":
+        return _proc_1c(run)
+    if mid in ("light_sine", "light_square"):
+        return _proc_2a(mid, run)
+    return _proc_2b(run)
+
+
+def _table_entries(present: list[tuple[str, dict]]) -> list[tuple[str, dict]]:
+    by = dict(present)
+    raw_tables = [b for b in _raw_blocks(present) if b["kind"] == "table"]
+    raw_names: list[str] = []
+    if by.get("air_resonance") or by.get("water_phase"):
+        raw_names.append("空气共振法与水中相位法原始数据")
+    if by.get("tof"):
+        raw_names.append("飞行时间法原始数据")
+    for mid in ("light_sine", "light_square"):
+        if by.get(mid):
+            wave = _WAVE_CN[mid]
+            raw_names += [f"{wave}差频周期原始数据", f"{wave}相位移动原始数据"]
+    if by.get("light_lissajous"):
+        raw_names.append("李萨如图形法原始数据")
+    entries = list(zip(raw_names, raw_tables))
+
+    calculation_names = {
+        "air_resonance": ["空气共振法逐差计算明细"],
+        "water_phase": ["水中相位法逐差计算明细", "水中相位法不确定度偏差明细"],
+        "tof": ["飞行时间法逐点声速明细"],
+        "light_sine": [],
+        "light_square": [],
+        "light_lissajous": [],
+    }
+    for mid, run in present:
+        calc_tables = [b for b in _process_blocks(mid, run) if b["kind"] == "table"]
+        entries.extend(zip(calculation_names[mid], calc_tables))
+        entries.append((f"{_METHOD_DISP[mid]}计算结果汇总", _result_table(run)))
+    return entries
+
+
+def _figure_entries(present: list[tuple[str, dict]]) -> list[tuple[str, dict]]:
+    entries: list[tuple[str, dict]] = []
+    for mid, run in present:
+        main = run.get("plots", {}).get("main")
+        if main:
+            entries.append((f"{METHOD_NAME[mid]}原始数据主图",
+                            {"b64": main, "width_cm": 13.0}))
+        arrays = run.get("arrays", {})
+        if mid in ("air_resonance", "water_phase"):
+            entries.append((f"{METHOD_NAME[mid]}逐差分布",
+                            {"b64": _adv_delta_l_fig(METHOD_NAME[mid], arrays),
+                             "width_cm": 13.0}))
+        elif mid == "tof":
+            entries.append(("飞行时间法逐点声速一致性",
+                            {"b64": _adv_tof_fig(arrays), "width_cm": 13.0}))
+    light_entries = []
+    c_ref = C0_MS
+    for mid, run in present:
+        if mid in ("light_sine", "light_square", "light_lissajous"):
+            short = {"light_sine": "正弦法", "light_square": "方波法",
+                     "light_lissajous": "李萨如法"}[mid]
+            arrays = run["arrays"]
+            light_entries.append((short, arrays["c_exp"], arrays["err_rel"]))
+            c_ref = run.get("params_used", {}).get("c_ref", c_ref)
+    if light_entries:
+        entries.append(("光速测量各方法结果对比",
+                        {"b64": _adv_light_compare_fig(light_entries, c_ref),
+                         "width_cm": 13.0}))
+    return entries
+
+
+def _equations(mid: str, run: dict) -> list[dict]:
+    a = run["arrays"]
+    if mid == "air_resonance":
+        return [
+            latex(r"\Delta l_i=\frac{|l_{i+6}-l_i|}{6}"),
+            latex(fr"\overline{{\Delta l}}={a['dlm']:.4f}\,\mathrm{{mm}},\quad \lambda=2\overline{{\Delta l}}={a['lam_mm']:.4f}\,\mathrm{{mm}}"),
+            latex(fr"v_{{\rm exp}}=f\lambda={a['v_exp']:.2f}\,\mathrm{{m\,s^{{-1}}}}"),
+            latex(fr"v_{{\rm th}}=331.45\sqrt{{1+t/273.15}}={a['v_theory']:.2f}\,\mathrm{{m\,s^{{-1}}}}"),
+            latex(fr"\varepsilon_r=\frac{{|v_{{\rm exp}}-v_{{\rm th}}|}}{{v_{{\rm th}}}}\times100\%={a['err_rel']:.2f}\%"),
+        ]
+    if mid == "water_phase":
+        return [
+            latex(r"\Delta l_i=\frac{|l_{i+6}-l_i|}{6},\quad \lambda=2\overline{\Delta l}"),
+            latex(fr"v=f\lambda={a['v']:.1f}\,\mathrm{{m\,s^{{-1}}}}"),
+            latex(fr"s(\Delta l)=\sqrt{{\frac{{\sum_i(\Delta l_i-\overline{{\Delta l}})^2}}{{n-1}}}}={a['s']:.5f}\,\mathrm{{mm}}"),
+            latex(fr"U_A(v)=2f\frac{{2.571s(\Delta l)}}{{\sqrt{{6}}}}={a['u_a_v']:.1f}\,\mathrm{{m\,s^{{-1}}}}"),
+        ]
+    if mid == "tof":
+        return [
+            latex(r"v_i=\frac{L_i\times10^{-3}}{T_i\times10^{-6}}=1000\frac{L_i}{T_i}"),
+            latex(fr"\overline{{v}}={a['v_mean']:.1f}\,\mathrm{{m\,s^{{-1}}}},\quad s_v={a['v_std']:.2f}\,\mathrm{{m\,s^{{-1}}}}"),
+            latex(fr"T=aL+b,\quad a={a['slope']:.6f}\,\mathrm{{\mu s\,mm^{{-1}}}},\quad v_{{\rm fit}}=\frac{{1000}}{{a}}"),
+        ]
+    if mid in ("light_sine", "light_square"):
+        return [
+            latex(r"r_i=\frac{|x_{2,i}-x_{1,i}|}{\Delta t_i},\quad \overline{r}=\frac{1}{n}\sum_{i=1}^{n}r_i"),
+            latex(fr"\overline{{T}}={a['t_mean']:.5f}\,\mathrm{{\mu s}},\quad \overline{{r}}={a['r_mean']:.4f}\,\mathrm{{mm\,\mu s^{{-1}}}}"),
+            latex(fr"\lambda=2\overline{{T}}\,\overline{{r}}={a['lam_mm']:.4f}\,\mathrm{{mm}}"),
+            latex(fr"c=f\lambda={a['c_exp']:.0f}\,\mathrm{{m\,s^{{-1}}}},\quad \varepsilon_r={a['err_rel']:.4f}\%"),
+        ]
+    return [
+        latex(r"\Delta x_i=|x_{2,i}-x_{1,i}|,\quad \overline{\Delta x}=\frac{1}{n}\sum_i\Delta x_i"),
+        latex(fr"\lambda=4\overline{{\Delta x}}={a['lam_mm']:.2f}\,\mathrm{{mm}}"),
+        latex(fr"c=f\lambda={a['c_exp']:.0f}\,\mathrm{{m\,s^{{-1}}}},\quad \varepsilon_r={a['err_rel']:.4f}\%"),
+    ]
+
+
+def _analysis_blocks(present: list[tuple[str, dict]], table_count: int,
+                     figure_count: int) -> list[dict]:
+    blocks: list[dict] = [
+        _cap(f"第一部分共 {table_count} 张表，集中给出原始读数、逐差/逐点明细和结果汇总；"
+             f"第二部分共 {figure_count} 张图，集中给出原始趋势、拟合与方法对比。"
+             "表图区不放分析正文，便于直接打印、裁切和粘贴。"),
+    ]
+    for mid, run in present:
+        process = [b for b in _process_blocks(mid, run)
+                   if b["kind"] not in ("table", "spacer")]
+        blocks.extend(process)
+        blocks.extend(_equations(mid, run))
+    return blocks
+
+
+def _discussion_blocks(present: list[tuple[str, dict]],
+                       failed: list[tuple[str, dict]]) -> list[dict]:
+    blocks = [
+        _h3("拓展图形解读"),
+        _cap("逐差图用于观察各组 Δl 是否围绕均值随机波动；飞行时间图用于检查 T-L 线性与逐点速度一致性；"
+             "光速比较图用于比较正弦波、方波和李萨如法与同一参考值的偏差。趋势性漂移通常提示移动方向、"
+             "回程间隙或时基判读带来的系统误差。"),
+        _h3("改进建议"),
+        _cap("测量前校准示波器时基和信号频率；换能器及反射镜沿同一方向移动；共振极值和李萨如直线位置"
+             "采用往返微调取中点；记录温度、湿度和水温；对每个判据重复测量并保存原始读数，必要时增加"
+             "B 类不确定度并与 A 类不确定度合成。"),
+    ]
+    blocks.extend(_err_sources_blocks(present))
+    if failed:
+        blocks.append(_cap("未纳入计算的方法：" + "；".join(
+            f"{_METHOD_DISP[mid]}（{'；'.join(run['errors'])}）" for mid, run in failed
+        )))
+    return blocks
+
+
+def report_blocks(methods_data: dict, legacy_data: dict | None = None) -> list[dict]:
+    """One reusable four-section report; legacy ``part`` calls map here too."""
+    if isinstance(methods_data, str):
+        methods_data = legacy_data or {}
+    present, failed = _successful_runs(methods_data or {})
+    if not present:
+        return [{"kind": "note", "text": "没有可处理的已提交方法数据。"}]
+    tables = _table_entries(present)
+    figures = _figure_entries(present)
+    return four_section_report(
+        tables,
+        figures,
+        _analysis_blocks(present, len(tables), len(figures)),
+        _discussion_blocks(present, failed),
+    )
+
+
+def report_bytes(methods_data, fmt="docx", legacy_fmt=None) -> bytes:
+    """Render the unified report; accepts the former three-argument call."""
+    if isinstance(methods_data, str):
+        methods_data, fmt = fmt, legacy_fmt or "docx"
+    blocks = report_blocks(methods_data)
     if fmt == "docx":
         return render_docx(blocks)
     return render_pdf(blocks)

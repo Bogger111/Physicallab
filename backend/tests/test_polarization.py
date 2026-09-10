@@ -181,6 +181,13 @@ class TestAdapterRegression:
         # Slope should be ~100 (I0=100, bg subtracted)
         assert result['results']['malus']['slope'] > 90
 
+    def test_parameter_summary_has_no_hardcoded_malus_reference(self):
+        """Malus I0 is fitted from measurements; 100 μW is not universal theory."""
+        from pathlib import Path
+        report_source = Path(__file__).parents[1] / 'experiments' / 'polarization' / 'reports.py'
+        source = report_source.read_text(encoding='utf-8')
+        assert '"理论 100"' not in source
+
 
 # ─── Config tests ────────────────────────────────────────────
 

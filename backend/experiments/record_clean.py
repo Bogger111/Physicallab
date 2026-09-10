@@ -129,6 +129,7 @@ def _polarization_blocks() -> list[dict]:
               [_cell("光斑偏振方向关系"), {}]]
     b.append(_tbl([7.2, 10.8], rows4a))               # 80/120 mm → 竖版 72/108 mm
     b.append(_sp(0.15))
+    b.append(_h2("实验四（选做）：双折射光斑偏振方向检验"))
     rows4b = [[_cell(h) for h in ("光斑", "P2消光(度)", "P2消光(分)", "备注")],
               [_cell("光斑A（不偏折）"), {}, {}, {}],
               [_cell("光斑B（偏折）"), {}, {}, {}],
@@ -253,8 +254,11 @@ def _sound_light_blocks() -> list[dict]:
     b.append(_h2("实验五：光速测量 — 李萨如图形法"))
     b.append(sl_num_table("sl_5_lissajous"))
 
-    # ── 实验六（选做）：方波相位法，复用实验四表结构 ──
-    b.append(_h2("实验六（选做）：相位法测光速（方波）"))
+    # ── 实验六（选做）：讲义“方法同内容1”，周期与相位表均保留 ──
+    b.append({"kind": "pagebreak"})
+    b.append(_h2("实验六（选做）：相位法测光速（方波）· 周期"))
+    b.append(sl_num_table("sl_3_period"))
+    b.append(_h2("实验六（选做）：相位法测光速（方波）· 相位移动 Δt"))
     b.append(sl_num_table("sl_4_phase"))
     return b
 

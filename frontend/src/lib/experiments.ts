@@ -1,3 +1,6 @@
+import soundLightConfig from "../../../backend/experiments/soundlight/config.json";
+import generalConfigs from "../../../backend/experiments/general/configs.json";
+
 export interface Measurement {
   key: string;
   label: string;
@@ -30,7 +33,15 @@ export interface ExperimentConfig {
   subExperiments: SubExperiment[];
 }
 
-export const experiments: ExperimentConfig[] = [
+const soundLightSubExperiments: SubExperiment[] = soundLightConfig.map((method) => ({
+  id: method.id,
+  name: method.name,
+  required: method.type === "required",
+  description: method.purpose,
+  resultFields: method.outputs,
+}));
+
+const coreExperiments: ExperimentConfig[] = [
   {
     id: "polarization",
     name: "偏振光与双折射",
@@ -113,72 +124,30 @@ export const experiments: ExperimentConfig[] = [
       "差频周期 T / 相位差 Δt (μs)",
       "反射镜位置 x₁ / x₂ (mm)",
     ],
-    subExperiments: [
-      {
-        id: "air_resonance",
-        name: "① 共振干涉法（空气）",
-        required: true,
-        description: "驻波共振位置 12 点逐差法：v = 2f·Δl̄，与温度修正理论声速对比",
-        resultFields: [
-          { key: "v_exp", label: "实验声速", unit: "m/s" },
-          { key: "v_theory", label: "理论声速", unit: "m/s" },
-          { key: "error_rel", label: "相对误差", unit: "%" },
-          { key: "delta_l_mean", label: "Δl 均值", unit: "mm" },
-        ],
-      },
-      {
-        id: "water_phase",
-        name: "② 相位比较法（水）",
-        required: true,
-        description: "水中相位匹配位置逐差法测声速，含 A 类不确定度 U_A",
-        resultFields: [
-          { key: "v_exp", label: "水中声速", unit: "m/s" },
-          { key: "u_a", label: "A 类不确定度", unit: "m/s" },
-          { key: "delta_l_mean", label: "Δl 均值", unit: "mm" },
-        ],
-      },
-      {
-        id: "tof",
-        name: "③ 时差法 · 水（选做）",
-        required: false,
-        description: "脉冲波 L / T 直接测速：等间距 20 mm 连续 12 组",
-        resultFields: [
-          { key: "v_mean", label: "平均声速", unit: "m/s" },
-          { key: "v_std", label: "标准差", unit: "m/s" },
-        ],
-      },
-      {
-        id: "light_sine",
-        name: "① 相位法（正弦波）",
-        required: true,
-        description: "差频正弦相位法：λ = (T̄/Δt̄)·2Δx̄，c = f_t·λ",
-        resultFields: [
-          { key: "c_exp", label: "实验光速", unit: "m/s" },
-          { key: "error_rel", label: "相对误差", unit: "%" },
-        ],
-      },
-      {
-        id: "light_square",
-        name: "② 相位法（方波，选做）",
-        required: false,
-        description: "换方波挡位重测：方法与正弦波完全相同",
-        resultFields: [
-          { key: "c_exp", label: "实验光速", unit: "m/s" },
-          { key: "error_rel", label: "相对误差", unit: "%" },
-        ],
-      },
-      {
-        id: "light_lissajous",
-        name: "③ 李萨如图形法",
-        required: true,
-        description: "李萨如 π 相位变化：λ = 4Δx̄，c = f_t·λ",
-        resultFields: [
-          { key: "c_exp", label: "实验光速", unit: "m/s" },
-          { key: "error_rel", label: "相对误差", unit: "%" },
-        ],
-      },
-    ],
+    subExperiments: soundLightSubExperiments,
   },
+];
+
+const additionalExperiments: ExperimentConfig[] = generalConfigs.map((config) => ({
+  id: config.id,
+  name: config.name,
+  category: config.category,
+  description: config.description,
+  processingTime: config.processingTime,
+  recordSheet: `/api/record-sheets/${config.id}.pdf`,
+  measurements: config.measurements,
+  subExperiments: config.methods.map((method) => ({
+    id: method.id,
+    name: method.name,
+    required: method.required,
+    description: method.description,
+    resultFields: method.results,
+  })),
+}));
+
+export const experiments: ExperimentConfig[] = [
+  ...coreExperiments,
+  ...additionalExperiments,
 ];
 
 export function getExperiment(id: string): ExperimentConfig | undefined {

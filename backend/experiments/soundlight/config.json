@@ -73,10 +73,35 @@
     ],
     "outputs": [
       {"key": "c_exp", "label": "实验光速 c_exp", "unit": "m/s"},
+      {"key": "error_abs", "label": "绝对误差", "unit": "m/s"},
       {"key": "error_rel", "label": "相对误差", "unit": "%"},
+      {"key": "r_mean", "label": "Δx/Δt 的平均值", "unit": "mm/μs"},
       {"key": "t_mean", "label": "差频周期均值 T", "unit": "μs"},
       {"key": "delta_t_mean", "label": "相位差均值 Δt", "unit": "μs"},
       {"key": "delta_x_mean", "label": "Δx 均值", "unit": "mm"}
+    ]
+  },
+  {
+    "id": "light_square",
+    "name": "光速测量（方波）",
+    "type": "optional",
+    "purpose": "按讲义要求复用相位差法，以方波基准与测相信号测量光速",
+    "table_cols": [
+      {"key": "T", "label": "差频周期 T", "unit": "μs", "count": 3},
+      {"key": "dt", "label": "相位差 Δt", "unit": "μs", "count": 3},
+      {"key": "x1", "label": "反射镜位置 x1", "unit": "mm", "count": 3},
+      {"key": "x2", "label": "反射镜位置 x2", "unit": "mm", "count": 3}
+    ],
+    "params": [
+      {"key": "f_mhz", "label": "调制频率 f", "unit": "MHz", "default": 150.0},
+      {"key": "c_ref", "label": "光速参考值 c_ref", "unit": "m/s", "default": 299800000}
+    ],
+    "outputs": [
+      {"key": "c_exp", "label": "实验光速 c_exp", "unit": "m/s"},
+      {"key": "error_abs", "label": "绝对误差", "unit": "m/s"},
+      {"key": "error_rel", "label": "相对误差", "unit": "%"},
+      {"key": "t_mean", "label": "差频周期均值 T", "unit": "μs"},
+      {"key": "r_mean", "label": "Δx/Δt 的平均值", "unit": "mm/μs"}
     ]
   },
   {
@@ -94,6 +119,7 @@
     ],
     "outputs": [
       {"key": "c_exp", "label": "实验光速 c_exp", "unit": "m/s"},
+      {"key": "error_abs", "label": "绝对误差", "unit": "m/s"},
       {"key": "error_rel", "label": "相对误差", "unit": "%"},
       {"key": "delta_x_mean", "label": "Δx 均值", "unit": "mm"}
     ]

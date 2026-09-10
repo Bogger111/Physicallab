@@ -10,6 +10,7 @@ from __future__ import annotations
 import io
 import base64
 from datetime import datetime
+from functools import lru_cache
 
 import numpy as np
 
@@ -37,6 +38,8 @@ from reportlab.platypus import (
     Table as RLTable,
     TableStyle,
 )
+from matplotlib.font_manager import FontProperties
+from matplotlib.mathtext import math_to_image
 
 from experiments.polarization.adapter import PolarizationAdapter
 from experiments.polarization.angles import (
@@ -44,10 +47,28 @@ from experiments.polarization.angles import (
     unwrap_angle_delta as _unwrap_delta,
 )
 from experiments.polarization import reports as R
+from experiments.report_layout import four_section_report, latex
 
 CN = "微软雅黑"
 CN_EN = "Microsoft YaHei"
 PREVIEW_COLOR_DOCX = RGBColor(0x64, 0x6D, 0x7B)
+
+
+@lru_cache(maxsize=256)
+def _equation_b64(latex: str) -> str:
+    """Render one display equation with Matplotlib mathtext."""
+    buf = io.BytesIO()
+    math_to_image(
+        f"${latex}$", buf, format="png", dpi=220,
+        prop=FontProperties(size=12), color="black",
+    )
+    return base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+def _equation_width(latex: str) -> float:
+    # Keep equations readable while avoiding sparse continuation pages in the
+    # detailed-analysis section of the portrait A4 report.
+    return min(12.0, max(3.8, len(latex) * 0.125))
 
 # ---------------------------------------------------------------- fonts
 
@@ -76,11 +97,16 @@ def _pdf_fonts(cn_pref: str = "msyh") -> dict:
             except Exception:
                 pass
     ok = _REGISTERED_FONTS
+    if not ({"MSYH", "SIMSUN"} & ok):
+        raise RuntimeError(
+            "未找到可嵌入的中文字体（Microsoft YaHei 或 SimSun），已停止生成 PDF，"
+            "避免输出乱码文件。"
+        )
     if cn_pref == "simsun":
-        cn = "SIMSUN" if "SIMSUN" in ok else ("MSYH" if "MSYH" in ok else "Helvetica")
+        cn = "SIMSUN" if "SIMSUN" in ok else "MSYH"
         cnb = "SIMHEI" if "SIMHEI" in ok else ("MSYHB" if "MSYHB" in ok else cn)
     else:
-        cn = "MSYH" if "MSYH" in ok else ("SIMSUN" if "SIMSUN" in ok else "Helvetica")
+        cn = "MSYH" if "MSYH" in ok else "SIMSUN"
         cnb = "MSYHB" if "MSYHB" in ok else ("SIMHEI" if "SIMHEI" in ok else cn)
     return {"CN": cn, "CN-B": cnb}
 
@@ -496,9 +522,13 @@ def render_docx(blocks, landscape: bool = False,
             _doc_p(doc, blk["text"], size=11.5,
                    align=WD_ALIGN_PARAGRAPH.CENTER, space_after=6)
         elif kind == "h2":
-            _doc_p(doc, blk["text"], size=12.5, bold=True, space_after=4, space_before=8)
+            p = _doc_p(doc, blk["text"], size=12.5, bold=True,
+                       space_after=4, space_before=8)
+            p.paragraph_format.keep_with_next = True
         elif kind == "h3":
-            _doc_p(doc, blk["text"], size=10.5, bold=True, space_after=3, space_before=5)
+            p = _doc_p(doc, blk["text"], size=10.5, bold=True,
+                       space_after=3, space_before=5)
+            p.paragraph_format.keep_with_next = True
         elif kind == "note":
             _doc_p(doc, blk["text"], size=8.5, space_after=3,
                    color=RGBColor(0x4A, 0x55, 0x60))
@@ -508,6 +538,9 @@ def render_docx(blocks, landscape: bool = False,
             _doc_table(doc, blk)
         elif kind == "image":
             _doc_img(doc, blk["b64"], blk.get("width_cm", 17.0), blk.get("caption"))
+        elif kind == "equation":
+            _doc_img(doc, _equation_b64(blk["latex"]),
+                     blk.get("width_cm", _equation_width(blk["latex"])))
         elif kind == "lines":
             for _ in range(blk.get("n", 1)):
                 _doc_p(doc, "＿" * 92, size=9, space_after=8)
@@ -557,7 +590,7 @@ def _pdf_table(story, spec, styles, usable):
     scale = usable / (sum(widths) * 10.0)  # usable(mm) vs widths(cm)
     col_w = [w * 10.0 * scale for w in widths]  # cm -> mm
     font_pt = spec.get("font", 8.5)
-    row_h = spec.get("row_h", 0.62) * 26 * 0.95  # approx
+    row_h = spec.get("row_h", 0.62) * 10 * mm
     data = []
     for ri, row in enumerate(rows):
         line = []
@@ -570,7 +603,9 @@ def _pdf_table(story, spec, styles, usable):
             else:
                 line.append(Paragraph(str(text), style))
         data.append(line)
-    t = RLTable(data, colWidths=col_w, repeatRows=1)
+    row_heights = [row_h] * len(data) if spec.get("fixed_row_height") else None
+    t = RLTable(data, colWidths=col_w, rowHeights=row_heights,
+                repeatRows=1)
     style_cmds = [
         ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -579,8 +614,6 @@ def _pdf_table(story, spec, styles, usable):
         ("LEFTPADDING", (0, 0), (-1, -1), 2),
         ("RIGHTPADDING", (0, 0), (-1, -1), 2),
     ]
-    if row_h:
-        style_cmds.append(("ROWHEIGHTS", (0, 0), (-1, -1), row_h))
     t.setStyle(TableStyle(style_cmds))
     story.append(t)
 
@@ -622,6 +655,12 @@ def render_pdf(blocks, out=None, landscape: bool = False,
             img = RLImage(io.BytesIO(raw), width=w_pt, height=h_pt)
             return [Spacer(1, 2 * mm), img] + (
                 [Paragraph(blk["caption"], styles["caption"])] if blk.get("caption") else [])
+        if kind == "equation":
+            return flowable_of({
+                "kind": "image",
+                "b64": _equation_b64(blk["latex"]),
+                "width_cm": blk.get("width_cm", _equation_width(blk["latex"])),
+            })
         if kind == "lines":
             els = []
             for _ in range(blk.get("n", 1)):
@@ -640,12 +679,13 @@ def render_pdf(blocks, out=None, landscape: bool = False,
     pending_head = None
     while idx < n:
         blk = blocks[idx]
-        if blk["kind"] in ("h2", "h3") and idx + 1 < n and blocks[idx + 1]["kind"] == "image":
-            # hold the heading back; it travels with its figure
+        if (blk["kind"] in ("h2", "h3") and idx + 1 < n
+                and blocks[idx + 1]["kind"] in ("image", "equation", "table")):
+            # Hold the heading back so it travels with the figure/table.
             pending_head = blk
             idx += 1
             continue
-        if blk["kind"] == "image":
+        if blk["kind"] in ("image", "equation"):
             cluster = []
             if pending_head is not None:
                 ph = flowable_of(pending_head)
@@ -662,7 +702,13 @@ def render_pdf(blocks, out=None, landscape: bool = False,
             continue
         if blk["kind"] == "table":
             f = flowable_of(blk)
-            story.append(KeepTogether([f]))
+            cluster = []
+            if pending_head is not None:
+                ph = flowable_of(pending_head)
+                cluster += ph if isinstance(ph, list) else [ph]
+                pending_head = None
+            cluster.append(f)
+            story.append(KeepTogether(cluster))
             idx += 1
             continue
         f = flowable_of(blk)
@@ -1121,13 +1167,147 @@ def record_sheet_bytes(fmt: str) -> bytes:
     return render_pdf(blocks)
 
 
-def part_bytes(part: str, data: dict, bg_uw: float = 0.0,
-               theta_qwp: float = 30.0, fmt: str = "docx") -> bytes:
+def _report_table_entries(run: dict, data: dict) -> list[tuple[str, dict]]:
+    entries: list[tuple[str, dict]] = []
+    for key in ("malus", "halfwave", "quarterwave", "circular"):
+        if key not in run["r"]:
+            continue
+        full = [block for block in _complete_table_blocks(key, run, data)
+                if block["kind"] == "table"]
+        if key == "halfwave":
+            names = ["半波片初始消光位置", "半波片原始读数与角度差计算"]
+        else:
+            names = [f"{_SUB_NAME[key]}原始读数与计算列"]
+        entries.extend(zip(names, full))
+        summary = _summary_table_block(key, run)
+        if summary:
+            entries.append((f"{_SUB_NAME[key]}计算结果汇总", summary[0]))
+    return entries
+
+
+def _report_figure_entries(run: dict) -> list[tuple[str, dict]]:
+    entries: list[tuple[str, dict]] = []
+    for key in ("malus", "halfwave", "quarterwave", "circular"):
+        fig = run["basic"].get(key)
+        if fig:
+            entries.append((f"{_SUB_NAME[key]}实验数据与拟合结果",
+                            {"b64": fig, "width_cm": 13.0}))
+    for item in run["advanced"]:
+        entries.append((item["caption"], {"b64": item["b64"], "width_cm": 13.0}))
+    return entries
+
+
+def _polarization_analysis(run: dict) -> list[dict]:
+    blocks: list[dict] = [
+        {"kind": "note", "text":
+         "第一部分集中列出全部原始读数、计算列与结果汇总；第二部分集中列出实验曲线、拟合图和拓展图。"
+         "以下计算始终使用未修约数据，表内数值只作显示。"},
+    ]
+    r = run["r"]
+    bg = run["meta"]["bg_uw"]
+    if "malus" in r:
+        rr, s = r["malus"], r["malus"]["summary"]
+        blocks += [
+            {"kind": "h3", "text": "3.1　马吕斯定律"},
+            {"kind": "note", "text":
+             "先对左右旋光强扣除背景并取平均，再以 x=cos²θ、y=I平均作最小二乘线性拟合。"
+             "斜率表示本组数据的光强尺度，截距反映残余背景、消光不完全及仪器零点。"},
+            latex(fr"I'_{{L,i}}=I_{{L,i}}-{bg:g},\quad I'_{{R,i}}=I_{{R,i}}-{bg:g},\quad \overline{{I}}_i=\frac{{I'_{{L,i}}+I'_{{R,i}}}}{{2}}"),
+            latex(r"x_i=\cos^2\!\left(\theta_i\frac{\pi}{180}\right),\quad \overline{I}_i=ax_i+b"),
+            latex(fr"a={rr['slope']:.4f},\quad b={rr['intercept']:.4f},\quad R^2={rr['r_squared']:.6f}"),
+            latex(fr"K=\frac{{I_{{\max}}}}{{I_{{\min}}}}={s['extinction_ratio']:.1f},\quad P=\frac{{I_{{\max}}-I_{{\min}}}}{{I_{{\max}}+I_{{\min}}}}={s['degree_of_polarization']:.6f}"),
+        ]
+    if "halfwave" in r:
+        rr, s = r["halfwave"], r["halfwave"]["summary"]
+        blocks += [
+            {"kind": "h3", "text": "3.2　半波片"},
+            {"kind": "note", "text":
+             "度分读数先转换为十进制度；C 和 P2 分别相对各自初始位置求角度差，跨越 0°/360° 时按最短角展开。"
+             "以 ΔC 为自变量、ΔP2 为因变量拟合，并与理论斜率 2 比较。"},
+            latex(r"\alpha=\alpha_{\rm deg}+\frac{\alpha_{\rm min}}{60}"),
+            latex(r"\Delta C_i=C_i-C_0,\quad \Delta P_{2,i}=P_{2,i}-P_{2,0},\quad e_i=\Delta P_{2,i}-2\Delta C_i"),
+            latex(fr"\Delta P_2=k\Delta C+b,\quad k={rr['slope']:.4f},\quad b={rr['intercept']:.4f},\quad R^2={rr['r_squared']:.6f}"),
+            latex(fr"\delta_k=\frac{{|k-2|}}{{2}}\times100\%={s['slope_deviation_pct']:.2f}\%"),
+        ]
+    if "quarterwave" in r:
+        rr, s = r["quarterwave"], r["quarterwave"]["summary"]
+        th = float(s["theta_qwp"])
+        blocks += [
+            {"kind": "h3", "text": "3.3　四分之一波片"},
+            {"kind": "note", "text":
+             "光强扣除背景后，先由实验极值得到振幅参数 A，再由理论公式计算极值比；同时使用全部有效点进行非线性拟合。"},
+            latex(r"I(\phi)=A^2\!\left(\sin^2\theta\sin^2\phi+\cos^2\theta\cos^2\phi\right)"),
+            latex(fr"I_{{\max}}={s['I_max_exp']:.4f},\quad I_{{\min}}={s['I_min_exp']:.4f},\quad R_{{\rm exp}}={s['ratio_exp']:.4f}"),
+            latex(fr"A_{{\max}}=\sqrt{{\frac{{I_{{\max}}}}{{\max(\sin^2 {th:g}^\circ,\cos^2 {th:g}^\circ)}}}}={s['A_from_max']:.4f}"),
+            latex(fr"A_{{\min}}=\sqrt{{\frac{{I_{{\min}}}}{{\min(\sin^2 {th:g}^\circ,\cos^2 {th:g}^\circ)}}}}={s['A_from_min']:.4f}"),
+            latex(fr"\overline{{A}}=\frac{{A_{{\max}}+A_{{\min}}}}{{2}}={s['A_avg']:.4f},\quad R_{{\rm th}}={s['ratio_theory']:.4f}"),
+            latex(fr"\delta_R=\frac{{|R_{{\rm exp}}-R_{{\rm th}}|}}{{R_{{\rm th}}}}\times100\%={s['relative_diff_pct']:.2f}\%"),
+        ]
+        if rr.get("A_fit") is not None:
+            blocks.append(latex(fr"A_{{\rm fit}}={rr['A_fit']:.4f},\quad \theta_{{\rm fit}}={rr['theta_fit']:.2f}^\circ"))
+    if "circular" in r:
+        s = r["circular"]["summary"]
+        blocks += [
+            {"kind": "h3", "text": "3.4　圆偏振光"},
+            {"kind": "note", "text":
+             "用全部有效光强计算均值、样本标准差、变异系数和极值比。理想圆偏振光通过检偏器后应近似恒定，"
+             "因此 CV 和 Imax/Imin 用于量化稳定性。"},
+            latex(fr"\overline{{I}}=\frac{{1}}{{n}}\sum_{{i=1}}^n I_i={s['I_mean']:.4f}\,\mathrm{{\mu W}}"),
+            latex(fr"s_I=\sqrt{{\frac{{\sum_i(I_i-\overline{{I}})^2}}{{n-1}}}}={s['std_dev']:.4f}\,\mathrm{{\mu W}}"),
+            latex(fr"CV=\frac{{s_I}}{{\overline{{I}}}}\times100\%={s['cv_pct']:.2f}\%,\quad \frac{{I_{{\max}}}}{{I_{{\min}}}}={s['ratio']:.4f}"),
+        ]
+    return blocks
+
+
+def _polarization_discussion(run: dict) -> list[dict]:
+    s = run["summaries"]
+    conclusions = []
+    if "malus" in s:
+        conclusions.append(f"马吕斯拟合 R²={s['malus']['r_squared']:.6f}")
+    if "halfwave" in s:
+        conclusions.append(f"半波片斜率={s['halfwave']['slope']:.4f}，相对理论值 2 的偏差={s['halfwave']['slope_deviation_pct']:.2f}%")
+    if "quarterwave" in s:
+        conclusions.append(f"四分之一波片极值比={s['quarterwave']['ratio_exp']:.4f}，理论值={s['quarterwave']['ratio_theory']:.4f}")
+    if "circular" in s:
+        conclusions.append(f"圆偏振光 CV={s['circular']['cv_pct']:.2f}%")
+    return [
+        {"kind": "h3", "text": "4.1　拓展图形解读"},
+        {"kind": "note", "text":
+         "残差图用于区分随机散布与随角度变化的系统趋势；实验—理论对比图用于检查模型形状；"
+         "参数汇总图只比较本组数据拟合或由讲义公式导出的量，不引入无来源的固定光强理论值。"},
+        {"kind": "h3", "text": "4.2　主要误差来源"},
+        {"kind": "note", "text":
+         "误差可能来自背景光漂移、探测器零点与非线性、偏振片消光不完全、波片快轴定位误差、"
+         "波片实际相位延迟偏离标称值、度分刻度判读、旋转机构回程间隙，以及光路未严格共轴。"
+         "左右旋不一致或残差随角度呈周期性变化时，应优先检查机械间隙、快轴角和背景扣除。"},
+        {"kind": "h3", "text": "4.3　改进建议"},
+        {"kind": "note", "text":
+         "每组实验前后各测一次背景光；所有器件沿固定方向逼近目标角；每个角度重复读数并保留左右旋结果；"
+         "记录光源稳定性、探测器量程和波片工作波长；在数据量允许时给出参数置信区间并检查残差结构。"},
+        {"kind": "h3", "text": "4.4　总结"},
+        {"kind": "note", "text": "；".join(conclusions) +
+         "。以上为提交数据的计算与模型比较；是否满足真实实验要求，仍需结合原始记录、仪器条件和完整误差评定。"},
+    ]
+
+
+def report_blocks(run: dict, data: dict) -> list[dict]:
+    tables = _report_table_entries(run, data)
+    figures = _report_figure_entries(run)
+    return four_section_report(
+        tables, figures, _polarization_analysis(run), _polarization_discussion(run)
+    )
+
+
+def report_bytes(data: dict, bg_uw: float = 0.0,
+                 theta_qwp: float = 30.0, fmt: str = "docx") -> bytes:
     run = analyze(data, bg_uw=bg_uw, theta_qwp=theta_qwp)
-    if part == "advanced":
-        blocks = part2_blocks(run, data)
-    else:
-        blocks = part1_blocks(run, data)
+    blocks = report_blocks(run, data)
     if fmt == "docx":
         return render_docx(blocks)
     return render_pdf(blocks)
+
+
+def part_bytes(part: str, data: dict, bg_uw: float = 0.0,
+               theta_qwp: float = 30.0, fmt: str = "docx") -> bytes:
+    """Compatibility wrapper: former parts now both produce the unified report."""
+    return report_bytes(data, bg_uw=bg_uw, theta_qwp=theta_qwp, fmt=fmt)
