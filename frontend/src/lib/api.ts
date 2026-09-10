@@ -1,4 +1,6 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+// An empty value is intentional for the same-origin Oracle deployment.
+// Nullish fallback keeps local development pointed at the standalone API.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
 
 export interface MalusRow {
   theta: number;

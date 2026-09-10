@@ -12,6 +12,17 @@ NEXT_PUBLIC_API_URL=https://你的后端域名
 
 如果不配置后端地址，Pages 上只能浏览静态页面和仓库内已有的静态资源，不能提交数据、计算或下载动态报告。
 
+## Oracle Always Free（推荐的零月费方案）
+
+项目提供 `deploy/oracle/` 的同源 Docker Compose 部署方案，适用于 Oracle Cloud Always Free VM：
+
+- `backend` 运行 FastAPI、NumPy、SciPy、Matplotlib 和报告生成依赖；
+- `frontend` 构建 Next.js 静态页面，由 Nginx 提供并反向代理 `/api/`；
+- 两个容器均配置 `restart: unless-stopped`，后端不因空闲进入冷启动；
+- 详细准备、VCN 放行和部署命令见 `deploy/oracle/README.md`。
+
+该方案使用同源 API，前端生产构建时 `NEXT_PUBLIC_API_URL` 为空；本地开发仍使用 `.env.local` 指向 `http://localhost:8001`。
+
 ## Cloudflare Pages + Containers
 
 本项目已经提供 Cloudflare Container Worker 配置：

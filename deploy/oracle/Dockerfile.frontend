@@ -1,0 +1,21 @@
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN npm ci --prefix frontend
+
+COPY frontend ./frontend
+COPY backend ./backend
+
+# Empty means the browser calls the same-origin /api reverse proxy.
+ARG NEXT_PUBLIC_API_URL=""
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_BASE_PATH=""
+
+RUN npm run build --prefix frontend
+
+FROM nginx:1.27-alpine
+COPY deploy/oracle/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/frontend/out /usr/share/nginx/html
+EXPOSE 80
