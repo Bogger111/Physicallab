@@ -276,6 +276,17 @@ async def process_polarization(req: ProcessRequest):
             'initial': req.halfwave.initial.model_dump(),
             'rows': [r.model_dump() for r in req.halfwave.rows],
         }
+        # The entry table sends null for cells the student left blank; the engine cannot
+        # subtract a missing baseline, so name the empty cell instead of failing later.
+        missing_baseline = []
+        if req.halfwave.initial.c_deg is None:
+            missing_baseline.append("检偏器刻度 C")
+        if req.halfwave.initial.p2_deg is None:
+            missing_baseline.append("半波片刻度 P₂")
+        if missing_baseline:
+            validation_errors.append(
+                f"半波片: 初始读数（{'、'.join(missing_baseline)}）为空，请填写起始角度后再计算"
+            )
         for i, row in enumerate(req.halfwave.rows):
             if row.c_deg is None or row.p2_deg is None:
                 validation_errors.append(f"半波片: 第 {i+1} 行数据不完整")
@@ -310,7 +321,10 @@ async def process_polarization(req: ProcessRequest):
     except Exception as e:
         return {
             "status": "calculation_error",
-            "error": str(e),
+            "error": (
+                "计算过程中出现异常，请检查数据是否完整、有无空白或全零的读数，"
+                f"修改后重试。（技术信息：{e}）"
+            ),
             "results": {},
             "plots": {},
         }

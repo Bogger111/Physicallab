@@ -1,5 +1,7 @@
 """In-process API contract checks; no server process is started."""
 
+import json
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -49,6 +51,26 @@ def test_missing_halfwave_degree_is_not_silently_converted_to_zero():
     assert any("数据不完整" in error for error in body["errors"])
 
 
+def test_blank_halfwave_baseline_is_named_not_crashed():
+    """A null 初始读数 used to reach float() and surface as "float() argument must be
+    a string or a real number, not 'NoneType'" in the results panel."""
+    payload = {
+        "bg_uw": 0.0543,
+        "theta_qwp": 30.0,
+        "halfwave": {
+            "initial": {"c_deg": None, "c_min": 0, "p2_deg": None, "p2_min": 0},
+            "rows": [{"offset": float(o), "c_deg": 70.0, "c_min": 0.0,
+                      "p2_deg": 70.0, "p2_min": 0.0} for o in range(0, 60, 10)],
+        },
+    }
+    response = client.post("/api/experiments/polarization/process", json=payload)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "validation_error"
+    assert any("初始读数" in error for error in body["errors"])
+    assert "NoneType" not in response.text
+
+
 # ─── non-finite results and crash reporting ─────────────────────────────────
 #
 # Regression: an intensity reading at or below the background I0 makes the
@@ -75,7 +97,11 @@ def test_nonfinite_ratio_is_reported_as_null_not_a_crash(bg_uw):
                            json=_malus_with_reading_at_background(bg_uw))
     assert response.status_code == 200
     assert '"extinction_ratio":null' in response.text
-    assert "Infinity" not in response.text and "NaN" not in response.text
+    # Check the numbers (plots are base64 and can contain these substrings by chance).
+    payload_json = response.json()
+    payload_json.pop("plots", None)
+    encoded = json.dumps(payload_json)
+    assert "NaN" not in encoded and "Infinity" not in encoded
     assert response.json()["status"] == "success"
 
 

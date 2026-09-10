@@ -20,6 +20,18 @@ from .theory import (
 )
 from .angles import dms_to_decimal, unwrap_angle_delta
 
+
+def _num(value, default: float = 0.0) -> float:
+    """float() that tolerates blank cells.
+
+    The entry table serialises an untouched cell to null, and dict.get(key, 0) does
+    not help when the key exists with a null value — float(None) would raise a
+    TypeError that reaches the browser as a cryptic message.
+    """
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return default
+    return float(value)
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -198,8 +210,8 @@ class PolarizationAdapter:
         if not rows or not init:
             return None
 
-        c0 = dms_to_decimal(float(init.get('c_deg', 0)), float(init.get('c_min', 0)))
-        p20 = dms_to_decimal(float(init.get('p2_deg', 0)), float(init.get('p2_min', 0)))
+        c0 = dms_to_decimal(_num(init.get('c_deg')), _num(init.get('c_min')))
+        p20 = dms_to_decimal(_num(init.get('p2_deg')), _num(init.get('p2_min')))
 
         offsets, delta_c, delta_p2 = [], [], []
         for row in rows:
@@ -207,9 +219,9 @@ class PolarizationAdapter:
             p2_deg = row.get('p2_deg')
             if c_deg is None or p2_deg is None:
                 continue
-            offsets.append(float(row.get('offset', 0)))
-            c_dec = dms_to_decimal(float(c_deg), float(row.get('c_min', 0)))
-            p2_dec = dms_to_decimal(float(p2_deg), float(row.get('p2_min', 0)))
+            offsets.append(_num(row.get('offset', 0)))
+            c_dec = dms_to_decimal(_num(c_deg), _num(row.get('c_min')))
+            p2_dec = dms_to_decimal(_num(p2_deg), _num(row.get('p2_min')))
             delta_c.append(unwrap_angle_delta(c_dec - c0))
             delta_p2.append(unwrap_angle_delta(p2_dec - p20))
 
