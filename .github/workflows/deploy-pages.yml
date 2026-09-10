@@ -30,7 +30,7 @@ jobs:
         working-directory: frontend
         env:
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'https://physicslab-api-1008526660330.asia-east1.run.app' }}
         run: npm ci && npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
