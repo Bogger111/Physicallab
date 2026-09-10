@@ -15,10 +15,21 @@ BACKEND_ROOT = Path(os.path.dirname(os.path.abspath(__file__))).parent
 
 app = FastAPI(title="PhysicsLab API", version="1.0.0")
 
+_default_cors_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://bogger111.github.io",
+]
+_configured_cors_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
 # CORS for Next.js dev server
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[*_default_cors_origins, *_configured_cors_origins],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -91,6 +102,11 @@ class ProcessRequest(BaseModel):
 @app.get("/")
 async def root():
     return {"message": "PhysicsLab API", "version": "1.0.0"}
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "service": "physicslab-api", "version": "1.0.0"}
 
 
 @app.get("/api/experiments")

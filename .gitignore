@@ -9,5 +9,6 @@ __pycache__/
 *.tsbuildinfo
 .venv/
 venv/
+.wrangler/
 .env
 .env.local

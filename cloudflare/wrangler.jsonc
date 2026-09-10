@@ -1,0 +1,34 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "physicslab-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-09",
+  "compatibility_flags": ["nodejs_compat"],
+  "containers": [
+    {
+      "class_name": "PhysicsLabContainer",
+      "image": "../backend/Dockerfile",
+      "image_vars": {
+        "CORS_ORIGINS": "https://bogger111.github.io"
+      },
+      "max_instances": 2
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PHYSICSLAB_CONTAINER",
+        "class_name": "PhysicsLabContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["PhysicsLabContainer"]
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
