@@ -27,7 +27,7 @@ CONFIG_BY_ID = {item["id"]: item for item in CONFIGS}
 
 plt.rcParams.update({
     "font.family": "sans-serif",
-    "font.sans-serif": ["Microsoft YaHei", "SimHei", "DejaVu Sans"],
+    "font.sans-serif": ["Noto Sans CJK SC", "Microsoft YaHei", "SimHei", "WenQuanYi Micro Hei", "DejaVu Sans"],
     "axes.unicode_minus": False,
     "figure.dpi": 130,
     "savefig.dpi": 180,

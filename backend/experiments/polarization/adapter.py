@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 # Matplotlib styling for clean scientific plots
 plt.rcParams.update({
     'font.family': 'sans-serif',
-    'font.sans-serif': ['Microsoft YaHei', 'SimHei', 'DejaVu Sans', 'Arial'],
+    'font.sans-serif': ['Noto Sans CJK SC', 'Microsoft YaHei', 'SimHei', 'WenQuanYi Micro Hei', 'DejaVu Sans', 'Arial'],
     'axes.unicode_minus': False,
     'figure.dpi': 150,
     'savefig.dpi': 200,

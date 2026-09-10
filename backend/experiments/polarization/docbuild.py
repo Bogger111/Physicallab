@@ -79,6 +79,17 @@ _PDF_FONT_FILES = [
     ("MSYHB", "C:/Windows/Fonts/msyhbd.ttc"),
     ("SIMSUN", "C:/Windows/Fonts/simsun.ttc"),
     ("SIMHEI", "C:/Windows/Fonts/simhei.ttf"),
+    # Linux (Cloud Run / Docker) fallback: WenQuanYi ships TrueType outlines,
+    # which reportlab can embed. (Debian's Noto CJK is CFF/OTF-outline and
+    # reportlab rejects it: "postscript outlines are not supported".)
+    ("MSYH", "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 0),
+    ("MSYHB", "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc", 0),
+    ("SIMSUN", "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 0),
+    ("SIMHEI", "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc", 0),
+    ("SYM", "C:/Windows/Fonts/arial.ttf"),
+    ("SYMB", "C:/Windows/Fonts/arialbd.ttf"),
+    ("SYM", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    ("SYMB", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
 ]
 _REGISTERED_FONTS: set = set()
 
@@ -90,9 +101,11 @@ def _pdf_fonts(cn_pref: str = "msyh") -> dict:
     'simsun' -> 宋体 regular, 黑体 standing in where bold is needed
     """
     if not _REGISTERED_FONTS:
-        for name, path in _PDF_FONT_FILES:
+        for entry in _PDF_FONT_FILES:
+            name, path = entry[0], entry[1]
+            subfont = entry[2] if len(entry) > 2 else 0
             try:
-                pdfmetrics.registerFont(TTFont(name, path))
+                pdfmetrics.registerFont(TTFont(name, path, subfontIndex=subfont))
                 _REGISTERED_FONTS.add(name)
             except Exception:
                 pass
@@ -108,7 +121,64 @@ def _pdf_fonts(cn_pref: str = "msyh") -> dict:
     else:
         cn = "MSYH" if "MSYH" in ok else "SIMSUN"
         cnb = "MSYHB" if "MSYHB" in ok else ("SIMHEI" if "SIMHEI" in ok else cn)
-    return {"CN": cn, "CN-B": cnb}
+    out = {"CN": cn, "CN-B": cnb}
+    out["SYM"] = "SYM" if "SYM" in ok else None
+    out["SYM-B"] = "SYMB" if "SYMB" in ok else out["SYM"]
+    return out
+
+
+_GLYPH_CACHE: dict = {}
+
+
+def _font_glyphs(name):
+    m = _GLYPH_CACHE.get(name)
+    if m is None:
+        try:
+            m = pdfmetrics.getFont(name).face.charToGlyph
+        except Exception:
+            m = {}
+        _GLYPH_CACHE[name] = m
+    return m
+
+
+def _esc_char(ch) -> str:
+    return {"&": "&amp;", "<": "&lt;", ">": "&gt;"}.get(ch, ch)
+
+
+def _fit_fonts(text, style, spare=None, sym=None):
+    """Draw each character in the first of the given faces that has it.
+
+    reportlab has no automatic font fallback: a glyph missing from the selected
+    face is written as .notdef and comes back as NUL from text extraction.  The
+    Linux faces (WenQuanYi) are much narrower than Microsoft YaHei -- no U+2212
+    MINUS, no U+2078 SUPERSCRIPT EIGHT -- so fall back per character.
+    """
+    text = str(text)
+    chain = []
+    for name in (style.fontName, spare, sym):
+        if name and name not in chain:
+            chain.append(name)
+    if len(chain) < 2:
+        return text
+    cov = [(name, _font_glyphs(name)) for name in chain]
+    if not all(m for _, m in cov):
+        return text
+    base = cov[0][1]
+    if all(base.get(ord(ch), 0) for ch in text):
+        return text
+    out = []
+    for ch in text:
+        cp = ord(ch)
+        pick = None
+        for name, m in cov:
+            if m.get(cp, 0):
+                pick = name
+                break
+        if pick is None or pick == chain[0]:
+            out.append(ch)
+        else:
+            out.append('<font name="%s">%s</font>' % (pick, _esc_char(ch)))
+    return "".join(out)
 
 
 def _set_east_asia(style_or_run, name=CN_EN):
@@ -597,6 +667,8 @@ def _pdf_table(story, spec, styles, usable):
         for val in row:
             text = val.get("text", "") if isinstance(val, dict) else str(val)
             style = styles["cellb"] if ri == 0 else styles["cell"]
+            text = _fit_fonts(text, style, F["CN"],
+                              F["SYM-B"] if ri == 0 else F["SYM"])
             if isinstance(val, dict) and val.get("prefill"):
                 ps = ParagraphStyle("pf", parent=style, textColor=colors.HexColor("#646d7b"))
                 line.append(Paragraph(str(text), ps))
@@ -623,6 +695,11 @@ def render_pdf(blocks, out=None, landscape: bool = False,
     if out is None:
         out = io.BytesIO()
     styles = _pdf_styles(cn_pref)
+    F = _pdf_fonts(cn_pref)
+    spare_cn = F["CN"]
+
+    def _sym(style):
+        return F["SYM-B"] if style.fontName == F["CN-B"] else F["SYM"]
     if landscape:
         pagesize = rl_landscape(A4)  # 297 x 210 mm (width > height)
         lm = rm = 15 * mm
@@ -640,7 +717,9 @@ def render_pdf(blocks, out=None, landscape: bool = False,
     def flowable_of(blk):
         kind = blk["kind"]
         if kind in ("h1", "h2", "h3", "sub", "para", "note"):
-            return Paragraph(blk["text"], styles[kind])
+            return Paragraph(_fit_fonts(blk["text"], styles[kind], spare_cn,
+                                        _sym(styles[kind])),
+                             styles[kind])
         if kind == "table":
             holder = []
             _pdf_table(holder, blk, styles, usable)
@@ -654,7 +733,9 @@ def render_pdf(blocks, out=None, landscape: bool = False,
             h_pt = w_pt * (px_h / px_w)
             img = RLImage(io.BytesIO(raw), width=w_pt, height=h_pt)
             return [Spacer(1, 2 * mm), img] + (
-                [Paragraph(blk["caption"], styles["caption"])] if blk.get("caption") else [])
+                [Paragraph(_fit_fonts(blk["caption"], styles["caption"], spare_cn,
+                                      _sym(styles["caption"])),
+                           styles["caption"])] if blk.get("caption") else [])
         if kind == "equation":
             return flowable_of({
                 "kind": "image",

@@ -92,7 +92,10 @@ def _assert_pdf(data, minimum_pages=1):
         assert len(text.strip()) >= 20 or page.get_images(full=True)
         assert "�" not in text and "\x00" not in text
     font_names = {font[3] for page in pdf for font in page.get_fonts(full=True)}
+    # Windows embeds 微软雅黑/宋体; the Linux image falls back to WenQuanYi
+    # (Noto CJK is CFF-outline, which reportlab cannot embed).
     assert any("MicrosoftYaHei" in name or "SimSun" in name
+               or "WenQuanYi" in name
                for name in font_names)
 
 

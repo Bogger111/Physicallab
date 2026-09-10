@@ -55,7 +55,7 @@ CN_BODY = "微软雅黑"
 # matplotlib styling shared with adapter figures
 plt.rcParams.update({
     "font.family": "sans-serif",
-    "font.sans-serif": ["Microsoft YaHei", "SimHei", "DejaVu Sans"],
+    "font.sans-serif": ["Noto Sans CJK SC", "WenQuanYi Micro Hei", "Microsoft YaHei", "SimHei", "DejaVu Sans"],
     "axes.unicode_minus": False,
     "figure.dpi": 150,
     "savefig.dpi": 200,
