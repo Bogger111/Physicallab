@@ -127,7 +127,7 @@ function PolarizationWorkspace({
   const buildRequest = useCallback((): ProcessRequest => {
     return {
       bg_uw: parseFloat(bgUw) || 0,
-      theta_qwp: parseFloat(thetaQwp) || 30,
+      theta_qwp: numberOrNull(thetaQwp) ?? 30,
       malus: {
         rows: malusData.map((r) => ({
           theta: parseFloat(r[0]) || 0,
@@ -415,14 +415,21 @@ function PolarizationWorkspace({
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold text-stone-500">1/4 波片快轴 θ_qwp</span>
-                  <select
-                    value={thetaQwp}
-                    onChange={(e) => setThetaQwp(e.target.value)}
-                    className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 text-sm font-medium text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
-                  >
-                    <option value="30">30°</option>
-                    <option value="60">60°</option>
-                  </select>
+                  <span className="relative inline-flex items-center">
+                    <input
+                      type="number"
+                      step="any"
+                      inputMode="decimal"
+                      value={thetaQwp}
+                      onChange={(e) => setThetaQwp(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      aria-label="1/4 波片快轴角度"
+                      className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 pr-7 text-right text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                    />
+                    <span className="pointer-events-none absolute right-3 text-xs text-stone-400">
+                      °
+                    </span>
+                  </span>
                 </label>
               </div>
             </div>
