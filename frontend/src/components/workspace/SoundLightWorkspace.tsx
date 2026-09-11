@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
-  FileText,
   Table2,
   ChartSpline,
   FileDown,
@@ -24,6 +23,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DataInputTable from "@/components/workspace/DataInputTable";
+import { SOUND_LIGHT_WORKSPACE_STEPS } from "@/components/workspace/workspace-entry-flow";
 import soundLightConfig from "../../../../backend/experiments/soundlight/config.json";
 import {
   API_BASE,
@@ -36,13 +36,14 @@ import {
 
 const EXP_ID = "sound-light";
 
-type Step = "record" | "input" | "results";
+type Step = (typeof SOUND_LIGHT_WORKSPACE_STEPS)[number];
 
-const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
-  { id: "record", label: "数据记录表", icon: FileText },
-  { id: "input", label: "录入数据", icon: Table2 },
-  { id: "results", label: "结果", icon: ChartSpline },
-];
+const STEP_META: Record<Step, { label: string; icon: React.ElementType }> = {
+  input: { label: "录入数据", icon: Table2 },
+  results: { label: "结果", icon: ChartSpline },
+};
+
+const STEPS = SOUND_LIGHT_WORKSPACE_STEPS.map((id) => ({ id, ...STEP_META[id] }));
 
 interface ColDef {
   label: string;
@@ -354,7 +355,7 @@ function makeRows(rows: number, extraCols: number): string[][] {
 }
 
 export default function SoundLightWorkspace() {
-  const [step, setStep] = useState<Step>("record");
+  const [step, setStep] = useState<Step>(SOUND_LIGHT_WORKSPACE_STEPS[0]);
   const [method, setMethod] = useState<string>("air_resonance");
   // cell data: key `${method}#${tableIndex}`
   const [cell, setCell] = useState<Record<string, string[][]>>({});
@@ -586,68 +587,12 @@ export default function SoundLightWorkspace() {
       </div>
 
       <div className="container-x py-8 sm:py-10">
-        {/* ---------- STEP 1 · record sheet ---------- */}
-        {step === "record" && (
-          <div className="mx-auto max-w-xl animate-rise-in">
-            <div className="mb-7 text-center">
-              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-500">
-                Step 01 · 数据记录表
-              </p>
-              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900">
-                进实验室前，先打印这张表
-              </h2>
-              <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-stone-500">
-                按讲义结构覆盖 2 个实验 6 个方法：超声声速（共振干涉 / 相位比较 / 时差·选做），光速（正弦相位 / 方波·选做 / 李萨如）。竖版 A4 紧凑表，白底黑框。
-              </p>
-            </div>
-            <div className="card p-7 text-center shadow-soft sm:p-9">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-600/30">
-                <FileText className="h-10 w-10 text-white" strokeWidth={1.8} />
-              </div>
-              <p className="text-lg font-bold text-stone-900">声速光速的测量 · 数据记录表</p>
-              <p className="mt-1.5 text-sm text-stone-400">PDF / Word · 紧凑打印版 · 表格无底色</p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <button
-                  onClick={() => runDownload("preview", () => previewRecordSheet(EXP_ID))}
-                  disabled={busyKey !== null}
-                  className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:opacity-50"
-                >
-                  <Eye className="h-4 w-4" /> 预览
-                </button>
-                <button
-                  onClick={() => runDownload("docx", () => downloadRecordSheet("docx", EXP_ID))}
-                  disabled={busyKey !== null}
-                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-stone-900 px-5 text-sm font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-stone-700 disabled:opacity-50"
-                >
-                  {busyKey === "docx" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
-                  下载 Word
-                </button>
-                <button
-                  onClick={() => runDownload("pdf", () => downloadRecordSheet("pdf", EXP_ID))}
-                  disabled={busyKey !== null}
-                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  {busyKey === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                  下载 PDF
-                </button>
-              </div>
-            </div>
-            <button
-              onClick={() => setStep("input")}
-              className="group mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 text-[15px] font-semibold text-white shadow-lg shadow-stone-900/20 transition-all hover:-translate-y-0.5 hover:bg-stone-800"
-            >
-              打印好了，开始录入数据
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </button>
-          </div>
-        )}
-
-        {/* ---------- STEP 2 · input ---------- */}
+        {/* ---------- STEP 1 · input ---------- */}
         {step === "input" && (
           <div className="mx-auto max-w-4xl animate-rise-in">
             <div className="mb-7">
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-500">
-                Step 02 · 录入数据
+                Step 01 · 录入数据
               </p>
               <h2 className="text-2xl font-extrabold tracking-tight text-stone-900">
                 选择测量方法，录入读数
@@ -656,6 +601,43 @@ export default function SoundLightWorkspace() {
                 逐方法填数据即可，无需逐个先算：4 个必做填完就能「一口气」生成完整报告（表格 → 图片 → 数据处理 → 拓展与总结）；想先看某个方法的结果，可单独点它的「生成结果」。选做方法填入后并入完整报告，否则自动跳过。
               </p>
             </div>
+
+            <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-stone-200 bg-stone-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-stone-800">需要纸质记录表？</p>
+                <p className="mt-0.5 text-xs text-stone-400">无需离开录入页，可直接预览或下载。</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => runDownload("preview", () => previewRecordSheet(EXP_ID))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 text-xs font-semibold text-stone-700 disabled:opacity-50"
+                >
+                  <Eye className="h-3.5 w-3.5" />预览
+                </button>
+                <button
+                  onClick={() => runDownload("record-docx", () => downloadRecordSheet("docx", EXP_ID))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-stone-900 px-3 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {busyKey === "record-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                  记录表 Word
+                </button>
+                <button
+                  onClick={() => runDownload("record-pdf", () => downloadRecordSheet("pdf", EXP_ID))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {busyKey === "record-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                  记录表 PDF
+                </button>
+              </div>
+            </div>
+            {dlError && (
+              <p className="mb-6 text-xs font-medium text-red-500" role="alert">
+                {dlError}
+              </p>
+            )}
 
             {/* method selector */}
             <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="测量方法">
@@ -824,13 +806,7 @@ export default function SoundLightWorkspace() {
               </div>
             )}
 
-            <div className="mt-8 flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
-              <button
-                onClick={() => setStep("record")}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900"
-              >
-                <ArrowLeft className="h-4 w-4" /> 上一步
-              </button>
+            <div className="mt-8 flex justify-end">
               <button
                 onClick={handleProcess}
                 disabled={busy}

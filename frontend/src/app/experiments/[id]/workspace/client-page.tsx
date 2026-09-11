@@ -36,16 +36,18 @@ import {
 import DataInputTable from "@/components/workspace/DataInputTable";
 import SoundLightWorkspace from "@/components/workspace/SoundLightWorkspace";
 import GenericExperimentWorkspace from "@/components/workspace/GenericExperimentWorkspace";
+import { POLARIZATION_WORKSPACE_STEPS } from "@/components/workspace/workspace-entry-flow";
 import { cn } from "@/lib/utils";
 
-type Step = "record" | "input" | "confirm" | "results";
+type Step = (typeof POLARIZATION_WORKSPACE_STEPS)[number];
 
-const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
-  { id: "record", label: "数据记录表", icon: FileText },
-  { id: "input", label: "录入数据", icon: Table2 },
-  { id: "confirm", label: "确认数据", icon: ClipboardList },
-  { id: "results", label: "结果", icon: ChartSpline },
-];
+const STEP_META: Record<Step, { label: string; icon: React.ElementType }> = {
+  input: { label: "录入数据", icon: Table2 },
+  confirm: { label: "确认数据", icon: ClipboardList },
+  results: { label: "结果", icon: ChartSpline },
+};
+
+const STEPS = POLARIZATION_WORKSPACE_STEPS.map((id) => ({ id, ...STEP_META[id] }));
 
 const SUB_ICON: Record<string, React.ElementType> = {
   malus: ChartLine,
@@ -68,7 +70,7 @@ function PolarizationWorkspace({
   const { id } = use(params);
   const experiment = getExperiment(id);
 
-  const [step, setStep] = useState<Step>("record");
+  const [step, setStep] = useState<Step>(POLARIZATION_WORKSPACE_STEPS[0]);
   const [activeTab, setActiveTab] = useState("malus");
 
   // Setup
@@ -331,102 +333,13 @@ function PolarizationWorkspace({
 
       {/* ===== Content ===== */}
       <div className="container-x py-8 sm:py-10">
-        {/* ---------- STEP 1 · record ---------- */}
-        {step === "record" && (
-          <div className="mx-auto max-w-xl animate-rise-in">
-            <div className="mb-7 text-center">
-              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-500">
-                Step 01 · 数据记录表
-              </p>
-              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900">
-                进实验室前，先打印这张表
-              </h2>
-              <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-stone-500">
-                下载标准记录表并打印，实验时按表格逐格手写读数，回来即可快速录入。
-              </p>
-            </div>
-
-            <div className="card p-7 text-center shadow-soft sm:p-9">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-600/30">
-                <FileText className="h-10 w-10 text-white" strokeWidth={1.8} />
-              </div>
-              <p className="text-lg font-bold text-stone-900">
-                {experiment.name} · 数据记录表
-              </p>
-              <p className="mt-1.5 text-sm text-stone-400">PDF · A4 打印版</p>
-
-              <ul className="mx-auto mt-6 flex max-w-xs flex-col gap-2.5 text-left">
-                {experiment.subExperiments.map((s, i) => (
-                  <li key={s.id} className="flex items-center gap-2.5 text-sm text-stone-600">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-indigo-50 font-mono text-[10px] font-bold text-indigo-600">
-                      {i + 1}
-                    </span>
-                    {s.name}
-                    <span className="ml-auto text-xs tabular-nums text-stone-400">
-                      {s.resultFields.length} 项结果
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <button
-                  onClick={() => runDownload("preview", previewRecordSheet)}
-                  disabled={busyKey !== null}
-                  className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:opacity-50"
-                >
-                  <Eye className="h-4 w-4" />
-                  预览
-                </button>
-                <button
-                  onClick={() => runDownload("record-docx", () => downloadRecordSheet("docx"))}
-                  disabled={busyKey !== null}
-                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-stone-900 px-5 text-sm font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-stone-700 disabled:opacity-50"
-                >
-                  {busyKey === "record-docx" ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileDown className="h-4 w-4" />
-                  )}
-                  下载 Word
-                </button>
-                <button
-                  onClick={() => runDownload("record-pdf", () => downloadRecordSheet("pdf"))}
-                  disabled={busyKey !== null}
-                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  {busyKey === "record-pdf" ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4" />
-                  )}
-                  下载 PDF
-                </button>
-              </div>
-              {dlError && (
-                <p className="mt-3 text-center text-xs font-medium text-red-500" role="alert">
-                  {dlError}
-                </p>
-              )}
-            </div>
-
-            <button
-              onClick={() => setStep("input")}
-              className="group mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 text-[15px] font-semibold text-white shadow-lg shadow-stone-900/20 transition-all hover:-translate-y-0.5 hover:bg-stone-800"
-            >
-              打印好了，开始录入数据
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </button>
-          </div>
-        )}
-
-        {/* ---------- STEP 2 · input ---------- */}
+        {/* ---------- STEP 1 · input ---------- */}
         {step === "input" && (
           <div className="mx-auto max-w-5xl animate-rise-in">
             <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-500">
-                  Step 02 · 录入数据
+                  Step 01 · 录入数据
                 </p>
                 <h2 className="text-2xl font-extrabold tracking-tight text-stone-900">
                   把纸质读数逐格敲进来
@@ -439,6 +352,43 @@ function PolarizationWorkspace({
                 已录入 {filledSum}/{totalSum} 组
               </p>
             </div>
+
+            <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-stone-200 bg-stone-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-stone-800">需要纸质记录表？</p>
+                <p className="mt-0.5 text-xs text-stone-400">无需离开录入页，可直接预览或下载。</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => runDownload("preview", previewRecordSheet)}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 text-xs font-semibold text-stone-700 disabled:opacity-50"
+                >
+                  <Eye className="h-3.5 w-3.5" />预览
+                </button>
+                <button
+                  onClick={() => runDownload("record-docx", () => downloadRecordSheet("docx"))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-stone-900 px-3 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {busyKey === "record-docx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                  记录表 Word
+                </button>
+                <button
+                  onClick={() => runDownload("record-pdf", () => downloadRecordSheet("pdf"))}
+                  disabled={busyKey !== null}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {busyKey === "record-pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                  记录表 PDF
+                </button>
+              </div>
+            </div>
+            {dlError && (
+              <p className="mb-6 text-xs font-medium text-red-500" role="alert">
+                {dlError}
+              </p>
+            )}
 
             {/* Setup params */}
             <div className="card mb-6 flex flex-col gap-5 p-6 shadow-soft sm:flex-row sm:items-center sm:justify-between">
@@ -627,14 +577,7 @@ function PolarizationWorkspace({
             )}
 
             {/* Actions */}
-            <div className="mt-8 flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
-              <button
-                onClick={() => setStep("record")}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900 sm:justify-start"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                上一步
-              </button>
+            <div className="mt-8 flex justify-end">
               <button
                 onClick={() => {
                   setError(null);
@@ -654,7 +597,7 @@ function PolarizationWorkspace({
           <div className="mx-auto max-w-3xl animate-rise-in">
             <div className="mb-7 text-center">
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-indigo-500">
-                Step 03 · 确认数据
+                Step 02 · 确认数据
               </p>
               <h2 className="text-2xl font-extrabold tracking-tight text-stone-900">
                 核对无误后，开始计算
