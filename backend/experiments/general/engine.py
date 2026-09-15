@@ -409,7 +409,7 @@ def process_experiment(experiment_id: str, data: dict) -> dict:
     if experiment_id == "photoelectric":
         iv_plot = _photoelectric_iv_plot(data)
         if iv_plot:
-            plots.pop("iv_436", None); plots.pop("iv_546", None)
-            plots["iv_curves"] = iv_plot
+            plots.pop("iv_546", None)
+            plots["iv_436"] = iv_plot
     status="success" if results else "validation_error"
     return {"status":status,"results":results,"plots":plots,"derived":derived,"errors":errors}

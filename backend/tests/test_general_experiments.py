@@ -183,14 +183,14 @@ def test_photoelectric_iv_wavelengths_share_one_combined_plot():
     data = fixtures()["photoelectric"]
     run = process_experiment("photoelectric", data)
 
-    assert "iv_curves" in run["plots"]
-    assert "iv_436" not in run["plots"]
+    assert "iv_436" in run["plots"]
     assert "iv_546" not in run["plots"]
+    assert "iv_curves" not in run["plots"]
 
     blocks = docs.report_blocks("photoelectric", data)
     matching_images = [
         block for block in blocks
-        if block.get("kind") == "image" and block.get("b64") == run["plots"]["iv_curves"]
+        if block.get("kind") == "image" and block.get("b64") == run["plots"]["iv_436"]
     ]
     assert len(matching_images) == 1
 

@@ -195,9 +195,7 @@ def report_blocks(experiment_id: str, data: dict) -> list[dict]:
         detail=_derived_table(detail_rows)
         if detail: tables.append((_safe_text(f"{method['name']}计算明细"),detail))
         tables.append((_safe_text(f"{method['name']}结果汇总"),_result_table(method,result)))
-        if method_id == "iv_436" and "iv_curves" in run["plots"]:
-            figures.append(("436 nm 与 546 nm 伏安特性",{"b64":run["plots"]["iv_curves"],"width_cm":12.5}))
-        elif method_id in run["plots"]:
+        if method_id in run["plots"]:
             figures.append((_safe_text(method["name"]),{"b64":run["plots"][method_id],"width_cm":12.5}))
         analysis.append({"kind":"h3","text":_safe_text(method["name"])})
         analysis.append({"kind":"para","text":_safe_text(method["description"]+"。先筛除空白行并统一到公式所示单位，再计算明细表和汇总结果。")})
