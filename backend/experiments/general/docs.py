@@ -64,8 +64,8 @@ FORMULAS = {
     },
     "surface-tension": {
         "calibration": [r"F=mg,\quad U=KF+b"],
-        "pull_off": [r"\sigma=\frac{|U_1-U_2|}{\pi(D_1+D_2)K}"],
-        "capillary": [r"h=|y_1-y_2|,\quad d=|x_1-x_2|", r"\sigma=\frac{1}{4}\rho gd\left(h+\frac{d}{6}\right)"],
+        "pull_off": [r"\sigma=\frac{|U_1-U_2|}{\pi(D_1+D_2)K}", r"\Delta\sigma=|\sigma-\sigma_0|,\quad E_r=\frac{|\sigma-\sigma_0|}{\sigma_0}\times100\%"],
+        "capillary": [r"h=|y_1-y_2|,\quad d=|x_1-x_2|", r"\sigma=\frac{1}{4}\rho gd\left(h+\frac{d}{6}\right)", r"\Delta\sigma=|\sigma-\sigma_0|,\quad E_r=\frac{|\sigma-\sigma_0|}{\sigma_0}\times100\%"],
         "salt_pull_off": [r"\sigma=\frac{|U_1-U_2|}{\pi(D_1+D_2)K}"],
         "salt_capillary": [r"\sigma=\frac{1}{4}\rho gd\left(h+\frac{d}{6}\right)"],
     },
@@ -195,7 +195,9 @@ def report_blocks(experiment_id: str, data: dict) -> list[dict]:
         detail=_derived_table(detail_rows)
         if detail: tables.append((_safe_text(f"{method['name']}计算明细"),detail))
         tables.append((_safe_text(f"{method['name']}结果汇总"),_result_table(method,result)))
-        if method_id in run["plots"]:
+        if method_id == "iv_436" and "iv_curves" in run["plots"]:
+            figures.append(("436 nm 与 546 nm 伏安特性",{"b64":run["plots"]["iv_curves"],"width_cm":12.5}))
+        elif method_id in run["plots"]:
             figures.append((_safe_text(method["name"]),{"b64":run["plots"][method_id],"width_cm":12.5}))
         analysis.append({"kind":"h3","text":_safe_text(method["name"])})
         analysis.append({"kind":"para","text":_safe_text(method["description"]+"。先筛除空白行并统一到公式所示单位，再计算明细表和汇总结果。")})
@@ -205,6 +207,11 @@ def report_blocks(experiment_id: str, data: dict) -> list[dict]:
             analysis.append({"kind":"note","text":_safe_text(f"第 {row_index} 组逐点代入：{substitutions}。")})
         rendered="；".join(f"{field['label']}={_fmt(result.get(field['key']))} {field.get('unit','')}" for field in method.get("results",[]))
         analysis.append({"kind":"para","text":_safe_text("本组数据代入后："+rendered+"。完整逐点中间量见第一部分对应计算明细表。")})
+        if experiment_id == "surface-tension" and method_id in ("pull_off", "capillary"):
+            analysis.append({"kind":"para","text":_safe_text(
+                f"最终结果：σ = ({_fmt(result.get('sigma'))} ± {_fmt(result.get('absolute_error'))}) N/m；"
+                f"相对误差 Er = {_fmt(result.get('relative_error'))}%。"
+            )})
     discussion=config["discussion"]
     fourth=[{"kind":"h3","text":"拓展方向"},{"kind":"para","text":_safe_text(discussion["extensions"])},
             {"kind":"h3","text":"改进建议"},{"kind":"para","text":_safe_text(discussion["suggestions"])},

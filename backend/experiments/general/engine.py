@@ -181,7 +181,7 @@ def _photoelectric(method, rows, p):
         return result,derived,_plot(scaled.tolist(),[(us.tolist(),"截止电压","#2563eb")],"ν / 10¹⁴ Hz","US / V","截止电压与频率",True)
     if method.startswith("iv_"):
         vals=_numbers(rows,"voltage","current"); x,y=map(list,zip(*vals))
-        return {"max_current":max(y),"min_current":min(y)},[],_plot(x,[(y,method.replace("iv_","")+" nm","#7c3aed")],"UAK / V","I","光电管伏安特性",connect_points=True)
+        return {"max_current":max(y),"min_current":min(y)},[],None
     vals=[]
     for row in rows:
         try: wl=float(row["wavelength"]); d=float(row["diameter"]); currents=[float(row[k]) for k in ("i1","i2","i3") if row.get(k) not in (None,"")]
@@ -192,6 +192,35 @@ def _photoelectric(method, rows, p):
         group=[v for v in vals if v[0]==wl]; x=[v[1]**2 for v in group]; y=[v[2] for v in group]; f=_fit(x,y); result[f"r_squared_{wl}"]=f["r_squared"]; series.append((y,f"{wl} nm", "#2563eb" if wl==436 else "#f59e0b")); derived += [{"wavelength":wl,"phi_squared":a,"i_mean":b} for a,b in zip(x,y)]
     x=sorted({v[1]**2 for v in vals})
     return result,derived,_plot(x,series,"Φ² / mm²","Im","饱和光电流与相对光强",True)
+
+
+def _photoelectric_iv_plot(data: dict) -> str | None:
+    series = []
+    for method_id, label, color in (
+        ("iv_436", "436 nm（Φ=2 mm）", "#2563eb"),
+        ("iv_546", "546 nm（Φ=4 mm）", "#f59e0b"),
+    ):
+        rows = data.get(method_id, {}).get("rows", [])
+        values = _numbers(rows, "voltage", "current")
+        if values:
+            x, y = map(list, zip(*values))
+            series.append((x, y, label, color))
+    if not series:
+        return None
+    fig, ax = plt.subplots(figsize=(7.2, 4.5))
+    for x, y, label, color in series:
+        ax.plot(x, y, marker="o", markersize=4.5, color=color,
+                linewidth=1.6, label=label, zorder=3)
+    ax.set_xlabel("UAK / V")
+    ax.set_ylabel(r"I / $10^{-13}$ A")
+    ax.set_title("光电管伏安特性（436 nm 与 546 nm）", fontweight="bold")
+    ax.grid(alpha=.25)
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight")
+    plt.close(fig)
+    return base64.b64encode(buf.getvalue()).decode("ascii")
 
 
 def _franck(method, rows, p):
@@ -305,12 +334,26 @@ def _viscosity(method, rows, p):
 def _surface(method, rows, p):
     if method == "calibration":
         vals=_numbers(rows,"mass","u_up","u_down"); m,up,down=map(list,zip(*vals)); force=[v/1000*p.get("g",9.79338) for v in m]; mean_u=[(a+b)/2 for a,b in zip(up,down)]; f=_fit(force,mean_u)
-        return {"sensitivity":f["slope"],"r_squared":f["r_squared"],"hysteresis":max(abs(a-b) for a,b in zip(up,down))},[],_plot(force,[(mean_u,"平均电压","#2563eb")],"F / N","U / mV","力敏传感器定标",True)
+        return {"sensitivity":abs(f["slope"]),"r_squared":f["r_squared"],"hysteresis":max(abs(a-b) for a,b in zip(up,down))},[],_plot(force,[(mean_u,"平均电压","#2563eb")],"F / N","U / mV","力敏传感器定标",True)
     if method in ("pull_off", "salt_pull_off"):
-        vals=_numbers(rows,"u1","u2"); k=p.get("sensitivity",1000); circumference=math.pi*(p.get("d1",3.31)+p.get("d2",3.496))/100; sigmas=[abs(a-b)/k/circumference for a,b in vals]
-        return {"sigma":_mean(sigmas),"sigma_std":_std(sigmas)},[{"delta_u":abs(a-b),"sigma":s} for (a,b),s in zip(vals,sigmas)],_plot(list(range(1,len(sigmas)+1)),[(sigmas,"拉脱法","#7c3aed")],"测量序号",r"σ / N·m$^{-1}$","拉脱法重复测量")
+        vals=_numbers(rows,"u1","u2"); k=abs(float(p.get("sensitivity",1000))); circumference=math.pi*(p.get("d1",3.31)+p.get("d2",3.496))/100
+        if k == 0: raise ValueError("力敏传感器灵敏度 K 不能为 0")
+        sigmas=[abs(a-b)/k/circumference for a,b in vals]; sigma=_mean(sigmas)
+        result={"sigma":sigma,"sigma_std":_std(sigmas),"sensitivity_used":k}
+        if method == "pull_off" or "sigma_reference" in p:
+            reference=abs(float(p.get("sigma_reference",.07275)))
+            if reference == 0: raise ValueError("纯水标准值 σ0 不能为 0")
+            result.update({"sigma_reference":reference,"absolute_error":abs(sigma-reference),
+                           "relative_error":abs(sigma-reference)/reference*100})
+        return result,[{"delta_u":abs(a-b),"sigma":s} for (a,b),s in zip(vals,sigmas)],_plot(list(range(1,len(sigmas)+1)),[(sigmas,"拉脱法","#7c3aed")],"测量序号",r"σ / N·m$^{-1}$","拉脱法重复测量")
     vals=_numbers(rows,"y1","y2","x1","x2"); hs=[abs(a-b) for a,b,_,_ in vals]; ds=[abs(c-d) for _,_,c,d in vals]; h=_mean(hs); d=_mean(ds); sigma=.25*p.get("density",998)*p.get("g",9.79338)*(d/1000)*(h/1000+d/6000)
-    return {"sigma":sigma,"height":h,"diameter":d},[{"height":hh,"diameter":dd} for hh,dd in zip(hs,ds)],_plot(list(range(1,len(hs)+1)),[(hs,"液柱高","#2563eb"),(ds,"内径","#f59e0b")],"测量序号","mm","毛细管读数")
+    result={"sigma":sigma,"height":h,"diameter":d}
+    if method == "capillary" or "sigma_reference" in p:
+        reference=abs(float(p.get("sigma_reference",.07275)))
+        if reference == 0: raise ValueError("纯水标准值 σ0 不能为 0")
+        result.update({"sigma_reference":reference,"absolute_error":abs(sigma-reference),
+                       "relative_error":abs(sigma-reference)/reference*100})
+    return result,[{"height":hh,"diameter":dd} for hh,dd in zip(hs,ds)],_plot(list(range(1,len(hs)+1)),[(hs,"液柱高","#2563eb"),(ds,"内径","#f59e0b")],"测量序号","mm","毛细管读数")
 
 
 def _thermal(method, rows, p):
@@ -349,15 +392,24 @@ def process_experiment(experiment_id: str, data: dict) -> dict:
     if not config: return {"status":"validation_error","errors":["未知实验"],"results":{},"plots":{}}
     handler = HANDLERS[experiment_id]; results={}; plots={}; derived={}; errors=[]
     for method in config["methods"]:
-        payload=data.get(method["id"],{}); rows=payload.get("rows",[]); params=payload.get("params",{})
+        payload=data.get(method["id"],{}); rows=payload.get("rows",[]); params=dict(payload.get("params",{}))
         if not rows or not any(any(value not in (None, "") for value in row.values()) for row in rows):
             if method.get("required"): errors.append(f"{method['name']}：未提供数据")
             continue
         try:
+            if experiment_id == "surface-tension" and method["id"] in ("pull_off", "salt_pull_off"):
+                calibrated = results.get("calibration", {}).get("sensitivity")
+                if calibrated is not None:
+                    params["sensitivity"] = calibrated
             result, detail, plot = handler(method["id"], rows, params)
             results[method["id"]]=result; derived[method["id"]]=detail
             if plot: plots[method["id"]]=plot
         except Exception as exc:
             errors.append(f"{method['name']}：{exc}")
+    if experiment_id == "photoelectric":
+        iv_plot = _photoelectric_iv_plot(data)
+        if iv_plot:
+            plots.pop("iv_436", None); plots.pop("iv_546", None)
+            plots["iv_curves"] = iv_plot
     status="success" if results else "validation_error"
     return {"status":status,"results":results,"plots":plots,"derived":derived,"errors":errors}

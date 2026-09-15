@@ -148,6 +148,53 @@ def test_key_physical_results():
     assert process_experiment("michelson", data["michelson"])["results"]["wavelength"]["wavelength"] == pytest.approx(632.8)
 
 
+def test_surface_tension_uses_calibrated_sensitivity_and_reports_water_errors():
+    data = fixtures()["surface-tension"]
+    for row in data["calibration"]["rows"]:
+        row["u_up"] = -row["u_up"]
+        row["u_down"] = -row["u_down"]
+    data["pull_off"]["params"]["sensitivity"] = 123.0
+    data["pull_off"]["params"]["sigma_reference"] = 0.07275
+    data["capillary"]["params"]["sigma_reference"] = 0.07275
+
+    run = process_experiment("surface-tension", data)
+    fitted_k = run["results"]["calibration"]["sensitivity"]
+    assert fitted_k > 0
+    pull_off = run["results"]["pull_off"]
+    expected_sigma = 4.8 / fitted_k / (math.pi * (3.31 + 3.496) / 100)
+
+    assert pull_off["sensitivity_used"] == pytest.approx(fitted_k)
+    assert pull_off["sigma"] == pytest.approx(expected_sigma)
+    assert pull_off["absolute_error"] == pytest.approx(abs(expected_sigma - 0.07275))
+    assert pull_off["relative_error"] == pytest.approx(abs(expected_sigma - 0.07275) / 0.07275 * 100)
+    for method_id in ("pull_off", "capillary"):
+        assert math.isfinite(run["results"][method_id]["sigma"])
+        assert math.isfinite(run["results"][method_id]["absolute_error"])
+        assert math.isfinite(run["results"][method_id]["relative_error"])
+
+    report_text = "\n".join(
+        block.get("text", "") for block in docs.report_blocks("surface-tension", data)
+    )
+    assert "最终结果：σ =" in report_text
+    assert "相对误差 Er =" in report_text
+
+
+def test_photoelectric_iv_wavelengths_share_one_combined_plot():
+    data = fixtures()["photoelectric"]
+    run = process_experiment("photoelectric", data)
+
+    assert "iv_curves" in run["plots"]
+    assert "iv_436" not in run["plots"]
+    assert "iv_546" not in run["plots"]
+
+    blocks = docs.report_blocks("photoelectric", data)
+    matching_images = [
+        block for block in blocks
+        if block.get("kind") == "image" and block.get("b64") == run["plots"]["iv_curves"]
+    ]
+    assert len(matching_images) == 1
+
+
 def test_catalogue_and_generic_api_contract():
     client = TestClient(app)
     listing = client.get("/api/experiments")
