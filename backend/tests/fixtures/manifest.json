@@ -1,0 +1,77 @@
+{
+  "validation_boundary": "synthetic and structure-derived fixtures; not complete real laboratory validation",
+  "public_experiments": [
+    {
+      "id": "polarization",
+      "kind": "polarization",
+      "process_endpoint": "POST /api/experiments/polarization/process",
+      "calculation_entry": "experiments.polarization.adapter.PolarizationAdapter"
+    },
+    {
+      "id": "sound-light",
+      "kind": "sound-light",
+      "process_endpoint": "POST /api/experiments/sound-light/process",
+      "calculation_entry": "experiments.soundlight.engine.process_method"
+    },
+    {
+      "id": "multimeter",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/multimeter/process",
+      "calculation_entry": "experiments.general.engine._multimeter"
+    },
+    {
+      "id": "bridge",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/bridge/process",
+      "calculation_entry": "experiments.general.engine._bridge"
+    },
+    {
+      "id": "solar-cell",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/solar-cell/process",
+      "calculation_entry": "experiments.general.engine._solar"
+    },
+    {
+      "id": "gmr",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/gmr/process",
+      "calculation_entry": "experiments.general.engine._gmr"
+    },
+    {
+      "id": "nmr",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/nmr/process",
+      "calculation_entry": "experiments.general.engine._nmr"
+    },
+    {
+      "id": "viscosity",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/viscosity/process",
+      "calculation_entry": "experiments.general.engine._viscosity"
+    },
+    {
+      "id": "surface-tension",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/surface-tension/process",
+      "calculation_entry": "experiments.general.engine._surface"
+    },
+    {
+      "id": "thermal-conductivity",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/thermal-conductivity/process",
+      "calculation_entry": "experiments.general.engine._thermal"
+    },
+    {
+      "id": "michelson",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/michelson/process",
+      "calculation_entry": "experiments.general.engine._michelson"
+    },
+    {
+      "id": "photoelectric-franck-hertz",
+      "kind": "general",
+      "process_endpoint": "POST /api/experiments/photoelectric-franck-hertz/process",
+      "calculation_entry": "experiments.general.engine.process_experiment -> _photoelectric + _franck"
+    }
+  ]
+}

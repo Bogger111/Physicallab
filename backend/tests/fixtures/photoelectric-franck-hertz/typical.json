@@ -1,0 +1,1256 @@
+{
+  "experiment_id": "photoelectric-franck-hertz",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "planck": {
+      "rows": [
+        {
+          "wavelength": 365,
+          "us1": 1.394827354334254,
+          "us2": 1.396827354334254,
+          "us3": 1.398827354334254,
+          "us4": 1.396827354334254
+        },
+        {
+          "wavelength": 405,
+          "us1": 1.059338232918525,
+          "us2": 1.061338232918525,
+          "us3": 1.063338232918525,
+          "us4": 1.061338232918525
+        },
+        {
+          "wavelength": 436,
+          "us1": 0.8416742759908316,
+          "us2": 0.8436742759908316,
+          "us3": 0.8456742759908316,
+          "us4": 0.8436742759908316
+        },
+        {
+          "wavelength": 546,
+          "us1": 0.2687728650769279,
+          "us2": 0.2707728650769279,
+          "us3": 0.2727728650769279,
+          "us4": 0.2707728650769279
+        },
+        {
+          "wavelength": 577,
+          "us1": 0.14677293645061096,
+          "us2": 0.14877293645061096,
+          "us3": 0.15077293645061096,
+          "us4": 0.14877293645061096
+        }
+      ],
+      "params": {}
+    },
+    "iv_436": {
+      "rows": [
+        {
+          "voltage": -4,
+          "current": 0.0
+        },
+        {
+          "voltage": -2,
+          "current": 32.967995396436066
+        },
+        {
+          "voltage": 0,
+          "current": 55.067103588277845
+        },
+        {
+          "voltage": 2,
+          "current": 69.88057880877977
+        },
+        {
+          "voltage": 4,
+          "current": 79.81034820053446
+        },
+        {
+          "voltage": 6,
+          "current": 86.46647167633873
+        },
+        {
+          "voltage": 8,
+          "current": 90.92820467105875
+        },
+        {
+          "voltage": 10,
+          "current": 93.9189937374782
+        },
+        {
+          "voltage": 12,
+          "current": 95.92377960216338
+        },
+        {
+          "voltage": 14,
+          "current": 97.26762775527075
+        },
+        {
+          "voltage": 16,
+          "current": 98.16843611112658
+        },
+        {
+          "voltage": 18,
+          "current": 98.77226600969315
+        },
+        {
+          "voltage": 20,
+          "current": 99.17702529509799
+        },
+        {
+          "voltage": 22,
+          "current": 99.44834355792392
+        },
+        {
+          "voltage": 24,
+          "current": 99.63021362835171
+        },
+        {
+          "voltage": 26,
+          "current": 99.75212478233337
+        },
+        {
+          "voltage": 28,
+          "current": 99.8338442726826
+        },
+        {
+          "voltage": 30,
+          "current": 99.88862248521552
+        },
+        {
+          "voltage": 10,
+          "current": 99.94340069774844
+        },
+        {
+          "voltage": 11,
+          "current": 99.99817891028137
+        },
+        {
+          "voltage": 12,
+          "current": 100.05295712281429
+        },
+        {
+          "voltage": 13,
+          "current": 100.10773533534721
+        },
+        {
+          "voltage": 14,
+          "current": 100.16251354788014
+        },
+        {
+          "voltage": 15,
+          "current": 100.21729176041306
+        },
+        {
+          "voltage": 16.5,
+          "current": 100.27206997294599
+        },
+        {
+          "voltage": 18,
+          "current": 100.32684818547891
+        },
+        {
+          "voltage": 19.5,
+          "current": 100.38162639801183
+        },
+        {
+          "voltage": 21,
+          "current": 100.43640461054476
+        },
+        {
+          "voltage": 22.5,
+          "current": 100.49118282307768
+        },
+        {
+          "voltage": 24,
+          "current": 100.5459610356106
+        },
+        {
+          "voltage": 25.5,
+          "current": 100.60073924814353
+        },
+        {
+          "voltage": 27,
+          "current": 100.65551746067645
+        },
+        {
+          "voltage": 28.5,
+          "current": 100.71029567320937
+        },
+        {
+          "voltage": 30,
+          "current": 100.7650738857423
+        }
+      ],
+      "params": {}
+    },
+    "iv_546": {
+      "rows": [
+        {
+          "voltage": -4,
+          "current": 0.0
+        },
+        {
+          "voltage": -2,
+          "current": 19.84280825983475
+        },
+        {
+          "voltage": 0,
+          "current": 34.06080166771856
+        },
+        {
+          "voltage": 2,
+          "current": 44.248439117999034
+        },
+        {
+          "voltage": 4,
+          "current": 51.54820033189913
+        },
+        {
+          "voltage": 6,
+          "current": 56.77870780137068
+        },
+        {
+          "voltage": 8,
+          "current": 60.52653017343711
+        },
+        {
+          "voltage": 10,
+          "current": 63.21196224949164
+        },
+        {
+          "voltage": 12,
+          "current": 65.1361584144039
+        },
+        {
+          "voltage": 14,
+          "current": 66.51490521424952
+        },
+        {
+          "voltage": 16,
+          "current": 67.50282046569234
+        },
+        {
+          "voltage": 18,
+          "current": 68.21069267554448
+        },
+        {
+          "voltage": 20,
+          "current": 68.7179052777886
+        },
+        {
+          "voltage": 22,
+          "current": 69.08133898841413
+        },
+        {
+          "voltage": 24,
+          "current": 69.34175062139533
+        },
+        {
+          "voltage": 26,
+          "current": 69.52834371006402
+        },
+        {
+          "voltage": 28,
+          "current": 69.6620435004318
+        },
+        {
+          "voltage": 30,
+          "current": 69.75784358644746
+        },
+        {
+          "voltage": 10,
+          "current": 69.85364367246312
+        },
+        {
+          "voltage": 11,
+          "current": 69.94944375847878
+        },
+        {
+          "voltage": 12,
+          "current": 70.04524384449444
+        },
+        {
+          "voltage": 13,
+          "current": 70.1410439305101
+        },
+        {
+          "voltage": 14,
+          "current": 70.23684401652575
+        },
+        {
+          "voltage": 15,
+          "current": 70.33264410254141
+        },
+        {
+          "voltage": 16.5,
+          "current": 70.42844418855707
+        },
+        {
+          "voltage": 18,
+          "current": 70.52424427457272
+        },
+        {
+          "voltage": 19.5,
+          "current": 70.62004436058838
+        },
+        {
+          "voltage": 21,
+          "current": 70.71584444660404
+        },
+        {
+          "voltage": 22.5,
+          "current": 70.8116445326197
+        },
+        {
+          "voltage": 24,
+          "current": 70.90744461863535
+        },
+        {
+          "voltage": 25.5,
+          "current": 71.00324470465101
+        },
+        {
+          "voltage": 27,
+          "current": 71.09904479066667
+        },
+        {
+          "voltage": 28.5,
+          "current": 71.19484487668232
+        },
+        {
+          "voltage": 30,
+          "current": 71.29064496269798
+        }
+      ],
+      "params": {}
+    },
+    "saturation": {
+      "rows": [
+        {
+          "wavelength": 436,
+          "diameter": 2,
+          "i1": 3.2,
+          "i2": 3.2,
+          "i3": 3.2
+        },
+        {
+          "wavelength": 436,
+          "diameter": 4,
+          "i1": 12.8,
+          "i2": 12.8,
+          "i3": 12.8
+        },
+        {
+          "wavelength": 436,
+          "diameter": 8,
+          "i1": 51.2,
+          "i2": 51.2,
+          "i3": 51.2
+        },
+        {
+          "wavelength": 546,
+          "diameter": 2,
+          "i1": 3.2,
+          "i2": 3.2,
+          "i3": 3.2
+        },
+        {
+          "wavelength": 546,
+          "diameter": 4,
+          "i1": 12.8,
+          "i2": 12.8,
+          "i3": 12.8
+        },
+        {
+          "wavelength": 546,
+          "diameter": 8,
+          "i1": 51.2,
+          "i2": 51.2,
+          "i3": 51.2
+        }
+      ],
+      "params": {}
+    },
+    "compensation": {
+      "rows": [
+        {
+          "wavelength": 365,
+          "us1": 1.394827354334254,
+          "us2": 1.396827354334254,
+          "us3": 1.398827354334254,
+          "us4": null
+        },
+        {
+          "wavelength": 405,
+          "us1": 1.059338232918525,
+          "us2": 1.061338232918525,
+          "us3": 1.063338232918525,
+          "us4": null
+        },
+        {
+          "wavelength": 436,
+          "us1": 0.8416742759908316,
+          "us2": 0.8436742759908316,
+          "us3": 0.8456742759908316,
+          "us4": null
+        },
+        {
+          "wavelength": 546,
+          "us1": 0.2687728650769279,
+          "us2": 0.2707728650769279,
+          "us3": 0.2727728650769279,
+          "us4": null
+        },
+        {
+          "wavelength": 577,
+          "us1": 0.14677293645061096,
+          "us2": 0.14877293645061096,
+          "us3": 0.15077293645061096,
+          "us4": null
+        }
+      ],
+      "params": {
+        "aperture": 4
+      }
+    },
+    "curve": {
+      "rows": [
+        {
+          "voltage": 0,
+          "current": 20.0
+        },
+        {
+          "voltage": 1,
+          "current": 21.47933392651833
+        },
+        {
+          "voltage": 2,
+          "current": 22.545534901210548
+        },
+        {
+          "voltage": 3,
+          "current": 22.02765740703832
+        },
+        {
+          "voltage": 4,
+          "current": 22.171174753968373
+        },
+        {
+          "voltage": 5,
+          "current": 25.319692904211262
+        },
+        {
+          "voltage": 6,
+          "current": 28.961545350243348
+        },
+        {
+          "voltage": 7,
+          "current": 28.518593086911455
+        },
+        {
+          "voltage": 8,
+          "current": 25.03888801169874
+        },
+        {
+          "voltage": 9,
+          "current": 25.15185756647594
+        },
+        {
+          "voltage": 10,
+          "current": 31.26827291954753
+        },
+        {
+          "voltage": 11,
+          "current": 36.49717418910378
+        },
+        {
+          "voltage": 12,
+          "current": 33.89064930814173
+        },
+        {
+          "voltage": 13,
+          "current": 27.66888034511978
+        },
+        {
+          "voltage": 14,
+          "current": 28.52717962272379
+        },
+        {
+          "voltage": 15,
+          "current": 37.81450253659529
+        },
+        {
+          "voltage": 16,
+          "current": 43.963032903593586
+        },
+        {
+          "voltage": 17,
+          "current": 38.62484834396168
+        },
+        {
+          "voltage": 18,
+          "current": 30.020606242643012
+        },
+        {
+          "voltage": 19,
+          "current": 32.39101576926684
+        },
+        {
+          "voltage": 20,
+          "current": 44.90717552003935
+        },
+        {
+          "voltage": 21,
+          "current": 51.23674307790915
+        },
+        {
+          "voltage": 22,
+          "current": 42.70477241978791
+        },
+        {
+          "voltage": 23,
+          "current": 32.207613146427775
+        },
+        {
+          "voltage": 24,
+          "current": 36.822673634105385
+        },
+        {
+          "voltage": 25,
+          "current": 52.4763816311402
+        },
+        {
+          "voltage": 26,
+          "current": 58.200089486646874
+        },
+        {
+          "voltage": 27,
+          "current": 46.13505203026042
+        },
+        {
+          "voltage": 28,
+          "current": 34.351009229454476
+        },
+        {
+          "voltage": 29,
+          "current": 41.884595495942904
+        },
+        {
+          "voltage": 30,
+          "current": 60.43523825905225
+        },
+        {
+          "voltage": 31,
+          "current": 64.74228924878152
+        },
+        {
+          "voltage": 32,
+          "current": 48.94146194077816
+        },
+        {
+          "voltage": 33,
+          "current": 36.57624463633824
+        },
+        {
+          "voltage": 34,
+          "current": 47.62046091705058
+        },
+        {
+          "voltage": 35,
+          "current": 68.68205094319042
+        },
+        {
+          "voltage": 36,
+          "current": 70.76310058274528
+        },
+        {
+          "voltage": 37,
+          "current": 51.170497966563104
+        },
+        {
+          "voltage": 38,
+          "current": 39.00976189218692
+        },
+        {
+          "voltage": 39,
+          "current": 54.05373561376445
+        },
+        {
+          "voltage": 40,
+          "current": 77.10285526010686
+        },
+        {
+          "voltage": 41,
+          "current": 76.17569894004413
+        },
+        {
+          "voltage": 42,
+          "current": 52.88844147853132
+        },
+        {
+          "voltage": 43,
+          "current": 41.7755916565893
+        },
+        {
+          "voltage": 44,
+          "current": 61.1867024429406
+        },
+        {
+          "voltage": 45,
+          "current": 85.57428401785575
+        },
+        {
+          "voltage": 46,
+          "current": 80.90925309207928
+        },
+        {
+          "voltage": 47,
+          "current": 54.17992982155209
+        },
+        {
+          "voltage": 48,
+          "current": 44.991971527120114
+        },
+        {
+          "voltage": 49,
+          "current": 68.99999999999977
+        },
+        {
+          "voltage": 50,
+          "current": 93.96669632591652
+        },
+        {
+          "voltage": 51,
+          "current": 84.91113998086927
+        },
+        {
+          "voltage": 52,
+          "current": 55.14606172199743
+        },
+        {
+          "voltage": 53,
+          "current": 48.76806549008087
+        },
+        {
+          "voltage": 54,
+          "current": 77.45268336548148
+        },
+        {
+          "voltage": 55,
+          "current": 102.14749904389735
+        },
+        {
+          "voltage": 56,
+          "current": 88.1487446952917
+        },
+        {
+          "voltage": 57,
+          "current": 55.902077083353795
+        },
+        {
+          "voltage": 58,
+          "current": 53.20085987284498
+        },
+        {
+          "voltage": 59,
+          "current": 86.48281022533016
+        },
+        {
+          "voltage": 60,
+          "current": 109.98458648602063
+        },
+        {
+          "voltage": 32.5,
+          "current": 133.4863627467111
+        },
+        {
+          "voltage": 33.0,
+          "current": 156.98813900740157
+        },
+        {
+          "voltage": 33.5,
+          "current": 180.48991526809203
+        },
+        {
+          "voltage": 34.0,
+          "current": 203.9916915287825
+        },
+        {
+          "voltage": 34.5,
+          "current": 227.49346778947296
+        },
+        {
+          "voltage": 35.0,
+          "current": 250.99524405016342
+        },
+        {
+          "voltage": 35.5,
+          "current": 274.4970203108539
+        },
+        {
+          "voltage": 36.0,
+          "current": 297.99879657154435
+        },
+        {
+          "voltage": 36.5,
+          "current": 321.5005728322348
+        },
+        {
+          "voltage": 37.0,
+          "current": 345.0023490929253
+        },
+        {
+          "voltage": 37.5,
+          "current": 368.50412535361573
+        },
+        {
+          "voltage": 38.0,
+          "current": 392.0059016143062
+        },
+        {
+          "voltage": 38.5,
+          "current": 415.50767787499666
+        },
+        {
+          "voltage": 39.0,
+          "current": 439.0094541356871
+        },
+        {
+          "voltage": 39.5,
+          "current": 462.5112303963776
+        },
+        {
+          "voltage": 40.0,
+          "current": 486.01300665706805
+        },
+        {
+          "voltage": 40.5,
+          "current": 509.5147829177585
+        },
+        {
+          "voltage": 41.0,
+          "current": 533.0165591784489
+        },
+        {
+          "voltage": 41.5,
+          "current": 556.5183354391393
+        },
+        {
+          "voltage": 42.0,
+          "current": 580.0201116998296
+        },
+        {
+          "voltage": 42.5,
+          "current": 603.52188796052
+        },
+        {
+          "voltage": 43.0,
+          "current": 627.0236642212103
+        },
+        {
+          "voltage": 43.5,
+          "current": 650.5254404819007
+        },
+        {
+          "voltage": 44.0,
+          "current": 674.027216742591
+        },
+        {
+          "voltage": 44.5,
+          "current": 697.5289930032814
+        },
+        {
+          "voltage": 45.0,
+          "current": 721.0307692639717
+        },
+        {
+          "voltage": 45.5,
+          "current": 744.532545524662
+        },
+        {
+          "voltage": 46.0,
+          "current": 768.0343217853524
+        },
+        {
+          "voltage": 46.5,
+          "current": 791.5360980460428
+        },
+        {
+          "voltage": 47.0,
+          "current": 815.0378743067331
+        },
+        {
+          "voltage": 47.5,
+          "current": 838.5396505674235
+        },
+        {
+          "voltage": 48.0,
+          "current": 862.0414268281138
+        },
+        {
+          "voltage": 48.5,
+          "current": 885.5432030888041
+        },
+        {
+          "voltage": 49.0,
+          "current": 909.0449793494945
+        },
+        {
+          "voltage": 49.5,
+          "current": 932.5467556101848
+        },
+        {
+          "voltage": 50.0,
+          "current": 956.0485318708752
+        },
+        {
+          "voltage": 50.5,
+          "current": 979.5503081315655
+        },
+        {
+          "voltage": 51.0,
+          "current": 1003.0520843922559
+        },
+        {
+          "voltage": 51.5,
+          "current": 1026.5538606529462
+        },
+        {
+          "voltage": 52.0,
+          "current": 1050.0556369136366
+        },
+        {
+          "voltage": 52.5,
+          "current": 1073.557413174327
+        },
+        {
+          "voltage": 53.0,
+          "current": 1097.0591894350173
+        },
+        {
+          "voltage": 53.5,
+          "current": 1120.5609656957076
+        },
+        {
+          "voltage": 54.0,
+          "current": 1144.062741956398
+        },
+        {
+          "voltage": 54.5,
+          "current": 1167.5645182170883
+        },
+        {
+          "voltage": 55.0,
+          "current": 1191.0662944777787
+        },
+        {
+          "voltage": 55.5,
+          "current": 1214.568070738469
+        },
+        {
+          "voltage": 56.0,
+          "current": 1238.0698469991594
+        },
+        {
+          "voltage": 56.5,
+          "current": 1261.5716232598497
+        },
+        {
+          "voltage": 57.0,
+          "current": 1285.07339952054
+        },
+        {
+          "voltage": 57.5,
+          "current": 1308.5751757812304
+        },
+        {
+          "voltage": 58.0,
+          "current": 1332.0769520419208
+        },
+        {
+          "voltage": 58.5,
+          "current": 1355.5787283026111
+        },
+        {
+          "voltage": 59.0,
+          "current": 1379.0805045633015
+        },
+        {
+          "voltage": 59.5,
+          "current": 1402.5822808239918
+        },
+        {
+          "voltage": 60.0,
+          "current": 1426.0840570846822
+        }
+      ],
+      "params": {
+        "temperature": 220,
+        "vf": 0.9,
+        "vg1k": 1.5,
+        "vg2p": 1.3
+      }
+    },
+    "peaks": {
+      "rows": [
+        {
+          "peak_voltage": 5.6
+        },
+        {
+          "peak_voltage": 10.5
+        },
+        {
+          "peak_voltage": 15.4
+        },
+        {
+          "peak_voltage": 20.3
+        },
+        {
+          "peak_voltage": 25.200000000000003
+        },
+        {
+          "peak_voltage": 30.1
+        }
+      ],
+      "params": {}
+    },
+    "parameter_curve": {
+      "rows": [
+        {
+          "voltage": 0,
+          "current_reference": 20,
+          "current_variant": 21.0
+        },
+        {
+          "voltage": 2,
+          "current_reference": 22,
+          "current_variant": 23.1
+        },
+        {
+          "voltage": 4,
+          "current_reference": 24,
+          "current_variant": 25.2
+        },
+        {
+          "voltage": 6,
+          "current_reference": 26,
+          "current_variant": 27.3
+        },
+        {
+          "voltage": 8,
+          "current_reference": 28,
+          "current_variant": 29.4
+        },
+        {
+          "voltage": 10,
+          "current_reference": 30,
+          "current_variant": 31.5
+        },
+        {
+          "voltage": 12,
+          "current_reference": 32,
+          "current_variant": 33.6
+        },
+        {
+          "voltage": 14,
+          "current_reference": 34,
+          "current_variant": 35.7
+        },
+        {
+          "voltage": 16,
+          "current_reference": 36,
+          "current_variant": 37.8
+        },
+        {
+          "voltage": 18,
+          "current_reference": 38,
+          "current_variant": 39.900000000000006
+        },
+        {
+          "voltage": 20,
+          "current_reference": 40,
+          "current_variant": 42.0
+        },
+        {
+          "voltage": 22,
+          "current_reference": 42,
+          "current_variant": 44.1
+        },
+        {
+          "voltage": 24,
+          "current_reference": 44,
+          "current_variant": 46.2
+        },
+        {
+          "voltage": 26,
+          "current_reference": 46,
+          "current_variant": 48.3
+        },
+        {
+          "voltage": 28,
+          "current_reference": 48,
+          "current_variant": 50.400000000000006
+        },
+        {
+          "voltage": 30,
+          "current_reference": 50,
+          "current_variant": 52.5
+        },
+        {
+          "voltage": 32,
+          "current_reference": 52,
+          "current_variant": 54.599999999999994
+        },
+        {
+          "voltage": 34,
+          "current_reference": 54,
+          "current_variant": 56.69999999999999
+        },
+        {
+          "voltage": 36,
+          "current_reference": 56,
+          "current_variant": 58.79999999999998
+        },
+        {
+          "voltage": 38,
+          "current_reference": 58,
+          "current_variant": 60.89999999999998
+        },
+        {
+          "voltage": 40,
+          "current_reference": 60,
+          "current_variant": 62.99999999999997
+        },
+        {
+          "voltage": 42,
+          "current_reference": 62,
+          "current_variant": 65.09999999999997
+        },
+        {
+          "voltage": 44,
+          "current_reference": 64,
+          "current_variant": 67.19999999999996
+        },
+        {
+          "voltage": 46,
+          "current_reference": 66,
+          "current_variant": 69.29999999999995
+        },
+        {
+          "voltage": 48,
+          "current_reference": 68,
+          "current_variant": 71.39999999999995
+        },
+        {
+          "voltage": 50,
+          "current_reference": 70,
+          "current_variant": 73.49999999999994
+        },
+        {
+          "voltage": 52,
+          "current_reference": 72,
+          "current_variant": 75.59999999999994
+        },
+        {
+          "voltage": 54,
+          "current_reference": 74,
+          "current_variant": 77.69999999999993
+        },
+        {
+          "voltage": 56,
+          "current_reference": 76,
+          "current_variant": 79.79999999999993
+        },
+        {
+          "voltage": 58,
+          "current_reference": 78,
+          "current_variant": 81.89999999999992
+        }
+      ],
+      "params": {
+        "temperature": 220,
+        "vf": 0.9,
+        "vg1k": 1.5,
+        "vg2p": 1.3
+      }
+    },
+    "higher_curve": {
+      "rows": [
+        {
+          "voltage": 0,
+          "current": 8.0
+        },
+        {
+          "voltage": 2,
+          "current": 10.54557845609541
+        },
+        {
+          "voltage": 4,
+          "current": 11.091837005630486
+        },
+        {
+          "voltage": 6,
+          "current": 13.497052103241934
+        },
+        {
+          "voltage": 8,
+          "current": 18.374459791896115
+        },
+        {
+          "voltage": 10,
+          "current": 16.36793666733189
+        },
+        {
+          "voltage": 12,
+          "current": 18.068337495198435
+        },
+        {
+          "voltage": 14,
+          "current": 26.160550893918455
+        },
+        {
+          "voltage": 16,
+          "current": 22.618064080007688
+        },
+        {
+          "voltage": 18,
+          "current": 21.94466886743295
+        },
+        {
+          "voltage": 20,
+          "current": 33.477671504365766
+        },
+        {
+          "voltage": 22,
+          "current": 29.941581358683333
+        },
+        {
+          "voltage": 24,
+          "current": 25.47983579355231
+        },
+        {
+          "voltage": 26,
+          "current": 39.9479559137409
+        },
+        {
+          "voltage": 28,
+          "current": 38.2756086217861
+        },
+        {
+          "voltage": 30,
+          "current": 29.107715383164244
+        },
+        {
+          "voltage": 32,
+          "current": 19.93982214454239
+        },
+        {
+          "voltage": 34,
+          "current": 10.771928905920536
+        },
+        {
+          "voltage": 36,
+          "current": 1.6040356672986817
+        },
+        {
+          "voltage": 38,
+          "current": -7.563857571323172
+        },
+        {
+          "voltage": 40,
+          "current": -16.731750809945027
+        },
+        {
+          "voltage": 42,
+          "current": -25.89964404856688
+        },
+        {
+          "voltage": 44,
+          "current": -35.067537287188735
+        },
+        {
+          "voltage": 46,
+          "current": -44.235430525810585
+        },
+        {
+          "voltage": 48,
+          "current": -53.403323764432436
+        },
+        {
+          "voltage": 50,
+          "current": -62.57121700305429
+        },
+        {
+          "voltage": 52,
+          "current": -71.73911024167614
+        },
+        {
+          "voltage": 54,
+          "current": -80.907003480298
+        },
+        {
+          "voltage": 56,
+          "current": -90.07489671891986
+        },
+        {
+          "voltage": 58,
+          "current": -99.24278995754172
+        }
+      ],
+      "params": {
+        "temperature": 120,
+        "vf": 0.9,
+        "vg2p": 1.3
+      }
+    }
+  },
+  "expected_result_fields": {
+    "planck": [
+      "h",
+      "h_error",
+      "nu0",
+      "work_function",
+      "r_squared"
+    ],
+    "iv_436": [
+      "max_current",
+      "min_current"
+    ],
+    "iv_546": [
+      "max_current",
+      "min_current"
+    ],
+    "saturation": [
+      "r_squared_436",
+      "r_squared_546"
+    ],
+    "compensation": [
+      "h",
+      "h_error",
+      "nu0",
+      "work_function",
+      "r_squared"
+    ],
+    "curve": [
+      "data_points",
+      "current_max"
+    ],
+    "peaks": [
+      "v0",
+      "relative_error",
+      "spacing_std"
+    ],
+    "parameter_curve": [
+      "data_points",
+      "max_difference"
+    ],
+    "higher_curve": [
+      "data_points",
+      "current_max"
+    ]
+  }
+}

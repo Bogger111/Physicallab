@@ -1,0 +1,189 @@
+{
+  "experiment_id": "bridge",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "balanced": {
+      "rows": [
+        {
+          "rn": 250
+        },
+        {
+          "rn": 250
+        },
+        {
+          "rn": 250
+        }
+      ],
+      "params": {
+        "ra": 1000,
+        "rb": 5000
+      }
+    },
+    "cu50": {
+      "rows": [
+        {
+          "temperature": 20,
+          "u0": 3.2031452691240743
+        },
+        {
+          "temperature": 23,
+          "u0": 3.682437521260178
+        },
+        {
+          "temperature": 26,
+          "u0": 4.161422921432574
+        },
+        {
+          "temperature": 29,
+          "u0": 4.640101764225608
+        },
+        {
+          "temperature": 32,
+          "u0": 5.118474343846669
+        },
+        {
+          "temperature": 35,
+          "u0": 5.5965409541267945
+        },
+        {
+          "temperature": 38,
+          "u0": 6.074301888521273
+        },
+        {
+          "temperature": 41,
+          "u0": 6.551757440110236
+        },
+        {
+          "temperature": 44,
+          "u0": 7.028907901599271
+        },
+        {
+          "temperature": 47,
+          "u0": 7.505753565320005
+        }
+      ],
+      "params": {
+        "us": 3,
+        "r": 1000,
+        "rn": 50
+      }
+    },
+    "capacitor": {
+      "rows": [
+        {
+          "cn": 0.833333,
+          "rn": 10
+        },
+        {
+          "cn": 0.833333,
+          "rn": 10
+        },
+        {
+          "cn": 0.833333,
+          "rn": 10
+        }
+      ],
+      "params": {
+        "ra": 100,
+        "rb": 120,
+        "f": 1000
+      }
+    },
+    "inductor": {
+      "rows": [
+        {
+          "cn": 0.5,
+          "rn": 8
+        },
+        {
+          "cn": 0.5,
+          "rn": 8
+        },
+        {
+          "cn": 0.5,
+          "rn": 8
+        }
+      ],
+      "params": {
+        "ra": 100,
+        "rb": 100,
+        "f": 1000
+      }
+    },
+    "thermistor": {
+      "rows": [
+        {
+          "temperature": 20,
+          "resistance": 1221.6748077714853
+        },
+        {
+          "temperature": 23,
+          "resistance": 1082.5049803552872
+        },
+        {
+          "temperature": 26,
+          "resistance": 961.5185939722832
+        },
+        {
+          "temperature": 29,
+          "resistance": 856.0666731620022
+        },
+        {
+          "temperature": 32,
+          "resistance": 763.9227898719408
+        },
+        {
+          "temperature": 35,
+          "resistance": 683.2102031267777
+        },
+        {
+          "temperature": 38,
+          "resistance": 612.3424490927348
+        },
+        {
+          "temperature": 41,
+          "resistance": 549.9747432025566
+        },
+        {
+          "temperature": 44,
+          "resistance": 494.9641025629799
+        },
+        {
+          "temperature": 47,
+          "resistance": 446.3365244430677
+        }
+      ],
+      "params": {}
+    }
+  },
+  "expected_result_fields": {
+    "balanced": [
+      "rx_mean",
+      "relative_error"
+    ],
+    "cu50": [
+      "r0",
+      "alpha",
+      "r_squared",
+      "alpha_error"
+    ],
+    "capacitor": [
+      "cx",
+      "rc",
+      "tan_delta"
+    ],
+    "inductor": [
+      "lx",
+      "rl",
+      "q"
+    ],
+    "thermistor": [
+      "b_constant",
+      "r_squared"
+    ]
+  }
+}

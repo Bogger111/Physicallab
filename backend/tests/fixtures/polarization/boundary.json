@@ -1,0 +1,39 @@
+{
+  "extends": "typical.json",
+  "case": "boundary",
+  "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available",
+  "boundary_targets": [
+    {
+      "path": [
+        "setup",
+        "bg_uw"
+      ],
+      "reason": "zero background correction"
+    },
+    {
+      "path": [
+        "setup",
+        "theta_qwp"
+      ],
+      "reason": "supported quarter-wave angle endpoint"
+    }
+  ],
+  "patches": [
+    {
+      "op": "replace",
+      "path": [
+        "setup",
+        "bg_uw"
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "replace",
+      "path": [
+        "setup",
+        "theta_qwp"
+      ],
+      "value": 60.0
+    }
+  ]
+}

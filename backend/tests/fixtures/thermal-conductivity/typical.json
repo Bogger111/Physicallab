@@ -1,0 +1,222 @@
+{
+  "experiment_id": "thermal-conductivity",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "geometry": {
+      "rows": [
+        {
+          "dc": 100,
+          "hc": 10,
+          "db": 100,
+          "hb": 8
+        },
+        {
+          "dc": 100,
+          "hc": 10,
+          "db": 100,
+          "hb": 8
+        },
+        {
+          "dc": 100,
+          "hc": 10,
+          "db": 100,
+          "hb": 8
+        },
+        {
+          "dc": 100,
+          "hc": 10,
+          "db": 100,
+          "hb": 8
+        },
+        {
+          "dc": 100,
+          "hc": 10,
+          "db": 100,
+          "hb": 8
+        }
+      ],
+      "params": {}
+    },
+    "heating": {
+      "rows": [
+        {
+          "time": 0,
+          "ta": 49.8,
+          "tc": 34.8
+        },
+        {
+          "time": 2,
+          "ta": 49.856693737885244,
+          "tc": 34.856693737885244
+        },
+        {
+          "time": 4,
+          "ta": 49.89731657619348,
+          "tc": 34.89731657619348
+        },
+        {
+          "time": 6,
+          "ta": 49.92642411176571,
+          "tc": 34.92642411176571
+        },
+        {
+          "time": 8,
+          "ta": 49.947280572376854,
+          "tc": 34.947280572376854
+        },
+        {
+          "time": 10,
+          "ta": 49.96222487943249,
+          "tc": 34.96222487943249
+        },
+        {
+          "time": 12,
+          "ta": 49.972932943352674,
+          "tc": 34.972932943352674
+        },
+        {
+          "time": 14,
+          "ta": 49.98060560642712,
+          "tc": 34.98060560642712
+        },
+        {
+          "time": 16,
+          "ta": 49.98610330975544,
+          "tc": 34.98610330975544
+        },
+        {
+          "time": 18,
+          "ta": 49.990042586326425,
+          "tc": 34.990042586326425
+        },
+        {
+          "time": 20,
+          "ta": 49.99286520133055,
+          "tc": 34.99286520133055
+        },
+        {
+          "time": 22,
+          "ta": 49.9948876933587,
+          "tc": 34.9948876933587
+        },
+        {
+          "time": 24,
+          "ta": 49.99633687222225,
+          "tc": 34.99633687222225
+        },
+        {
+          "time": 26,
+          "ta": 49.99737525425261,
+          "tc": 34.99737525425261
+        },
+        {
+          "time": 28,
+          "ta": 49.9981192874897,
+          "tc": 34.9981192874897
+        }
+      ],
+      "params": {}
+    },
+    "cooling": {
+      "rows": [
+        {
+          "time": 0,
+          "temperature": 40.0
+        },
+        {
+          "time": 30,
+          "temperature": 39.7
+        },
+        {
+          "time": 60,
+          "temperature": 39.4
+        },
+        {
+          "time": 90,
+          "temperature": 39.1
+        },
+        {
+          "time": 120,
+          "temperature": 38.8
+        },
+        {
+          "time": 150,
+          "temperature": 38.5
+        },
+        {
+          "time": 180,
+          "temperature": 38.2
+        },
+        {
+          "time": 210,
+          "temperature": 37.9
+        },
+        {
+          "time": 240,
+          "temperature": 37.6
+        },
+        {
+          "time": 270,
+          "temperature": 37.3
+        },
+        {
+          "time": 300,
+          "temperature": 37.0
+        },
+        {
+          "time": 330,
+          "temperature": 36.7
+        },
+        {
+          "time": 360,
+          "temperature": 36.4
+        },
+        {
+          "time": 390,
+          "temperature": 36.1
+        },
+        {
+          "time": 420,
+          "temperature": 35.8
+        },
+        {
+          "time": 450,
+          "temperature": 35.5
+        }
+      ],
+      "params": {
+        "mass": 500,
+        "specific_heat": 394,
+        "t1": 50,
+        "t2": 35,
+        "dc": 100,
+        "hc": 10,
+        "db": 100,
+        "hb": 8
+      }
+    }
+  },
+  "expected_result_fields": {
+    "geometry": [
+      "dc_mean",
+      "hc_mean",
+      "db_mean",
+      "hb_mean"
+    ],
+    "heating": [
+      "t1",
+      "t2",
+      "steady_drift"
+    ],
+    "cooling": [
+      "cooling_rate",
+      "lambda",
+      "geometry_factor",
+      "r_squared"
+    ]
+  }
+}

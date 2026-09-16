@@ -1,0 +1,518 @@
+{
+  "experiment_id": "gmr",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "transfer": {
+      "rows": [
+        {
+          "excitation": -200.0,
+          "output": 12.433599999999998,
+          "direction": 1
+        },
+        {
+          "excitation": -180.0,
+          "output": 13.69024,
+          "direction": 1
+        },
+        {
+          "excitation": -160.0,
+          "output": 14.94688,
+          "direction": 1
+        },
+        {
+          "excitation": -140.0,
+          "output": 16.203519999999997,
+          "direction": 1
+        },
+        {
+          "excitation": -120.0,
+          "output": 17.460160000000002,
+          "direction": 1
+        },
+        {
+          "excitation": -100.0,
+          "output": 18.7168,
+          "direction": 1
+        },
+        {
+          "excitation": -80.0,
+          "output": 19.97344,
+          "direction": 1
+        },
+        {
+          "excitation": -60.0,
+          "output": 21.23008,
+          "direction": 1
+        },
+        {
+          "excitation": -40.0,
+          "output": 22.48672,
+          "direction": 1
+        },
+        {
+          "excitation": -20.0,
+          "output": 23.74336,
+          "direction": 1
+        },
+        {
+          "excitation": 0.0,
+          "output": 25.0,
+          "direction": 1
+        },
+        {
+          "excitation": 20.0,
+          "output": 26.25664,
+          "direction": 1
+        },
+        {
+          "excitation": 40.0,
+          "output": 27.51328,
+          "direction": 1
+        },
+        {
+          "excitation": 60.0,
+          "output": 28.76992,
+          "direction": 1
+        },
+        {
+          "excitation": 80.0,
+          "output": 30.02656,
+          "direction": 1
+        },
+        {
+          "excitation": 100.0,
+          "output": 31.2832,
+          "direction": 1
+        },
+        {
+          "excitation": 120.0,
+          "output": 32.53984,
+          "direction": 1
+        },
+        {
+          "excitation": 140.0,
+          "output": 33.79648,
+          "direction": 1
+        },
+        {
+          "excitation": 160.0,
+          "output": 35.05312,
+          "direction": 1
+        },
+        {
+          "excitation": 180.0,
+          "output": 36.30976,
+          "direction": 1
+        },
+        {
+          "excitation": 200.0,
+          "output": 37.5664,
+          "direction": 1
+        },
+        {
+          "excitation": 200,
+          "output": 38.823040000000006,
+          "direction": -1
+        },
+        {
+          "excitation": 180,
+          "output": 40.07968000000001,
+          "direction": -1
+        },
+        {
+          "excitation": 160,
+          "output": 41.336320000000015,
+          "direction": -1
+        },
+        {
+          "excitation": 140,
+          "output": 42.59296000000002,
+          "direction": -1
+        },
+        {
+          "excitation": 120,
+          "output": 43.849600000000024,
+          "direction": -1
+        },
+        {
+          "excitation": 100,
+          "output": 45.10624000000003,
+          "direction": -1
+        },
+        {
+          "excitation": 80,
+          "output": 46.36288000000003,
+          "direction": -1
+        },
+        {
+          "excitation": 60,
+          "output": 47.61952000000004,
+          "direction": -1
+        },
+        {
+          "excitation": 40,
+          "output": 48.87616000000004,
+          "direction": -1
+        },
+        {
+          "excitation": 20,
+          "output": 50.132800000000046,
+          "direction": -1
+        },
+        {
+          "excitation": 0,
+          "output": 51.38944000000005,
+          "direction": -1
+        },
+        {
+          "excitation": -20,
+          "output": 52.646080000000055,
+          "direction": -1
+        },
+        {
+          "excitation": -40,
+          "output": 53.90272000000006,
+          "direction": -1
+        },
+        {
+          "excitation": -60,
+          "output": 55.15936000000006,
+          "direction": -1
+        },
+        {
+          "excitation": -80,
+          "output": 56.41600000000007,
+          "direction": -1
+        },
+        {
+          "excitation": -100,
+          "output": 57.67264000000007,
+          "direction": -1
+        },
+        {
+          "excitation": -120,
+          "output": 58.92928000000008,
+          "direction": -1
+        },
+        {
+          "excitation": -140,
+          "output": 60.18592000000008,
+          "direction": -1
+        },
+        {
+          "excitation": -160,
+          "output": 61.442560000000086,
+          "direction": -1
+        },
+        {
+          "excitation": -180,
+          "output": 62.69920000000009,
+          "direction": -1
+        },
+        {
+          "excitation": -200,
+          "output": 63.955840000000094,
+          "direction": -1
+        }
+      ],
+      "params": {}
+    },
+    "resistance": {
+      "rows": [
+        {
+          "excitation": -200.0,
+          "ir_a": 9.990054647689622,
+          "ir_b": 9.998755748190474
+        },
+        {
+          "excitation": -180.0,
+          "ir_a": 9.977143187141689,
+          "ir_b": 9.997137172821017
+        },
+        {
+          "excitation": -160.0,
+          "ir_a": 9.951941117224987,
+          "ir_b": 9.993967271109701
+        },
+        {
+          "excitation": -140.0,
+          "ir_a": 9.907617279669433,
+          "ir_b": 9.988358052414739
+        },
+        {
+          "excitation": -120.0,
+          "ir_a": 9.837754594386567,
+          "ir_b": 9.979427264007448
+        },
+        {
+          "excitation": -100.0,
+          "ir_a": 9.739757214579637,
+          "ir_b": 9.966711634334708
+        },
+        {
+          "excitation": -80.0,
+          "ir_a": 9.618587215742172,
+          "ir_b": 9.950677325851286
+        },
+        {
+          "excitation": -60.0,
+          "ir_a": 9.48851282929149,
+          "ir_b": 9.93306857940308
+        },
+        {
+          "excitation": -40.0,
+          "ir_a": 9.370967734853656,
+          "ir_b": 9.916791123395248
+        },
+        {
+          "excitation": -20.0,
+          "ir_a": 9.288788630519917,
+          "ir_b": 9.905199019486844
+        },
+        {
+          "excitation": 0.0,
+          "ir_a": 9.25925925925926,
+          "ir_b": 9.900990099009901
+        },
+        {
+          "excitation": 20.0,
+          "ir_a": 9.288788630519917,
+          "ir_b": 9.905199019486844
+        },
+        {
+          "excitation": 40.0,
+          "ir_a": 9.370967734853656,
+          "ir_b": 9.916791123395248
+        },
+        {
+          "excitation": 60.0,
+          "ir_a": 9.48851282929149,
+          "ir_b": 9.93306857940308
+        },
+        {
+          "excitation": 80.0,
+          "ir_a": 9.618587215742172,
+          "ir_b": 9.950677325851286
+        },
+        {
+          "excitation": 100.0,
+          "ir_a": 9.739757214579637,
+          "ir_b": 9.966711634334708
+        },
+        {
+          "excitation": 120.0,
+          "ir_a": 9.837754594386567,
+          "ir_b": 9.979427264007448
+        },
+        {
+          "excitation": 140.0,
+          "ir_a": 9.907617279669433,
+          "ir_b": 9.988358052414739
+        },
+        {
+          "excitation": 160.0,
+          "ir_a": 9.951941117224987,
+          "ir_b": 9.993967271109701
+        },
+        {
+          "excitation": 180.0,
+          "ir_a": 9.977143187141689,
+          "ir_b": 9.997137172821017
+        },
+        {
+          "excitation": 200.0,
+          "ir_a": 9.990054647689622,
+          "ir_b": 9.998755748190474
+        },
+        {
+          "excitation": 200,
+          "ir_a": 10.002966108237555,
+          "ir_b": 10.000374323559932
+        },
+        {
+          "excitation": 180,
+          "ir_a": 10.015877568785488,
+          "ir_b": 10.00199289892939
+        },
+        {
+          "excitation": 160,
+          "ir_a": 10.02878902933342,
+          "ir_b": 10.003611474298847
+        },
+        {
+          "excitation": 140,
+          "ir_a": 10.041700489881354,
+          "ir_b": 10.005230049668304
+        },
+        {
+          "excitation": 120,
+          "ir_a": 10.054611950429287,
+          "ir_b": 10.006848625037762
+        },
+        {
+          "excitation": 100,
+          "ir_a": 10.06752341097722,
+          "ir_b": 10.00846720040722
+        },
+        {
+          "excitation": 80,
+          "ir_a": 10.080434871525153,
+          "ir_b": 10.010085775776677
+        },
+        {
+          "excitation": 60,
+          "ir_a": 10.093346332073086,
+          "ir_b": 10.011704351146134
+        },
+        {
+          "excitation": 40,
+          "ir_a": 10.106257792621019,
+          "ir_b": 10.013322926515592
+        },
+        {
+          "excitation": 20,
+          "ir_a": 10.119169253168952,
+          "ir_b": 10.01494150188505
+        },
+        {
+          "excitation": 0,
+          "ir_a": 10.132080713716885,
+          "ir_b": 10.016560077254507
+        },
+        {
+          "excitation": -20,
+          "ir_a": 10.144992174264818,
+          "ir_b": 10.018178652623964
+        },
+        {
+          "excitation": -40,
+          "ir_a": 10.157903634812751,
+          "ir_b": 10.019797227993422
+        },
+        {
+          "excitation": -60,
+          "ir_a": 10.170815095360684,
+          "ir_b": 10.02141580336288
+        },
+        {
+          "excitation": -80,
+          "ir_a": 10.183726555908617,
+          "ir_b": 10.023034378732337
+        },
+        {
+          "excitation": -100,
+          "ir_a": 10.19663801645655,
+          "ir_b": 10.024652954101795
+        },
+        {
+          "excitation": -120,
+          "ir_a": 10.209549477004483,
+          "ir_b": 10.026271529471252
+        },
+        {
+          "excitation": -140,
+          "ir_a": 10.222460937552416,
+          "ir_b": 10.02789010484071
+        },
+        {
+          "excitation": -160,
+          "ir_a": 10.235372398100349,
+          "ir_b": 10.029508680210167
+        },
+        {
+          "excitation": -180,
+          "ir_a": 10.248283858648282,
+          "ir_b": 10.031127255579625
+        },
+        {
+          "excitation": -200,
+          "ir_a": 10.261195319196215,
+          "ir_b": 10.032745830949082
+        }
+      ],
+      "params": {
+        "supply": 2
+      }
+    },
+    "current_sensor": {
+      "rows": [
+        {
+          "current": -1000,
+          "output25": -5.0,
+          "output100": 50.0
+        },
+        {
+          "current": -800,
+          "output25": 1.0,
+          "output100": 60.0
+        },
+        {
+          "current": -600,
+          "output25": 7.0,
+          "output100": 70.0
+        },
+        {
+          "current": -400,
+          "output25": 13.0,
+          "output100": 80.0
+        },
+        {
+          "current": -200,
+          "output25": 19.0,
+          "output100": 90.0
+        },
+        {
+          "current": 0,
+          "output25": 25.0,
+          "output100": 100.0
+        },
+        {
+          "current": 200,
+          "output25": 31.0,
+          "output100": 110.0
+        },
+        {
+          "current": 400,
+          "output25": 37.0,
+          "output100": 120.0
+        },
+        {
+          "current": 600,
+          "output25": 43.0,
+          "output100": 130.0
+        },
+        {
+          "current": 800,
+          "output25": 49.0,
+          "output100": 140.0
+        },
+        {
+          "current": 1000,
+          "output25": 55.0,
+          "output100": 150.0
+        }
+      ],
+      "params": {}
+    }
+  },
+  "expected_result_fields": {
+    "transfer": [
+      "sensitivity",
+      "r_squared",
+      "b_max"
+    ],
+    "resistance": [
+      "gmr_a",
+      "gmr_b",
+      "sensitive_state"
+    ],
+    "current_sensor": [
+      "sensitivity25",
+      "sensitivity100"
+    ]
+  }
+}

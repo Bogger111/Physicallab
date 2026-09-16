@@ -1,0 +1,17 @@
+{
+  "extends": "typical.json",
+  "case": "boundary",
+  "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available",
+  "boundary_targets": [
+    {
+      "path": [
+        "data",
+        "transfer",
+        "rows",
+        0,
+        "excitation"
+      ],
+      "reason": "negative sweep endpoint"
+    }
+  ]
+}

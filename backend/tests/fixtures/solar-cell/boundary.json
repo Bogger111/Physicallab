@@ -1,0 +1,17 @@
+{
+  "extends": "typical.json",
+  "case": "boundary",
+  "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available",
+  "boundary_targets": [
+    {
+      "path": [
+        "data",
+        "iv",
+        "rows",
+        -1,
+        "voltage"
+      ],
+      "reason": "configured open-circuit voltage endpoint"
+    }
+  ]
+}

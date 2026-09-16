@@ -1,0 +1,86 @@
+{
+  "extends": "typical.json",
+  "case": "boundary",
+  "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available",
+  "boundary_targets": [
+    {
+      "path": [
+        "data",
+        "air_resonance",
+        "params",
+        "f_khz"
+      ],
+      "reason": "frontend guidance lower endpoint"
+    },
+    {
+      "path": [
+        "data",
+        "water_phase",
+        "params",
+        "f_mhz"
+      ],
+      "reason": "frontend guidance lower endpoint"
+    },
+    {
+      "path": [
+        "data",
+        "light_sine",
+        "params",
+        "f_mhz"
+      ],
+      "reason": "frontend guidance lower endpoint"
+    }
+  ],
+  "patches": [
+    {
+      "op": "replace",
+      "path": [
+        "data",
+        "air_resonance",
+        "params",
+        "f_khz"
+      ],
+      "value": 30.0
+    },
+    {
+      "op": "replace",
+      "path": [
+        "data",
+        "water_phase",
+        "params",
+        "f_mhz"
+      ],
+      "value": 0.5
+    },
+    {
+      "op": "replace",
+      "path": [
+        "data",
+        "light_sine",
+        "params",
+        "f_mhz"
+      ],
+      "value": 100.0
+    },
+    {
+      "op": "replace",
+      "path": [
+        "data",
+        "light_square",
+        "params",
+        "f_mhz"
+      ],
+      "value": 100.0
+    },
+    {
+      "op": "replace",
+      "path": [
+        "data",
+        "light_lissajous",
+        "params",
+        "f_mhz"
+      ],
+      "value": 100.0
+    }
+  ]
+}

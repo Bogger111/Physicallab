@@ -1,0 +1,91 @@
+{
+  "experiment_id": "michelson",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "wavelength": {
+      "rows": [
+        {
+          "position": 10.0,
+          "fringe_count": 50
+        },
+        {
+          "position": 10.01582,
+          "fringe_count": 100
+        },
+        {
+          "position": 10.03164,
+          "fringe_count": 150
+        },
+        {
+          "position": 10.04746,
+          "fringe_count": 200
+        },
+        {
+          "position": 10.06328,
+          "fringe_count": 250
+        },
+        {
+          "position": 10.0791,
+          "fringe_count": 300
+        },
+        {
+          "position": 10.09492,
+          "fringe_count": 350
+        },
+        {
+          "position": 10.11074,
+          "fringe_count": 400
+        },
+        {
+          "position": 10.12656,
+          "fringe_count": 450
+        },
+        {
+          "position": 10.14238,
+          "fringe_count": 500
+        }
+      ],
+      "params": {
+        "fringes_per_step": 50
+      }
+    },
+    "observations": {
+      "rows": [
+        {
+          "pattern_code": 1,
+          "motion_code": 1,
+          "setup_code": 1,
+          "localized_code": 0
+        },
+        {
+          "pattern_code": 1,
+          "motion_code": 1,
+          "setup_code": 2,
+          "localized_code": 0
+        },
+        {
+          "pattern_code": 1,
+          "motion_code": 1,
+          "setup_code": 3,
+          "localized_code": 0
+        }
+      ],
+      "params": {}
+    }
+  },
+  "expected_result_fields": {
+    "wavelength": [
+      "wavelength",
+      "relative_error",
+      "delta_d_mean",
+      "delta_d_std"
+    ],
+    "observations": [
+      "observed_rows"
+    ]
+  }
+}

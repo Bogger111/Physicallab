@@ -1,0 +1,199 @@
+{
+  "experiment_id": "sound-light",
+  "kind": "sound-light",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "air_resonance": {
+      "rows": {
+        "l": [
+          10.0,
+          14.5,
+          19.0,
+          23.5,
+          28.0,
+          32.5,
+          37.0,
+          41.5,
+          46.0,
+          50.5,
+          55.0,
+          59.5
+        ]
+      },
+      "params": {
+        "temperature_degC": 25.0,
+        "f_khz": 38.0
+      }
+    },
+    "water_phase": {
+      "rows": {
+        "l": [
+          20.0,
+          20.75,
+          21.5,
+          22.25,
+          23.0,
+          23.75,
+          24.5,
+          25.25,
+          26.0,
+          26.75,
+          27.5,
+          28.25
+        ]
+      },
+      "params": {
+        "f_mhz": 1.0
+      }
+    },
+    "light_sine": {
+      "rows": {
+        "T": [
+          2.19,
+          2.2,
+          2.21
+        ],
+        "dt": [
+          0.8,
+          1.0,
+          1.2
+        ],
+        "x1": [
+          100.0,
+          100.0,
+          100.0
+        ],
+        "x2": [
+          463.36,
+          554.2,
+          645.04
+        ]
+      },
+      "params": {
+        "f_mhz": 150.0
+      }
+    },
+    "light_square": {
+      "rows": {
+        "T": [
+          2.19,
+          2.2,
+          2.21
+        ],
+        "dt": [
+          0.8,
+          1.0,
+          1.2
+        ],
+        "x1": [
+          100.0,
+          100.0,
+          100.0
+        ],
+        "x2": [
+          463.36,
+          554.2,
+          645.04
+        ]
+      },
+      "params": {
+        "f_mhz": 150.0
+      }
+    },
+    "light_lissajous": {
+      "rows": {
+        "x1": [
+          100.0,
+          120.0,
+          140.0
+        ],
+        "x2": [
+          599.67,
+          619.67,
+          639.67
+        ]
+      },
+      "params": {
+        "f_mhz": 150.0
+      }
+    },
+    "tof": {
+      "rows": {
+        "L": [
+          100.0,
+          120.0,
+          140.0,
+          160.0,
+          180.0,
+          200.0,
+          220.0,
+          240.0,
+          260.0,
+          280.0,
+          300.0,
+          320.0
+        ],
+        "T": [
+          291.5451895043731,
+          349.8542274052478,
+          408.1632653061224,
+          466.472303206997,
+          524.7813411078716,
+          583.0903790087463,
+          641.399416909621,
+          699.7084548104956,
+          758.0174927113702,
+          816.3265306122448,
+          874.6355685131194,
+          932.944606413994
+        ]
+      },
+      "params": {}
+    }
+  },
+  "expected_result_fields": {
+    "air_resonance": [
+      "v_exp",
+      "v_theory",
+      "error_abs",
+      "error_rel",
+      "delta_l_mean",
+      "data_points"
+    ],
+    "water_phase": [
+      "v",
+      "delta_l_mean",
+      "s_delta_l",
+      "u_a"
+    ],
+    "tof": [
+      "v_mean",
+      "v_std"
+    ],
+    "light_sine": [
+      "c_exp",
+      "error_abs",
+      "error_rel",
+      "r_mean",
+      "t_mean",
+      "delta_t_mean",
+      "delta_x_mean"
+    ],
+    "light_square": [
+      "c_exp",
+      "error_abs",
+      "error_rel",
+      "t_mean",
+      "r_mean"
+    ],
+    "light_lissajous": [
+      "c_exp",
+      "error_abs",
+      "error_rel",
+      "delta_x_mean"
+    ]
+  }
+}

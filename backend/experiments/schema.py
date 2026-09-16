@@ -146,7 +146,7 @@ def enrich_config(raw: dict[str, Any]) -> dict[str, Any]:
         method["validation"].setdefault("expectedRangeIsWarning", True)
         method["columns"] = [
             _field_dict(config["id"], method["id"], field,
-                        required=bool(field.get("required", False)))
+                        required=bool(field.get("required", True)))
             for field in method.get("columns", [])
         ]
         method["params"] = [
@@ -310,7 +310,7 @@ def enrich_soundlight_config(items: list[dict[str, Any]]) -> list[dict[str, Any]
         method["schemaVersion"] = "2.0"
         method["tableId"] = method.get("id", "")
         method["fields"] = [
-            _field_dict("sound-light", method["id"], field, required=False)
+            _field_dict("sound-light", method["id"], field, required=True)
             for field in method.get("table_cols", [])
         ]
         method["validation"] = {"expectedRangeIsWarning": True, "finiteNumbers": True}

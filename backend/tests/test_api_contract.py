@@ -41,7 +41,7 @@ def test_generic_schema_exposes_canonical_field_rules():
 
 def test_expected_range_is_a_warning_not_a_blocking_error():
     response = client.post("/api/experiments/michelson/validate", json={"data": {
-        "wavelength": {"rows": [{"position": 999999}], "params": {}}
+        "wavelength": {"rows": [{"fringe_count": 50, "position": 999999}], "params": {}}
     }})
     assert response.status_code == 200
     body = response.json()

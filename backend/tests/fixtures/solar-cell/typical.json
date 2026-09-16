@@ -1,0 +1,314 @@
+{
+  "experiment_id": "solar-cell",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "iv": {
+      "rows": [
+        {
+          "voltage": 1,
+          "current": 79.99999981394556
+        },
+        {
+          "voltage": 2,
+          "current": 79.99995237006554
+        },
+        {
+          "voltage": 4,
+          "current": 79.98780673677793
+        },
+        {
+          "voltage": 6,
+          "current": 79.6875
+        },
+        {
+          "voltage": 8,
+          "current": 76.87852461515013
+        },
+        {
+          "voltage": 10,
+          "current": 61.39455685108977
+        },
+        {
+          "voltage": 10.2,
+          "current": 58.200757996875005
+        },
+        {
+          "voltage": 10.4,
+          "current": 54.53716633732662
+        },
+        {
+          "voltage": 10.6,
+          "current": 50.345750261316404
+        },
+        {
+          "voltage": 10.8,
+          "current": 45.56262319999999
+        },
+        {
+          "voltage": 11,
+          "current": 40.11758026090489
+        },
+        {
+          "voltage": 11.2,
+          "current": 33.93360788465177
+        },
+        {
+          "voltage": 11.4,
+          "current": 26.926365496874965
+        },
+        {
+          "voltage": 11.6,
+          "current": 19.00363810870294
+        },
+        {
+          "voltage": 11.8,
+          "current": 10.064758799953761
+        },
+        {
+          "voltage": 12,
+          "current": 0
+        }
+      ],
+      "params": {
+        "isc": 80,
+        "uoc": 12
+      }
+    },
+    "shading": {
+      "rows": [
+        {
+          "condition": 0,
+          "isc": 80
+        },
+        {
+          "condition": 1,
+          "isc": 72
+        },
+        {
+          "condition": 2,
+          "isc": 64
+        },
+        {
+          "condition": 3,
+          "isc": 56
+        },
+        {
+          "condition": 4,
+          "isc": 48
+        },
+        {
+          "condition": 5,
+          "isc": 40
+        },
+        {
+          "condition": 6,
+          "isc": 32
+        }
+      ],
+      "params": {}
+    },
+    "charge_direct": {
+      "rows": [
+        {
+          "time": 0,
+          "voltage": 0.0,
+          "current": 60
+        },
+        {
+          "time": 1,
+          "voltage": 1.2,
+          "current": 57
+        },
+        {
+          "time": 2,
+          "voltage": 2.4,
+          "current": 54
+        },
+        {
+          "time": 3,
+          "voltage": 3.5999999999999996,
+          "current": 51
+        },
+        {
+          "time": 4,
+          "voltage": 4.8,
+          "current": 48
+        },
+        {
+          "time": 5,
+          "voltage": 6.0,
+          "current": 45
+        },
+        {
+          "time": 6,
+          "voltage": 7.199999999999999,
+          "current": 42
+        },
+        {
+          "time": 7,
+          "voltage": 8.4,
+          "current": 39
+        },
+        {
+          "time": 8,
+          "voltage": 9.6,
+          "current": 36
+        },
+        {
+          "time": 9,
+          "voltage": 10.799999999999999,
+          "current": 33
+        },
+        {
+          "time": 10,
+          "voltage": 11.999999999999998,
+          "current": 30
+        },
+        {
+          "time": 11,
+          "voltage": 13.199999999999998,
+          "current": 27
+        }
+      ],
+      "params": {}
+    },
+    "charge_dcdc": {
+      "rows": [
+        {
+          "time": 0,
+          "voltage": 0.0,
+          "current": 50
+        },
+        {
+          "time": 1,
+          "voltage": 1.6,
+          "current": 50
+        },
+        {
+          "time": 2,
+          "voltage": 3.2,
+          "current": 50
+        },
+        {
+          "time": 3,
+          "voltage": 4.800000000000001,
+          "current": 50
+        },
+        {
+          "time": 4,
+          "voltage": 6.4,
+          "current": 50
+        },
+        {
+          "time": 5,
+          "voltage": 8.0,
+          "current": 50
+        },
+        {
+          "time": 6,
+          "voltage": 9.600000000000001,
+          "current": 50
+        },
+        {
+          "time": 7,
+          "voltage": 11,
+          "current": 50
+        },
+        {
+          "time": 8,
+          "voltage": 12.399999999999999,
+          "current": 50
+        },
+        {
+          "time": 9,
+          "voltage": 13.799999999999997,
+          "current": 50
+        },
+        {
+          "time": 10,
+          "voltage": 15.199999999999996,
+          "current": 50
+        },
+        {
+          "time": 11,
+          "voltage": 16.599999999999994,
+          "current": 50
+        }
+      ],
+      "params": {}
+    },
+    "fan": {
+      "rows": [
+        {
+          "voltage": 8,
+          "current": 70
+        },
+        {
+          "voltage": 10,
+          "current": 80
+        }
+      ],
+      "params": {}
+    },
+    "load_dcdc": {
+      "rows": [
+        {
+          "voltage_before": 3,
+          "current_before": 20,
+          "voltage_after": 9,
+          "current_after": 30
+        }
+      ],
+      "params": {}
+    },
+    "inverter": {
+      "rows": [
+        {
+          "input_voltage": 11,
+          "input_current": 400,
+          "lit_code": 1
+        }
+      ],
+      "params": {}
+    }
+  },
+  "expected_result_fields": {
+    "iv": [
+      "p_max",
+      "u_opt",
+      "i_opt",
+      "fill_factor"
+    ],
+    "shading": [
+      "unshaded_isc",
+      "minimum_ratio"
+    ],
+    "charge_direct": [
+      "energy",
+      "final_voltage",
+      "duration"
+    ],
+    "charge_dcdc": [
+      "energy",
+      "final_voltage",
+      "duration"
+    ],
+    "fan": [
+      "power_before",
+      "power_after"
+    ],
+    "load_dcdc": [
+      "power_before",
+      "power_after",
+      "power_gain"
+    ],
+    "inverter": [
+      "input_power",
+      "lit_code"
+    ]
+  }
+}

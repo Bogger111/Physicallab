@@ -1,0 +1,186 @@
+{
+  "experiment_id": "nmr",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "waveform": {
+      "rows": [
+        {
+          "sample_code": 1,
+          "tail_count": 8,
+          "t1": 5.0,
+          "t2": 5.1
+        },
+        {
+          "sample_code": 2,
+          "tail_count": 1,
+          "t1": 5.0,
+          "t2": 5.0
+        }
+      ],
+      "params": {}
+    },
+    "hydrogen": {
+      "rows": [
+        {
+          "field": 235.0,
+          "frequency": 10.005714564000302
+        },
+        {
+          "field": 240.0,
+          "frequency": 10.218602107915201
+        },
+        {
+          "field": 245.0,
+          "frequency": 10.431489651830102
+        },
+        {
+          "field": 250.0,
+          "frequency": 10.644377195745001
+        },
+        {
+          "field": 255.0,
+          "frequency": 10.857264739659902
+        },
+        {
+          "field": 260.0,
+          "frequency": 11.070152283574801
+        },
+        {
+          "field": 265.0,
+          "frequency": 11.283039827489702
+        },
+        {
+          "field": 270.0,
+          "frequency": 11.495927371404601
+        },
+        {
+          "field": 275.0,
+          "frequency": 11.708814915319502
+        },
+        {
+          "field": 280.0,
+          "frequency": 11.921702459234401
+        }
+      ],
+      "params": {}
+    },
+    "fluorine": {
+      "rows": [
+        {
+          "field": 250.0,
+          "frequency": 10.017419053095
+        },
+        {
+          "field": 255.55555555555554,
+          "frequency": 10.240028365386
+        },
+        {
+          "field": 261.1111111111111,
+          "frequency": 10.462637677677
+        },
+        {
+          "field": 266.6666666666667,
+          "frequency": 10.685246989968
+        },
+        {
+          "field": 272.22222222222223,
+          "frequency": 10.907856302259
+        },
+        {
+          "field": 277.77777777777777,
+          "frequency": 11.13046561455
+        },
+        {
+          "field": 283.3333333333333,
+          "frequency": 11.353074926841
+        },
+        {
+          "field": 288.8888888888889,
+          "frequency": 11.575684239132002
+        },
+        {
+          "field": 294.44444444444446,
+          "frequency": 11.798293551423
+        },
+        {
+          "field": 300.0,
+          "frequency": 12.020902863714
+        }
+      ],
+      "params": {}
+    },
+    "pure_water": {
+      "rows": [
+        {
+          "field": 235.0,
+          "frequency": 10.005714564000302
+        },
+        {
+          "field": 240.0,
+          "frequency": 10.218602107915201
+        },
+        {
+          "field": 245.0,
+          "frequency": 10.431489651830102
+        },
+        {
+          "field": 250.0,
+          "frequency": 10.644377195745001
+        },
+        {
+          "field": 255.0,
+          "frequency": 10.857264739659902
+        },
+        {
+          "field": 260.0,
+          "frequency": 11.070152283574801
+        },
+        {
+          "field": 265.0,
+          "frequency": 11.283039827489702
+        },
+        {
+          "field": 270.0,
+          "frequency": 11.495927371404601
+        },
+        {
+          "field": 275.0,
+          "frequency": 11.708814915319502
+        },
+        {
+          "field": 280.0,
+          "frequency": 11.921702459234401
+        }
+      ],
+      "params": {}
+    }
+  },
+  "expected_result_fields": {
+    "waveform": [
+      "observed_rows",
+      "max_symmetry_error"
+    ],
+    "hydrogen": [
+      "gamma",
+      "g_factor",
+      "relative_error",
+      "r_squared"
+    ],
+    "fluorine": [
+      "gamma",
+      "g_factor",
+      "relative_error",
+      "r_squared"
+    ],
+    "pure_water": [
+      "gamma",
+      "g_factor",
+      "relative_error",
+      "r_squared"
+    ]
+  }
+}

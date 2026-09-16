@@ -1,0 +1,123 @@
+{
+  "experiment_id": "viscosity",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "diameter": {
+      "rows": [
+        {
+          "x1": 10,
+          "x2": 11.5
+        },
+        {
+          "x1": 11,
+          "x2": 12.5
+        },
+        {
+          "x1": 12,
+          "x2": 13.5
+        }
+      ],
+      "params": {}
+    },
+    "viscosity": {
+      "rows": [
+        {
+          "temperature": 20,
+          "t1": 18,
+          "t2": 18.1,
+          "t3": 17.9,
+          "t4": 18
+        },
+        {
+          "temperature": 25,
+          "t1": 17,
+          "t2": 17.1,
+          "t3": 16.9,
+          "t4": 17
+        },
+        {
+          "temperature": 30,
+          "t1": 16,
+          "t2": 16.1,
+          "t3": 15.899999999999999,
+          "t4": 16
+        },
+        {
+          "temperature": 35,
+          "t1": 15,
+          "t2": 15.100000000000001,
+          "t3": 14.899999999999999,
+          "t4": 15
+        },
+        {
+          "temperature": 40,
+          "t1": 14,
+          "t2": 14.100000000000001,
+          "t3": 13.899999999999999,
+          "t4": 14
+        }
+      ],
+      "params": {
+        "distance": 20,
+        "diameter": 1.5,
+        "rho_ball": 7800,
+        "rho_oil": 950,
+        "tube_diameter": 2,
+        "g": 9.794
+      }
+    },
+    "diameter_effect": {
+      "rows": [
+        {
+          "diameter": 1.0,
+          "t1": 30,
+          "t2": 30.1,
+          "t3": 29.9,
+          "t4": 30
+        },
+        {
+          "diameter": 1.8,
+          "t1": 14,
+          "t2": 14.1,
+          "t3": 13.9,
+          "t4": 14
+        },
+        {
+          "diameter": 2.4,
+          "t1": 9,
+          "t2": 9.1,
+          "t3": 8.9,
+          "t4": 9
+        }
+      ],
+      "params": {
+        "distance": 20,
+        "temperature": 40,
+        "rho_ball": 7800,
+        "rho_oil": 950,
+        "tube_diameter": 2,
+        "g": 9.794
+      }
+    }
+  },
+  "expected_result_fields": {
+    "diameter": [
+      "diameter",
+      "diameter_std"
+    ],
+    "viscosity": [
+      "eta_20",
+      "re_min",
+      "re_max"
+    ],
+    "diameter_effect": [
+      "sample_count",
+      "eta_mean",
+      "re_max"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "extends": "typical.json",
+  "case": "boundary",
+  "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available",
+  "boundary_targets": [
+    {
+      "path": [
+        "data",
+        "wavelength",
+        "rows",
+        0,
+        "fringe_count"
+      ],
+      "reason": "first configured fringe-count point"
+    }
+  ]
+}

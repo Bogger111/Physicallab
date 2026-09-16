@@ -1,0 +1,19 @@
+{
+  "extends": "typical.json",
+  "case": "invalid",
+  "scientific_validation": "intentionally incomplete required measurement",
+  "patches": [
+    {
+      "op": "replace",
+      "path": [
+        "data",
+        "malus",
+        "rows",
+        0,
+        "theta"
+      ],
+      "value": null
+    }
+  ],
+  "expected_failure": "validation or process must reject the missing required value"
+}

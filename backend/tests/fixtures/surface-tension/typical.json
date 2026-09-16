@@ -1,0 +1,225 @@
+{
+  "experiment_id": "surface-tension",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "calibration": {
+      "rows": [
+        {
+          "mass": 0.0,
+          "u_up": 0.1,
+          "u_down": -0.1
+        },
+        {
+          "mass": 0.5,
+          "u_up": 4.99669,
+          "u_down": 4.796690000000001
+        },
+        {
+          "mass": 1.0,
+          "u_up": 9.89338,
+          "u_down": 9.693380000000001
+        },
+        {
+          "mass": 1.5,
+          "u_up": 14.79007,
+          "u_down": 14.59007
+        },
+        {
+          "mass": 2.0,
+          "u_up": 19.686760000000003,
+          "u_down": 19.48676
+        },
+        {
+          "mass": 2.5,
+          "u_up": 24.583450000000006,
+          "u_down": 24.383450000000003
+        },
+        {
+          "mass": 3.0,
+          "u_up": 29.480140000000002,
+          "u_down": 29.28014
+        },
+        {
+          "mass": 3.5,
+          "u_up": 34.376830000000005,
+          "u_down": 34.17683
+        }
+      ],
+      "params": {
+        "g": 9.79338
+      }
+    },
+    "pull_off": {
+      "rows": [
+        {
+          "u1": 5,
+          "u2": 0.2
+        },
+        {
+          "u1": 5,
+          "u2": 0.2
+        },
+        {
+          "u1": 5,
+          "u2": 0.2
+        },
+        {
+          "u1": 5,
+          "u2": 0.2
+        },
+        {
+          "u1": 5,
+          "u2": 0.2
+        }
+      ],
+      "params": {
+        "sensitivity": 1000,
+        "d1": 3.31,
+        "d2": 3.496
+      }
+    },
+    "capillary": {
+      "rows": [
+        {
+          "y1": 20,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 20,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 20,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 20,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 20,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        }
+      ],
+      "params": {
+        "density": 998,
+        "g": 9.79338
+      }
+    },
+    "salt_pull_off": {
+      "rows": [
+        {
+          "u1": 5.2,
+          "u2": 0.2
+        },
+        {
+          "u1": 5.2,
+          "u2": 0.2
+        },
+        {
+          "u1": 5.2,
+          "u2": 0.2
+        },
+        {
+          "u1": 5.2,
+          "u2": 0.2
+        },
+        {
+          "u1": 5.2,
+          "u2": 0.2
+        }
+      ],
+      "params": {
+        "concentration": 5,
+        "sensitivity": 1000,
+        "d1": 3.31,
+        "d2": 3.496
+      }
+    },
+    "salt_capillary": {
+      "rows": [
+        {
+          "y1": 19.5,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 19.5,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 19.5,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 19.5,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        },
+        {
+          "y1": 19.5,
+          "y2": 10,
+          "x1": 5,
+          "x2": 5.8
+        }
+      ],
+      "params": {
+        "concentration": 5,
+        "density": 1035,
+        "g": 9.79338
+      }
+    }
+  },
+  "expected_result_fields": {
+    "calibration": [
+      "sensitivity",
+      "r_squared",
+      "hysteresis"
+    ],
+    "pull_off": [
+      "sensitivity_used",
+      "sigma",
+      "sigma_std",
+      "sigma_reference",
+      "absolute_error",
+      "relative_error"
+    ],
+    "capillary": [
+      "sigma",
+      "height",
+      "diameter",
+      "sigma_reference",
+      "absolute_error",
+      "relative_error"
+    ],
+    "salt_pull_off": [
+      "sigma",
+      "sigma_std"
+    ],
+    "salt_capillary": [
+      "sigma",
+      "height",
+      "diameter"
+    ]
+  }
+}

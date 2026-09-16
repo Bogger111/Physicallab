@@ -123,8 +123,16 @@ def fixtures():
             "cooling": _payload([{"time":30*i,"temperature":40-.01*30*i} for i in range(16)],mass=500,specific_heat=394,t1=50,t2=35,dc=100,hc=10,db=100,hb=8),
         },
         "michelson": {
-            "wavelength": _payload([{"position":10+.01582*i} for i in range(10)],fringes_per_step=50),
-            "observations": _payload([{"pattern_code":1,"motion_code":1} for _ in range(3)]),
+            "wavelength": _payload([
+                {"fringe_count": 50 * (i + 1), "position": 10 + .01582 * i}
+                for i in range(10)
+            ], fringes_per_step=50),
+            "observations": _payload([
+                {"setup_code": i + 1, "pattern_code": 1,
+                 "motion_code": 1 if i < 2 else 0,
+                 "localized_code": 1 if i else 0}
+                for i in range(3)
+            ]),
         },
     }
 

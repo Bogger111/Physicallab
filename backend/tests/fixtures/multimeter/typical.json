@@ -1,0 +1,309 @@
+{
+  "experiment_id": "multimeter",
+  "kind": "general",
+  "case": "typical",
+  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "scientific_validation": "synthetic-only",
+  "setup": {},
+  "data": {
+    "voltage": {
+      "rows": [
+        {
+          "set": 0,
+          "measured": 0.02
+        },
+        {
+          "set": 20,
+          "measured": 20.039999999999996
+        },
+        {
+          "set": 40,
+          "measured": 40.059999999999995
+        },
+        {
+          "set": 60,
+          "measured": 60.08
+        },
+        {
+          "set": 80,
+          "measured": 80.09999999999998
+        },
+        {
+          "set": 100,
+          "measured": 100.11999999999999
+        },
+        {
+          "set": 120,
+          "measured": 120.13999999999999
+        },
+        {
+          "set": 140,
+          "measured": 140.16
+        },
+        {
+          "set": 160,
+          "measured": 160.17999999999998
+        },
+        {
+          "set": 180,
+          "measured": 180.2
+        },
+        {
+          "set": 200,
+          "measured": 200.22
+        }
+      ],
+      "params": {}
+    },
+    "current": {
+      "rows": [
+        {
+          "set": 0,
+          "measured": 0.01
+        },
+        {
+          "set": 2,
+          "measured": 2.008
+        },
+        {
+          "set": 4,
+          "measured": 4.006
+        },
+        {
+          "set": 6,
+          "measured": 6.004
+        },
+        {
+          "set": 8,
+          "measured": 8.002
+        },
+        {
+          "set": 10,
+          "measured": 10.0
+        },
+        {
+          "set": 12,
+          "measured": 11.998
+        },
+        {
+          "set": 14,
+          "measured": 13.996
+        },
+        {
+          "set": 16,
+          "measured": 15.994
+        },
+        {
+          "set": 18,
+          "measured": 17.992
+        },
+        {
+          "set": 20,
+          "measured": 19.990000000000002
+        }
+      ],
+      "params": {}
+    },
+    "resistance": {
+      "rows": [
+        {
+          "set": 0.0,
+          "measured": 0.0
+        },
+        {
+          "set": 0.2,
+          "measured": 0.2004
+        },
+        {
+          "set": 0.4,
+          "measured": 0.4008
+        },
+        {
+          "set": 0.6,
+          "measured": 0.6012000000000001
+        },
+        {
+          "set": 0.8,
+          "measured": 0.8016
+        },
+        {
+          "set": 1.0,
+          "measured": 1.002
+        },
+        {
+          "set": 1.2,
+          "measured": 1.2024000000000001
+        },
+        {
+          "set": 1.4,
+          "measured": 1.4028
+        },
+        {
+          "set": 1.6,
+          "measured": 1.6032
+        },
+        {
+          "set": 1.8,
+          "measured": 1.8036
+        },
+        {
+          "set": 2.0,
+          "measured": 2.004
+        }
+      ],
+      "params": {}
+    },
+    "unknown": {
+      "rows": [
+        {
+          "reference": 1.2,
+          "measured": 1.202
+        },
+        {
+          "reference": 1.2,
+          "measured": 1.202
+        },
+        {
+          "reference": 1.2,
+          "measured": 1.202
+        }
+      ],
+      "params": {}
+    },
+    "ac_voltage": {
+      "rows": [
+        {
+          "set": 0,
+          "measured": 0.03
+        },
+        {
+          "set": 20,
+          "measured": 19.990000000000002
+        },
+        {
+          "set": 40,
+          "measured": 39.95
+        },
+        {
+          "set": 60,
+          "measured": 59.910000000000004
+        },
+        {
+          "set": 80,
+          "measured": 79.87
+        },
+        {
+          "set": 100,
+          "measured": 99.83
+        },
+        {
+          "set": 120,
+          "measured": 119.79
+        },
+        {
+          "set": 140,
+          "measured": 139.75
+        },
+        {
+          "set": 160,
+          "measured": 159.71
+        },
+        {
+          "set": 180,
+          "measured": 179.67
+        },
+        {
+          "set": 200,
+          "measured": 199.63
+        }
+      ],
+      "params": {}
+    },
+    "ac_current": {
+      "rows": [
+        {
+          "set": 0,
+          "measured": 0.01
+        },
+        {
+          "set": 2,
+          "measured": 2.014
+        },
+        {
+          "set": 4,
+          "measured": 4.018
+        },
+        {
+          "set": 6,
+          "measured": 6.022
+        },
+        {
+          "set": 8,
+          "measured": 8.026
+        },
+        {
+          "set": 10,
+          "measured": 10.03
+        },
+        {
+          "set": 12,
+          "measured": 12.034
+        },
+        {
+          "set": 14,
+          "measured": 14.038
+        },
+        {
+          "set": 16,
+          "measured": 16.042
+        },
+        {
+          "set": 18,
+          "measured": 18.046000000000003
+        },
+        {
+          "set": 20,
+          "measured": 20.05
+        }
+      ],
+      "params": {}
+    }
+  },
+  "expected_result_fields": {
+    "voltage": [
+      "slope",
+      "intercept",
+      "r_squared",
+      "max_abs_error"
+    ],
+    "current": [
+      "slope",
+      "intercept",
+      "r_squared",
+      "max_abs_error"
+    ],
+    "resistance": [
+      "slope",
+      "intercept",
+      "r_squared",
+      "max_abs_error"
+    ],
+    "unknown": [
+      "mean_reference",
+      "mean_measured",
+      "relative_error"
+    ],
+    "ac_voltage": [
+      "slope",
+      "intercept",
+      "r_squared",
+      "max_abs_error"
+    ],
+    "ac_current": [
+      "slope",
+      "intercept",
+      "r_squared",
+      "max_abs_error"
+    ]
+  }
+}
