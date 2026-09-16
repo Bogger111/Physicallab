@@ -195,6 +195,21 @@ def test_photoelectric_iv_wavelengths_share_one_combined_plot():
     assert len(matching_images) == 1
 
 
+def test_report_raw_table_trims_only_trailing_blank_template_rows():
+    config = next(item for item in CONFIGS if item["id"] == "franck-hertz")
+    method = next(item for item in config["methods"] if item["id"] == "higher_curve")
+    payload = fixtures()["franck-hertz"]["higher_curve"]
+    payload["rows"].insert(3, {"voltage": None, "current": None})
+    payload["rows"].extend({"voltage": None, "current": ""} for _ in range(14))
+
+    report_table = docs._method_raw_table(method, payload)
+    blank_table = docs._method_raw_table(method, {}, blank=True)
+
+    assert len(report_table["rows"]) == 18  # header + 16 values + one internal gap
+    assert report_table["rows"][4] == [{"text": ""}, {"text": ""}]
+    assert len(blank_table["rows"]) == method["rowCount"] + 1
+
+
 def test_catalogue_and_generic_api_contract():
     client = TestClient(app)
     listing = client.get("/api/experiments")

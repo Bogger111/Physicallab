@@ -117,7 +117,18 @@ def _method_raw_table(method: dict, payload: dict, blank: bool = False) -> dict:
     columns=method["columns"]; head=[f"{c['label']} ({c['unit']})" if c.get("unit") else c["label"] for c in columns]
     source=payload.get("rows",[]) if not blank else []
     rows=[head]
-    for idx in range(method["rowCount"]):
+    if blank:
+        row_count = method["rowCount"]
+    else:
+        # A completed report should not pad a partially filled optional table
+        # with the remaining blank template rows.  Keep gaps inside the data,
+        # but trim empty rows after the last submitted value.
+        row_count = max(
+            (idx + 1 for idx, item in enumerate(source)
+             if any(item.get(col["key"]) not in (None, "") for col in columns)),
+            default=0,
+        )
+    for idx in range(row_count):
         item=source[idx] if idx<len(source) else {}
         row=[]
         for col in columns:
