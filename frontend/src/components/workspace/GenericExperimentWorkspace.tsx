@@ -22,11 +22,14 @@ import {
   fetchGenericConfig,
   previewRecordSheet,
   processGenericExperiment,
+  trackEvent,
   type GenericExperimentConfig,
   type GenericExperimentData,
   type GenericProcessResponse,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { getInputRange, isOutsideRange, rangeLabel } from "@/lib/input-ranges";
+import OcrTableImporter from "./OcrTableImporter";
 import {
   completionState,
   nextGridCell,
@@ -34,6 +37,12 @@ import {
 } from "./generic-workspace-logic";
 
 type Draft = Record<string, { rows: Record<string, string>[]; params: Record<string, string> }>;
+
+function rangeFor(id: string, methodId: string, field: { expected_range?: [number, number] }) {
+  return field.expected_range
+    ? { min: field.expected_range[0], max: field.expected_range[1] }
+    : getInputRange(id, methodId, (field as { key?: string }).key ?? "");
+}
 
 function makeDraft(config: GenericExperimentConfig): Draft {
   return Object.fromEntries(
@@ -83,6 +92,7 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
 
   useEffect(() => {
     let alive = true;
+    void trackEvent("workspace_start", id);
     fetchGenericConfig(id)
       .then((loaded) => {
         if (!alive) return;
@@ -167,6 +177,25 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
     setResult(null);
   };
 
+  const applyCurrentOCR = (values: string[], overwriteExisting: boolean) => {
+    if (!current) return;
+    setDraft((previous) => {
+      let valueIndex = 0;
+      const rows = previous[current.id].rows.map((row) => {
+        const next = { ...row };
+        current.columns.forEach((column) => {
+          const value = values[valueIndex++]?.trim();
+          if (!value) return;
+          if (!overwriteExisting && (next[column.key] ?? "").trim()) return;
+          next[column.key] = value;
+        });
+        return next;
+      });
+      return { ...previous, [current.id]: { ...previous[current.id], rows } };
+    });
+    setResult(null);
+  };
+
   const act = async (key: string, action: () => Promise<void>) => {
     if (busy) return;
     setBusy(key); setError(null);
@@ -221,21 +250,31 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
               {current.params.map((parameter) => (
                 <label key={parameter.key} className="text-xs font-semibold text-stone-500">
                   {parameter.label} {parameter.unit && `(${parameter.unit})`}
+                  <span className="mt-0.5 block text-[10px] font-medium text-amber-600">
+                    {rangeLabel(rangeFor(id, current.id, parameter), parameter.unit)}
+                  </span>
                   <input
                     type="number"
                     step="any"
                     value={draft[current.id]?.params[parameter.key] ?? ""}
                     onChange={(event) => updateParam(current.id, parameter.key, event.target.value)}
                     onWheel={(event) => event.currentTarget.blur()}
-                    className="mt-1.5 h-10 w-full rounded-lg border border-stone-200 px-3 text-right font-mono text-sm outline-none focus:border-indigo-400"
+                    aria-invalid={isOutsideRange(draft[current.id]?.params[parameter.key] ?? "", rangeFor(id, current.id, parameter)) || undefined}
+                    className={cn("mt-1.5 h-10 w-full rounded-lg border px-3 text-right font-mono text-sm outline-none", isOutsideRange(draft[current.id]?.params[parameter.key] ?? "", rangeFor(id, current.id, parameter)) ? "border-amber-300 bg-amber-50 text-amber-900" : "border-stone-200 focus:border-indigo-400")}
                   />
                 </label>
               ))}
             </div>
           )}
+          <OcrTableImporter
+            experimentId={id}
+            tableId={current.id}
+            expectedCellCount={current.rowCount * current.columns.length}
+            onApply={applyCurrentOCR}
+          />
           <div className="overflow-x-auto rounded-xl border border-stone-200">
             <table className="w-full min-w-[560px] border-collapse text-sm">
-              <thead><tr>{current.columns.map((column) => <th key={column.key} className="whitespace-nowrap border-b border-stone-200 bg-stone-50 px-3 py-3 text-xs font-bold text-stone-500">{column.label}{column.unit && <span className="ml-1 font-normal text-stone-400">({column.unit})</span>}</th>)}</tr></thead>
+              <thead><tr>{current.columns.map((column) => <th key={column.key} className="whitespace-nowrap border-b border-stone-200 bg-stone-50 px-3 py-3 text-xs font-bold text-stone-500">{column.label}{column.unit && <span className="ml-1 font-normal text-stone-400">({column.unit})</span>}<span className="mt-0.5 block text-[10px] font-normal text-amber-600">{rangeLabel(rangeFor(id, current.id, column), column.unit)}</span></th>)}</tr></thead>
               <tbody>
                 {draft[current.id]?.rows.map((row, rowIndex) => (
                   <tr key={rowIndex} className="hover:bg-indigo-50/30">
@@ -252,7 +291,9 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
                           onChange={(event) => updateCell(current.id, rowIndex, column.key, event.target.value)}
                           onKeyDown={(event) => handleGridKeyDown(event, rowIndex, columnIndex)}
                           onWheel={(event) => event.currentTarget.blur()}
-                          className="h-9 w-full min-w-24 border-0 bg-transparent px-3 text-right font-mono text-[13px] outline-none focus:bg-indigo-50"
+                          aria-invalid={isOutsideRange(row[column.key] ?? "", rangeFor(id, current.id, column)) || undefined}
+                          title={isOutsideRange(row[column.key] ?? "", rangeFor(id, current.id, column)) ? `${rangeLabel(rangeFor(id, current.id, column), column.unit)}；当前值可能需要检查` : rangeLabel(rangeFor(id, current.id, column), column.unit)}
+                          className={cn("h-9 w-full min-w-24 border-0 px-3 text-right font-mono text-[13px] outline-none", isOutsideRange(row[column.key] ?? "", rangeFor(id, current.id, column)) ? "bg-amber-50 text-amber-900 ring-1 ring-inset ring-amber-300" : "bg-transparent focus:bg-indigo-50")}
                         />
                       </td>
                     ))}
@@ -310,6 +351,13 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
       </div>
 
       {error && <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />{error}</div>}
+      {result?.warnings?.length ? (
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          <p className="font-bold">数据合理性提醒</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5">{result.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+          <p className="mt-2 text-xs">范围仅用于提醒，不会自动修改或阻止你的真实测量值。</p>
+        </div>
+      ) : null}
 
       {result?.status === "success" && (
         <div className="mt-8 space-y-6">

@@ -4,11 +4,12 @@ import math
 import os
 import json
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp, Receive, Scope, Send
 from typing import Optional, List, Dict, Any
@@ -76,9 +77,12 @@ class ErrorGuardMiddleware(BaseHTTPMiddleware):
             )
 
 
+APP_VERSION = "2.0.0-beta.1"
+
+
 app = FastAPI(
     title="PhysicsLab API",
-    version="1.0.0",
+    version=APP_VERSION,
     default_response_class=SafeJSONResponse,
 )
 app.add_middleware(ErrorGuardMiddleware)
@@ -169,12 +173,47 @@ class ProcessRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "PhysicsLab API", "version": "1.0.0"}
+    return {"message": "PhysicsLab API", "version": APP_VERSION}
 
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "physicslab-api", "version": "1.0.0"}
+    return {"status": "ok", "service": "physicslab-api", "version": APP_VERSION}
+
+
+@app.post("/api/ocr/table")
+async def recognize_table_image(
+    image: UploadFile = File(...),
+    experiment_id: str = Form(""),
+    table_id: str = Form(""),
+):
+    """Return row-major numeric OCR candidates for browser-side review."""
+    from app.ocr_service import (
+        InvalidOCRImage,
+        MAX_IMAGE_BYTES,
+        OCRUnavailable,
+        recognize_numeric_candidates,
+    )
+
+    if image.content_type and image.content_type not in {
+        "image/jpeg", "image/png", "image/webp", "image/bmp", "image/tiff",
+    }:
+        raise HTTPException(status_code=415, detail="请上传 JPG、PNG、WebP、BMP 或 TIFF 图片")
+    content = await image.read(MAX_IMAGE_BYTES + 1)
+    try:
+        result = await run_in_threadpool(recognize_numeric_candidates, content)
+    except InvalidOCRImage as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OCRUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"OCR 识别失败：{exc}") from exc
+    return {
+        "status": "success",
+        "experiment_id": experiment_id,
+        "table_id": table_id,
+        **result,
+    }
 
 
 @app.get("/api/experiments")
@@ -217,7 +256,7 @@ async def list_experiments():
                 "processing_time": "~1分钟",
             }
         ]
-    from experiments.general.engine import CONFIGS
+    from experiments.general.engine import CONFIGS, COMBINED_CONFIG
     experiments.extend({
         "id": config["id"],
         "name": config["name"],
@@ -234,7 +273,26 @@ async def list_experiments():
         ],
         "record_sheet": f"/api/record-sheets/{config['id']}",
         "processing_time": config["processingTime"],
-    } for config in CONFIGS)
+        "legacy": config["id"] == "photoelectric",
+    } for config in CONFIGS if config["id"] != "franck-hertz")
+    combined = COMBINED_CONFIG
+    experiments.append({
+        "id": combined["id"],
+        "name": combined["name"],
+        "category": combined["category"],
+        "description": combined["description"],
+        "sub_experiments": [
+            {"id": method["id"], "name": method["name"],
+             "required": method.get("required", False)}
+            for method in combined["methods"]
+        ],
+        "measurements": [
+            {"key": f"measurement_{index}", "label": label, "unit": ""}
+            for index, label in enumerate(combined["measurements"], start=1)
+        ],
+        "record_sheet": f"/api/record-sheets/{combined['id']}",
+        "processing_time": combined["processingTime"],
+    })
     return {"experiments": experiments}
 
 
@@ -405,7 +463,8 @@ async def get_polarization_config():
     config_path = BACKEND_ROOT / "experiments" / "polarization" / "config.json"
     if config_path.exists():
         with open(config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            from experiments.schema import enrich_polarization_config
+            return enrich_polarization_config(json.load(f))
     raise HTTPException(status_code=404, detail="Config not found")
 
 
@@ -431,7 +490,8 @@ async def get_soundlight_config():
     config_path = BACKEND_ROOT / "experiments" / "soundlight" / "config.json"
     if config_path.exists():
         with open(config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            from experiments.schema import enrich_soundlight_config
+            return enrich_soundlight_config(json.load(f))
     raise HTTPException(status_code=404, detail="Config not found")
 
 
@@ -440,6 +500,44 @@ async def process_soundlight(req: SoundLightProcessRequest):
     """Process one sound/light-speed method: returns {status, errors, results, plots}."""
     from experiments.soundlight import engine
     return engine.process_method(req.method, req.rows or {}, req.params or {})
+
+
+@app.post("/api/experiments/polarization/validate")
+async def validate_polarization(req: ProcessRequest):
+    from experiments.schema import enrich_polarization_config, validate_payload
+    config_path = BACKEND_ROOT / "experiments" / "polarization" / "config.json"
+    source = enrich_polarization_config(json.loads(config_path.read_text(encoding="utf-8")))
+    methods = []
+    data: dict[str, Any] = {}
+    for method in source.get("subExperiments", []):
+        methods.append({"id": method["id"], "name": method["name"],
+                        "required": method.get("required", False),
+                        "columns": method.get("fields", []), "params": []})
+    if req.malus: data["malus"] = {"rows": [row.model_dump() for row in req.malus.rows]}
+    if req.halfwave: data["halfwave"] = {"rows": [row.model_dump() for row in req.halfwave.rows]}
+    if req.quarterwave: data["quarterwave"] = {"rows": [row.model_dump() for row in req.quarterwave.rows]}
+    if req.circular: data["circular"] = {"rows": [row.model_dump() for row in req.circular.rows]}
+    return validate_payload({"id": "polarization", "methods": methods}, data)
+
+
+@app.post("/api/experiments/sound-light/validate")
+async def validate_soundlight(req: SoundLightProcessRequest):
+    from experiments.schema import enrich_soundlight_config, validate_payload
+    config_path = BACKEND_ROOT / "experiments" / "soundlight" / "config.json"
+    source = enrich_soundlight_config(json.loads(config_path.read_text(encoding="utf-8")))
+    method = next((item for item in source if item["id"] == req.method), None)
+    if method is None:
+        raise HTTPException(status_code=404, detail="实验方法不存在")
+    keys = [field["key"] for field in method.get("fields", [])]
+    max_rows = max((len(req.rows.get(key, [])) for key in keys), default=0)
+    rows = [{key: (req.rows.get(key, [None] * max_rows)[index]
+                   if index < len(req.rows.get(key, [])) else None)
+             for key in keys} for index in range(max_rows)]
+    generic = {"id": "sound-light", "methods": [{
+        "id": method["id"], "name": method["name"], "required": method.get("type") == "required",
+        "columns": method.get("fields", []), "params": method.get("params", []),
+    }]}
+    return validate_payload(generic, {req.method: {"rows": rows, "params": req.params}})
 
 
 @app.get("/api/record-sheets/sound-light.docx")
@@ -499,6 +597,29 @@ class GenericExperimentRequest(BaseModel):
     data: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 
+class AnalyticsEventRequest(BaseModel):
+    event_name: str
+    anonymous_session_id: str
+    experiment_id: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    app_version: str = "2.0"
+
+
+class OCRFeedbackRequest(BaseModel):
+    sample_id: Optional[str] = None
+    experiment_id: str
+    field_id: str
+    prediction: str
+    confidence: Optional[float] = None
+    confirmed_value: str
+    was_corrected: bool
+    verified: bool = False
+    consent: bool = False
+    ocr_provider: str = "unknown"
+    ocr_model_version: str = "unknown"
+    anonymous_session_id: str
+
+
 def _generic_config(experiment_id: str) -> dict:
     from experiments.general.engine import CONFIG_BY_ID
     config = CONFIG_BY_ID.get(experiment_id)
@@ -512,12 +633,98 @@ async def get_generic_experiment_config(experiment_id: str):
     return _generic_config(experiment_id)
 
 
+@app.get("/api/experiments/{experiment_id}/schema")
+async def get_experiment_schema(experiment_id: str):
+    """Return the canonical 2.0 definition used by validation and imports."""
+    if experiment_id == "polarization":
+        config_path = BACKEND_ROOT / "experiments" / "polarization" / "config.json"
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        from experiments.schema import enrich_polarization_config
+        config = enrich_polarization_config(config)
+        methods = config.get("subExperiments", [])
+    elif experiment_id == "sound-light":
+        config_path = BACKEND_ROOT / "experiments" / "soundlight" / "config.json"
+        raw = json.loads(config_path.read_text(encoding="utf-8"))
+        from experiments.schema import enrich_soundlight_config
+        methods = enrich_soundlight_config(raw)
+        config = {"id": experiment_id, "name": "声速光速的测量", "category": "波动",
+                  "description": "声速与光速测量", "schemaVersion": "2.0"}
+    else:
+        config = _generic_config(experiment_id)
+        methods = config.get("methods", [])
+    from experiments.schema import definition_from_config
+    if experiment_id in {"polarization", "sound-light"}:
+        definition = {
+            "id": config.get("id", experiment_id), "name": config.get("name", ""),
+            "category": config.get("category", ""), "description": config.get("description", ""),
+            "methods": methods,
+        }
+        return {"schemaVersion": "2.0", "definition": definition}
+    definition = definition_from_config(config)
+    return {
+        "schemaVersion": config.get("schemaVersion", "2.0"),
+        "definition": {
+            "id": definition.id,
+            "name": definition.name,
+            "category": definition.category,
+            "description": definition.description,
+            "methods": list(definition.methods),
+        },
+    }
+
+
 @app.post("/api/experiments/{experiment_id}/process")
 async def process_generic_experiment(experiment_id: str,
                                      req: GenericExperimentRequest):
     _generic_config(experiment_id)
     from experiments.general.engine import process_experiment
     return process_experiment(experiment_id, req.data)
+
+
+@app.post("/api/ocr/feedback")
+async def submit_ocr_feedback(req: OCRFeedbackRequest):
+    """Store only explicitly consented and verified cell feedback."""
+    from app.telemetry import record_ocr_feedback
+    return record_ocr_feedback(req.model_dump())
+
+
+@app.post("/api/analytics/events")
+async def submit_analytics_event(req: AnalyticsEventRequest):
+    """Best-effort anonymous analytics; failures never affect calculations."""
+    from app.telemetry import record_event
+    accepted = record_event(req.event_name, req.anonymous_session_id,
+                            experiment_id=req.experiment_id,
+                            metadata=req.metadata, app_version=req.app_version)
+    return {"accepted": accepted}
+
+
+@app.get("/api/analytics/summary")
+async def get_analytics_summary():
+    from app.telemetry import analytics_summary
+    return analytics_summary()
+
+
+@app.post("/api/experiments/{experiment_id}/validate")
+async def validate_generic_experiment(experiment_id: str,
+                                      req: GenericExperimentRequest):
+    """Validate without calculating; expected ranges produce warnings only."""
+    config = _generic_config(experiment_id)
+    from experiments.schema import validate_payload
+    if experiment_id == "photoelectric-franck-hertz":
+        # The merged entry is validated against its two source definitions so
+        # the old field-level rules remain authoritative.
+        from experiments.general.engine import CONFIG_BY_ID
+        issues = {"valid": True, "errors": [], "warnings": []}
+        for source_id in ("photoelectric", "franck-hertz"):
+            method_ids = {method["id"] for method in CONFIG_BY_ID[source_id]["methods"]}
+            source = validate_payload(CONFIG_BY_ID[source_id], {
+                key: value for key, value in req.data.items() if key in method_ids
+            })
+            issues["errors"].extend(source["errors"])
+            issues["warnings"].extend(source["warnings"])
+        issues["valid"] = not issues["errors"]
+        return issues
+    return validate_payload(config, req.data)
 
 
 @app.get("/api/record-sheets/{experiment_id}.{fmt}")

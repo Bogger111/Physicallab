@@ -31,6 +31,8 @@ export interface ExperimentConfig {
   recordSheet: string;
   measurements: string[];
   subExperiments: SubExperiment[];
+  /** Legacy compatibility entries remain routable but are hidden from the catalogue. */
+  hidden?: boolean;
 }
 
 const soundLightSubExperiments: SubExperiment[] = soundLightConfig.map((method) => ({
@@ -143,11 +145,26 @@ const additionalExperiments: ExperimentConfig[] = generalConfigs.map((config) =>
     description: method.description,
     resultFields: method.results,
   })),
+  hidden: config.id === "photoelectric" || config.id === "franck-hertz",
 }));
+
+const legacyModern = additionalExperiments.filter((experiment) => experiment.hidden);
+const mergedModern: ExperimentConfig = {
+  id: "photoelectric-franck-hertz",
+  name: "光电效应与弗兰克-赫兹实验",
+  category: "近代物理",
+  description: "综合研究光电效应、普朗克常数和弗兰克-赫兹原子激发能级。",
+  processingTime: "~1分钟",
+  recordSheet: "/api/record-sheets/photoelectric-franck-hertz.pdf",
+  measurements: legacyModern.flatMap((experiment) => experiment.measurements),
+  subExperiments: legacyModern.flatMap((experiment) => experiment.subExperiments),
+};
 
 export const experiments: ExperimentConfig[] = [
   ...coreExperiments,
-  ...additionalExperiments,
+  ...additionalExperiments.filter((experiment) => !experiment.hidden),
+  mergedModern,
+  ...legacyModern,
 ];
 
 export function getExperiment(id: string): ExperimentConfig | undefined {

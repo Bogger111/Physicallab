@@ -89,7 +89,103 @@ export async function processPolarization(
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error(await failureMessage(res));
+  const payload = await res.json();
+  void trackEvent("calculation_run", "polarization", { status: payload.status });
+  return payload;
+}
+
+export interface OCRCandidate {
+  raw_text: string;
+  value: string;
+  confidence: number;
+  bbox: number[][];
+}
+
+export interface TableOCRResponse {
+  status: "success";
+  experiment_id: string;
+  table_id: string;
+  detected_text_count: number;
+  candidates: OCRCandidate[];
+  ocr_provider?: string;
+  ocr_model_version?: string;
+}
+
+export async function recognizeTableImage(
+  image: File,
+  experimentId: string,
+  tableId: string
+): Promise<TableOCRResponse> {
+  const form = new FormData();
+  form.append("image", image);
+  form.append("experiment_id", experimentId);
+  form.append("table_id", tableId);
+  const res = await fetch(`${API_BASE}/api/ocr/table`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(await failureMessage(res));
   return res.json();
+}
+
+function anonymousSessionId(): string {
+  if (typeof window === "undefined") return "server";
+  const key = "physicslab-anonymous-session";
+  const existing = window.localStorage.getItem(key);
+  if (existing) return existing;
+  const created = typeof crypto?.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  window.localStorage.setItem(key, created);
+  return created;
+}
+
+export async function trackEvent(
+  eventName: string,
+  experimentId?: string,
+  metadata: Record<string, unknown> = {},
+): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/api/analytics/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_name: eventName,
+        anonymous_session_id: anonymousSessionId(),
+        experiment_id: experimentId,
+        metadata,
+        app_version: "2.0",
+      }),
+      keepalive: true,
+    });
+  } catch {
+    // Analytics must never interrupt the experiment workflow.
+  }
+}
+
+export async function submitOCRFeedback(feedback: {
+  sample_id: string;
+  experiment_id: string;
+  field_id: string;
+  prediction: string;
+  confidence: number | null;
+  confirmed_value: string;
+  was_corrected: boolean;
+  verified: boolean;
+  consent: boolean;
+  ocr_provider?: string;
+  ocr_model_version?: string;
+}): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/api/ocr/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...feedback,
+        anonymous_session_id: anonymousSessionId(),
+      }),
+      keepalive: true,
+    });
+  } catch {
+    // Feedback collection is optional and must not block data entry.
+  }
 }
 
 export function getRecordSheetUrl(experimentId: string): string {
@@ -105,6 +201,7 @@ const EXP_CN: Record<string, string> = {
   bridge: "交直流电桥的原理及应用",
   photoelectric: "光电效应与普朗克常数",
   "franck-hertz": "弗兰克-赫兹实验",
+  "photoelectric-franck-hertz": "光电效应与弗兰克-赫兹实验",
   "solar-cell": "太阳能电池特性",
   gmr: "巨磁电阻效应及应用",
   nmr: "核磁共振实验",
@@ -133,6 +230,7 @@ export async function downloadRecordSheet(
   if (!res.ok) throw new Error(`记录表下载失败 (${res.status})`);
   const name = EXP_CN[expId] ?? "实验";
   triggerDownload(await res.blob(), `${name}-数据记录表.${fmt}`);
+  void trackEvent("record_sheet_download", expId, { format: fmt });
 }
 
 export async function previewRecordSheet(
@@ -170,6 +268,7 @@ export async function downloadReport(
   }
   const name = EXP_CN[expId] ?? "实验";
   triggerDownload(await res.blob(), `${name}-完整报告.${fmt}`);
+  void trackEvent("report_export", expId, { format: fmt });
 }
 
 // ---------------------------------------------------------- exp02 sound-light
@@ -202,7 +301,9 @@ export async function processSoundLight(
     body: JSON.stringify({ method, rows, params }),
   });
   if (!res.ok) throw new Error(await failureMessage(res));
-  return res.json();
+  const payload = await res.json();
+  void trackEvent("calculation_run", "sound-light", { method, status: payload.status });
+  return payload;
 }
 
 export type SoundLightMethodData = Record<
@@ -241,6 +342,10 @@ export interface GenericColumn {
   key: string;
   label: string;
   unit: string;
+  type?: "integer" | "float";
+  required?: boolean;
+  expected_range?: [number, number];
+  decimal_places?: number;
 }
 
 export interface GenericParameter extends GenericColumn {
@@ -286,6 +391,8 @@ export interface GenericProcessResponse {
   plots: Record<string, string>;
   derived: Record<string, Record<string, number>[]>;
   errors: string[];
+  warnings?: string[];
+  validation?: { valid: boolean; errors: unknown[]; warnings: unknown[] };
 }
 
 export async function fetchGenericConfig(id: string): Promise<GenericExperimentConfig> {
@@ -304,6 +411,33 @@ export async function processGenericExperiment(
     body: JSON.stringify({ data }),
   });
   if (!res.ok) throw new Error(`数据处理失败 (${res.status})`);
+  const payload = await res.json();
+  void trackEvent("calculation_run", id, { status: payload.status });
+  if (payload.warnings?.length) {
+    void trackEvent("validation_warning", id, { count: payload.warnings.length });
+  }
+  return payload;
+}
+
+export interface ValidationIssue {
+  method_id: string;
+  field_id: string;
+  row: number | null;
+  level: "error" | "warning";
+  code: string;
+  message: string;
+}
+
+export async function validateGenericExperiment(
+  id: string,
+  data: GenericExperimentData,
+): Promise<{ valid: boolean; errors: ValidationIssue[]; warnings: ValidationIssue[] }> {
+  const res = await fetch(`${API_BASE}/api/experiments/${id}/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data }),
+  });
+  if (!res.ok) throw new Error(`数据校验失败 (${res.status})`);
   return res.json();
 }
 
@@ -322,4 +456,5 @@ export async function downloadGenericReport(
     throw new Error(payload.detail || `报告生成失败 (${res.status})`);
   }
   triggerDownload(await res.blob(), `${EXP_CN[id] ?? "实验"}-完整报告.${fmt}`);
+  void trackEvent("report_export", id, { format: fmt });
 }

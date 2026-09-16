@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -19,7 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { getExperiment } from "@/lib/experiments";
-import { downloadRecordSheet, previewRecordSheet } from "@/lib/api";
+import { downloadRecordSheet, previewRecordSheet, trackEvent } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const CAT_CHIP: Record<string, string> = {
@@ -45,6 +45,9 @@ export default function ExperimentDetailPage({
 }) {
   const { id } = use(params);
   const experiment = getExperiment(id);
+  useEffect(() => {
+    void trackEvent("experiment_open", id);
+  }, [id]);
   const [sheetBusy, setSheetBusy] = useState<string | null>(null);
   const [sheetError, setSheetError] = useState<string | null>(null);
 

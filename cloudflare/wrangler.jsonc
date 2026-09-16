@@ -8,7 +8,7 @@
       "class_name": "PhysicsLabContainer",
       "image": "../backend/Dockerfile",
       "image_vars": {
-        "CORS_ORIGINS": "https://bogger111.github.io"
+        "CORS_ORIGINS": "https://bogger111.github.io,https://physkiller-beta.pages.dev"
       },
       "max_instances": 2
     }

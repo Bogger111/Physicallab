@@ -21,7 +21,7 @@ export default function ExperimentsPage() {
 
   const filtered = useMemo(
     () =>
-      experiments.filter((exp) => {
+            experiments.filter((exp) => !exp.hidden).filter((exp) => {
         const matchSearch =
           !search ||
           exp.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -29,7 +29,7 @@ export default function ExperimentsPage() {
         const matchCategory = category === "全部" || exp.category === category;
         return matchSearch && matchCategory;
       }),
-    [search, category]
+            [search, category]
   );
 
   return (
@@ -45,7 +45,7 @@ export default function ExperimentsPage() {
             实验库
           </h1>
           <span className="text-sm font-semibold text-stone-400">
-            共 {experiments.length} 个实验
+            共 {experiments.filter((exp) => !exp.hidden).length} 个实验
           </span>
         </div>
         <p className="mt-2.5 text-[15px] leading-relaxed text-stone-500">

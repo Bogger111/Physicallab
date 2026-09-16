@@ -1,8 +1,10 @@
-# PhysicsLab — 大学物理实验助手
+# PhysicsLab / PhysKiller 2.0 — 大学物理实验助手
 
 实验结束，数据处理也结束。
 
-实验库现包含 13 个实验。偏振光与声速/光速保留专用工作区，其余 11 个实验由
+> 当前发布通道为 **PhysKiller 2.0 Beta 1**。计算链、合成 fixture 和报告结构已经通过自动测试；完整真实实验数据与手写 OCR 仍需要学生、助教和教师共同验证。网页会持续显示测试版提示，所有 OCR 候选值必须人工确认。
+
+前端实验库现包含 12 个公开入口（API 目录额外保留带 `legacy: true` 的旧光电效应条目，旧的光电效应与弗兰克-赫兹入口仍兼容）。偏振光与声速/光速保留专用工作区，其余实验由
 `backend/experiments/general/configs.json` 驱动，共用数据录入、计算、绘图、记录表和报告流程。
 
 ## 功能
@@ -79,7 +81,7 @@ cd backend
 
 ## 当前可用实验
 
-共 13 个：万用表、交直流电桥、偏振光、光电效应、弗兰克-赫兹、声速光速、
+公开入口共 12 个：万用表、交直流电桥、偏振光、光电效应与弗兰克-赫兹、声速光速、
 太阳能电池、巨磁电阻、核磁共振、液体粘滞系数、液体表面张力、固体导热系数、
 迈克尔逊干涉。
 
@@ -145,3 +147,15 @@ GitHub Pages 只能托管 `frontend/` 的静态页面，不能运行 FastAPI、N
 ## Cloudflare 部署
 
 项目提供 Cloudflare Pages + Containers 配置。前端静态导出仍在 `frontend/`，后端 Docker 镜像和 Container Worker 位于 `backend/Dockerfile` 与 `cloudflare/`。完整步骤见 `docs/deployment.md`。Cloudflare Pages 的 `NEXT_PUBLIC_BASE_PATH` 应为空；前端的 `NEXT_PUBLIC_API_URL` 必须指向已部署的 Container Worker HTTPS 地址。
+
+## 图片识别录入与范围提醒
+
+数据工作台支持保留手动输入，同时将当前手写数据表照片交给 RapidOCR/ONNX Runtime 识别。模型只返回候选数字；学生必须在网页校对区确认后，数据才会填入原有输入表格。建议只拍摄当前表格的数据区域，避免标题、单位和旁注被当作数值。
+
+合理范围定义位于 `frontend/src/lib/input-ranges.ts`，只用于网页中的黄色提醒。它们不会进入计算请求、结果 JSON、空白记录表、Word 或 PDF 报告；超出范围也不会阻止学生保留真实测量值。
+
+## PhysKiller 2.0 数据闭环
+
+`backend/experiments/schema.py` 提供所有配置驱动实验的统一字段与 canonical validation；`POST /api/experiments/{id}/validate` 可单独执行校验。OCR 通过 provider boundary 支持 RapidOCR 默认路径和可选 PaddleOCR 路径，反馈只有在用户明确同意匿名采集并确认单元格后才保存。匿名事件通过 `/api/analytics/events` 记录，`scripts/export_ocr_dataset.py` 为未来微调导出已同意且有单元格图片的样本，不会自动训练或部署模型。
+
+完整迁移说明和限制见 `docs/physkiller-2.0.md`。

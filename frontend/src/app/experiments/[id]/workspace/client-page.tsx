@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -27,6 +27,7 @@ import { getExperiment } from "@/lib/experiments";
 import {
   API_BASE,
   processPolarization,
+  trackEvent,
   downloadRecordSheet,
   previewRecordSheet,
   downloadReport,
@@ -38,6 +39,7 @@ import SoundLightWorkspace from "@/components/workspace/SoundLightWorkspace";
 import GenericExperimentWorkspace from "@/components/workspace/GenericExperimentWorkspace";
 import { POLARIZATION_WORKSPACE_STEPS } from "@/components/workspace/workspace-entry-flow";
 import { cn } from "@/lib/utils";
+import { getInputRange, isOutsideRange, rangeLabel } from "@/lib/input-ranges";
 
 type Step = (typeof POLARIZATION_WORKSPACE_STEPS)[number];
 
@@ -69,6 +71,9 @@ function PolarizationWorkspace({
 }) {
   const { id } = use(params);
   const experiment = getExperiment(id);
+  useEffect(() => {
+    void trackEvent("workspace_start", id);
+  }, [id]);
 
   const [step, setStep] = useState<Step>(POLARIZATION_WORKSPACE_STEPS[0]);
   const [activeTab, setActiveTab] = useState("malus");
@@ -399,6 +404,7 @@ function PolarizationWorkspace({
               <div className="flex flex-wrap gap-4 sm:gap-6">
                 <label className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold text-stone-500">背景光强 I₀</span>
+                  <span className="text-[10px] font-medium text-amber-600">{rangeLabel(getInputRange("polarization", "setup", "bg_uw"), "μW")}</span>
                   <span className="relative inline-flex items-center">
                     <input
                       type="number"
@@ -406,7 +412,8 @@ function PolarizationWorkspace({
                       value={bgUw}
                       onChange={(e) => setBgUw(e.target.value)}
                       onWheel={(e) => e.currentTarget.blur()}
-                      className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 pr-9 text-right text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                      aria-invalid={isOutsideRange(bgUw, getInputRange("polarization", "setup", "bg_uw")) || undefined}
+                      className={cn("h-9 w-28 rounded-lg border bg-white px-3 pr-9 text-right text-sm font-medium tabular-nums shadow-sm outline-none transition-all", isOutsideRange(bgUw, getInputRange("polarization", "setup", "bg_uw")) ? "border-amber-300 bg-amber-50 text-amber-900" : "border-stone-200 text-stone-800 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10")}
                     />
                     <span className="pointer-events-none absolute right-3 text-xs text-stone-400">
                       μW
@@ -415,6 +422,7 @@ function PolarizationWorkspace({
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold text-stone-500">1/4 波片快轴 θ_qwp</span>
+                  <span className="text-[10px] font-medium text-amber-600">{rangeLabel(getInputRange("polarization", "setup", "theta_qwp"), "°")}</span>
                   <span className="relative inline-flex items-center">
                     <input
                       type="number"
@@ -424,7 +432,8 @@ function PolarizationWorkspace({
                       onChange={(e) => setThetaQwp(e.target.value)}
                       onWheel={(e) => e.currentTarget.blur()}
                       aria-label="1/4 波片快轴角度"
-                      className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 pr-7 text-right text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                      aria-invalid={isOutsideRange(thetaQwp, getInputRange("polarization", "setup", "theta_qwp")) || undefined}
+                      className={cn("h-9 w-28 rounded-lg border bg-white px-3 pr-7 text-right text-sm font-medium tabular-nums shadow-sm outline-none transition-all", isOutsideRange(thetaQwp, getInputRange("polarization", "setup", "theta_qwp")) ? "border-amber-300 bg-amber-50 text-amber-900" : "border-stone-200 text-stone-800 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10")}
                     />
                     <span className="pointer-events-none absolute right-3 text-xs text-stone-400">
                       °
@@ -484,11 +493,12 @@ function PolarizationWorkspace({
                 <DataInputTable
                   headers={[
                     { label: "θ (°)", readOnly: true },
-                    { label: "I 左旋 (μW)" },
-                    { label: "I 右旋 (μW)" },
+                    { label: "I 左旋 (μW)", unit: "μW", range: getInputRange("polarization", "malus", "i_left") },
+                    { label: "I 右旋 (μW)", unit: "μW", range: getInputRange("polarization", "malus", "i_right") },
                   ]}
                   data={malusData}
                   onChange={setMalusData}
+                  ocr={{ experimentId: "polarization", tableId: "malus" }}
                 />
               </div>
             )}
@@ -506,9 +516,14 @@ function PolarizationWorkspace({
                       { key: "c_min", label: "C 初始 · 分" },
                       { key: "p2_deg", label: "P2 初始 · 度" },
                       { key: "p2_min", label: "P2 初始 · 分" },
-                    ].map((f) => (
+                    ].map((f) => {
+                      const range = getInputRange("polarization", "halfwave", f.key);
+                      const unit = f.key.endsWith("_min") ? "′" : "°";
+                      const value = hwInit[f.key as keyof typeof hwInit];
+                      return (
                       <label key={f.key} className="flex flex-col gap-1.5">
                         <span className="text-xs font-medium text-stone-400">{f.label}</span>
+                        <span className="text-[10px] font-medium text-amber-600">{rangeLabel(range, unit)}</span>
                         <input
                           type="number"
                           value={hwInit[f.key as keyof typeof hwInit]}
@@ -516,10 +531,11 @@ function PolarizationWorkspace({
                             setHwInit((prev) => ({ ...prev, [f.key]: e.target.value }))
                           }
                           onWheel={(e) => e.currentTarget.blur()}
-                          className="h-9 rounded-lg border border-stone-200 bg-white px-3 text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                          aria-invalid={isOutsideRange(value, range) || undefined}
+                          className={cn("h-9 rounded-lg border bg-white px-3 text-sm font-medium tabular-nums shadow-sm outline-none transition-all", isOutsideRange(value, range) ? "border-amber-300 bg-amber-50 text-amber-900" : "border-stone-200 text-stone-800 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10")}
                         />
                       </label>
-                    ))}
+                    )})}
                   </div>
                 </div>
                 <p className="mb-3 rounded-xl bg-indigo-50/80 px-4 py-2.5 text-[13px] leading-relaxed text-indigo-900/80 ring-1 ring-inset ring-indigo-100">
@@ -528,13 +544,14 @@ function PolarizationWorkspace({
                 <DataInputTable
                   headers={[
                     { label: "序号", readOnly: true },
-                    { label: "C (度)" },
-                    { label: "C (分)" },
-                    { label: "P2 (度)" },
-                    { label: "P2 (分)" },
+                    { label: "C (度)", unit: "°", range: getInputRange("polarization", "halfwave", "c_deg") },
+                    { label: "C (分)", unit: "′", range: getInputRange("polarization", "halfwave", "c_min") },
+                    { label: "P2 (度)", unit: "°", range: getInputRange("polarization", "halfwave", "p2_deg") },
+                    { label: "P2 (分)", unit: "′", range: getInputRange("polarization", "halfwave", "p2_min") },
                   ]}
                   data={hwData}
                   onChange={setHwData}
+                  ocr={{ experimentId: "polarization", tableId: "halfwave" }}
                 />
               </div>
             )}
@@ -547,11 +564,12 @@ function PolarizationWorkspace({
                 <DataInputTable
                   headers={[
                     { label: "φ (°)", readOnly: true },
-                    { label: "I (μW)" },
+                    { label: "I (μW)", unit: "μW", range: getInputRange("polarization", "quarterwave", "i_raw") },
                   ]}
                   data={qwData}
                   onChange={setQwData}
                   compact
+                  ocr={{ experimentId: "polarization", tableId: "quarterwave" }}
                 />
               </div>
             )}
@@ -564,11 +582,12 @@ function PolarizationWorkspace({
                 <DataInputTable
                   headers={[
                     { label: "P2 (°)", readOnly: true },
-                    { label: "I (μW)" },
+                    { label: "I (μW)", unit: "μW", range: getInputRange("polarization", "circular", "i_raw") },
                   ]}
                   data={circData}
                   onChange={setCircData}
                   compact
+                  ocr={{ experimentId: "polarization", tableId: "circular" }}
                 />
               </div>
             )}

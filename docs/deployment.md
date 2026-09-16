@@ -1,5 +1,7 @@
 # 发布说明
 
+当前公开测试版本为 `2.0.0-beta.1`。测试站必须保留全局 Beta 提示，不应将合成 fixture 测试描述为真实实验验证。发布后需要依次检查健康端点、实验目录、数据计算、OCR 人工确认和 PDF 报告下载。
+
 ## GitHub Pages
 
 仓库中的 Pages 工作流只发布 `frontend/` 的 Next.js 静态导出。仓库设置中需要将 Pages 的 Source 设为 **GitHub Actions**。
@@ -41,6 +43,8 @@ npm run --prefix cloudflare deploy
 Cloudflare Containers 需要 Workers Paid 计划。部署前，如果使用自定义 Pages 域名，请把 `cloudflare/wrangler.jsonc` 中的 `image_vars.CORS_ORIGINS` 改为实际 Pages 源；默认值已配置为本项目的 GitHub Pages 地址。部署后，将 `https://<你的-worker>.workers.dev` 作为 Cloudflare Pages 的 `NEXT_PUBLIC_API_URL`。Cloudflare Pages 的构建根目录设为 `frontend`，构建命令为 `npm ci && npm run build`，输出目录为 `out`；Cloudflare Pages 上应将 `NEXT_PUBLIC_BASE_PATH` 留空。
 
 部署后先检查 `https://<你的-worker>.workers.dev/health`，再从 Pages 页面验证 `/api/experiments`、数据处理和报告下载。
+
+PhysKiller 2.0 的匿名分析和 OCR 反馈默认写入容器临时目录中的 SQLite。若需要在自托管后端保留统计，应通过环境变量 `PHYSICSLAB_TELEMETRY_DB` 指向持久卷；不要把该数据库提交到 Git。默认 OCR provider 是 RapidOCR，只有在镜像额外安装 PaddleOCR 后才设置 `PHYSICSLAB_OCR_PROVIDER=paddleocr`。
 
 ## 本地验证
 

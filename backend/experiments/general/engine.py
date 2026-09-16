@@ -20,10 +20,40 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+from experiments.schema import enrich_config, validate_payload
+
 
 CONFIG_PATH = Path(__file__).with_name("configs.json")
-CONFIGS = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+CONFIGS = [enrich_config(item) for item in json.loads(CONFIG_PATH.read_text(encoding="utf-8"))]
+
+# A single catalogue entry for the two closely related modern-physics labs.
+# The old IDs remain in CONFIG_BY_ID and their routes stay available; the
+# combined ID is the public entry shown by the frontend.
+_photoelectric = next(item for item in CONFIGS if item["id"] == "photoelectric")
+_franck_hertz = next(item for item in CONFIGS if item["id"] == "franck-hertz")
+COMBINED_ID = "photoelectric-franck-hertz"
+COMBINED_CONFIG = enrich_config({
+    "id": COMBINED_ID,
+    "name": "光电效应与弗兰克-赫兹实验",
+    "category": "近代物理",
+    "description": "综合研究光电效应、普朗克常数和弗兰克-赫兹原子激发能级。",
+    "processingTime": "~1分钟",
+    "measurements": _photoelectric.get("measurements", []) + _franck_hertz.get("measurements", []),
+    "methods": [
+        *[{**method, "sourceExperimentId": "photoelectric"} for method in _photoelectric["methods"]],
+        *[{**method, "sourceExperimentId": "franck-hertz"} for method in _franck_hertz["methods"]],
+    ],
+    "discussion": {
+        "errors": "光电管暗电流、截止电压判定、波长标定、峰位读数、接触电势和仪器分辨率。",
+        "suggestions": "先稳定光源和管温，再记录重复读数；峰位应在原始曲线上复核。",
+        "extensions": "比较不同光频率下的截止电压，并讨论弗兰克-赫兹峰间距与原子能级。",
+    },
+})
+# Keep CONFIGS as the legacy raw catalogue so existing fixture parametrization
+# and integrations remain stable; expose the merged entry through the lookup
+# map and API catalogue instead.
 CONFIG_BY_ID = {item["id"]: item for item in CONFIGS}
+CONFIG_BY_ID[COMBINED_ID] = COMBINED_CONFIG
 
 plt.rcParams.update({
     "font.family": "sans-serif",
@@ -390,6 +420,35 @@ HANDLERS: dict[str, Callable] = {
 def process_experiment(experiment_id: str, data: dict) -> dict:
     config = CONFIG_BY_ID.get(experiment_id)
     if not config: return {"status":"validation_error","errors":["未知实验"],"results":{},"plots":{}}
+    if experiment_id == COMBINED_ID:
+        combined = {"status": "success", "results": {}, "plots": {}, "derived": {},
+                    "errors": [], "warnings": [], "validation": {"valid": True, "errors": [], "warnings": []}}
+        for source_id in ("photoelectric", "franck-hertz"):
+            source_methods = {m["id"] for m in CONFIG_BY_ID[source_id]["methods"]}
+            source_data = {key: value for key, value in data.items() if key in source_methods}
+            result = process_experiment(source_id, source_data)
+            combined["results"].update(result.get("results", {}))
+            combined["plots"].update(result.get("plots", {}))
+            combined["derived"].update(result.get("derived", {}))
+            combined["errors"].extend(result.get("errors", []))
+            combined["warnings"].extend(result.get("warnings", []))
+            combined["validation"]["errors"].extend(result.get("validation", {}).get("errors", []))
+            combined["validation"]["warnings"].extend(result.get("validation", {}).get("warnings", []))
+        combined["validation"]["valid"] = not combined["validation"]["errors"]
+        if combined["validation"]["errors"]:
+            combined["status"] = "validation_error"
+        elif not combined["results"]:
+            combined["status"] = "validation_error"
+        return combined
+    validation = validate_payload(config, data)
+    if validation["errors"]:
+        return {
+            "status": "validation_error",
+            "results": {}, "plots": {}, "derived": {},
+            "errors": [item["message"] for item in validation["errors"]],
+            "warnings": [item["message"] for item in validation["warnings"]],
+            "validation": validation,
+        }
     handler = HANDLERS[experiment_id]; results={}; plots={}; derived={}; errors=[]
     for method in config["methods"]:
         payload=data.get(method["id"],{}); rows=payload.get("rows",[]); params=dict(payload.get("params",{}))
@@ -412,4 +471,6 @@ def process_experiment(experiment_id: str, data: dict) -> dict:
             plots.pop("iv_546", None)
             plots["iv_436"] = iv_plot
     status="success" if results else "validation_error"
-    return {"status":status,"results":results,"plots":plots,"derived":derived,"errors":errors}
+    return {"status":status,"results":results,"plots":plots,"derived":derived,"errors":errors,
+            "warnings": [item["message"] for item in validation["warnings"]],
+            "validation": validation}

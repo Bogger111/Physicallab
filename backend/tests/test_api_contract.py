@@ -10,6 +10,55 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_table_ocr_endpoint_keeps_candidates_separate_from_experiment_payload(monkeypatch):
+    from app import ocr_service
+
+    monkeypatch.setattr(ocr_service, "recognize_numeric_candidates", lambda content: {
+        "candidates": [{
+            "raw_text": "12.5", "value": "12.5", "confidence": 0.96,
+            "bbox": [[0, 0], [10, 0], [10, 10], [0, 10]],
+        }],
+        "detected_text_count": 1,
+    })
+    response = client.post(
+        "/api/ocr/table",
+        data={"experiment_id": "polarization", "table_id": "malus"},
+        files={"image": ("table.png", b"fake-image", "image/png")},
+    )
+    assert response.status_code == 200
+    assert response.json()["candidates"][0]["value"] == "12.5"
+    assert "expectedRange" not in response.text
+
+
+def test_generic_schema_exposes_canonical_field_rules():
+    response = client.get("/api/experiments/michelson/schema")
+    assert response.status_code == 200
+    assert response.json()["schemaVersion"] == "2.0"
+    field = response.json()["definition"]["methods"][0]["columns"][0]
+    assert field["type"] in {"integer", "float"}
+    assert field["expected_range"][0] < field["expected_range"][1]
+
+
+def test_expected_range_is_a_warning_not_a_blocking_error():
+    response = client.post("/api/experiments/michelson/validate", json={"data": {
+        "wavelength": {"rows": [{"position": 999999}], "params": {}}
+    }})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["valid"] is True
+    assert any(item["code"] == "expected_range" for item in body["warnings"])
+
+
+def test_merged_modern_physics_entry_and_legacy_routes_coexist():
+    listing = client.get("/api/experiments").json()["experiments"]
+    ids = {item["id"] for item in listing}
+    assert "photoelectric-franck-hertz" in ids
+    assert client.get("/api/experiments/photoelectric/config").status_code == 200
+    merged = client.get("/api/experiments/photoelectric-franck-hertz/config")
+    assert merged.status_code == 200
+    assert {method["id"] for method in merged.json()["methods"]} >= {"planck", "curve", "peaks"}
+
+
 def test_soundlight_config_exposes_all_lecture_methods():
     response = client.get("/api/experiments/sound-light/config")
     assert response.status_code == 200

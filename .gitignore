@@ -12,3 +12,6 @@ venv/
 .wrangler/
 .env
 .env.local
+ocr_dataset/
+data/
+*.sqlite3

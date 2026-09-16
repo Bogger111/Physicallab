@@ -22,6 +22,7 @@ import {
   CircleDashed,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getInputRange, isOutsideRange, rangeLabel, type InputRangeHint } from "@/lib/input-ranges";
 import DataInputTable from "@/components/workspace/DataInputTable";
 import { SOUND_LIGHT_WORKSPACE_STEPS } from "@/components/workspace/workspace-entry-flow";
 import soundLightConfig from "../../../../backend/experiments/soundlight/config.json";
@@ -49,6 +50,8 @@ interface ColDef {
   label: string;
   readOnly?: boolean;
   key?: string; // column key sent to backend (editable columns)
+  unit?: string;
+  range?: InputRangeHint;
 }
 
 interface MethodSpec {
@@ -57,7 +60,7 @@ interface MethodSpec {
   required: boolean;
   desc: string;
   tables: { title?: string; note?: string; rows: number; cols: ColDef[] }[];
-  params: { key: string; label: string; unit: string; def: string }[];
+  params: { key: string; label: string; unit: string; def: string; range?: InputRangeHint }[];
 }
 
 const METHOD_LAYOUTS: MethodSpec[] = [
@@ -222,6 +225,8 @@ const METHODS: MethodSpec[] = (soundLightConfig as SourceMethodConfig[]).map((so
           return {
             ...column,
             label: `${sourceColumn.label} (${sourceColumn.unit})`,
+            unit: sourceColumn.unit,
+            range: getInputRange(EXP_ID, source.id, column.key),
           };
         }),
       };
@@ -231,6 +236,7 @@ const METHODS: MethodSpec[] = (soundLightConfig as SourceMethodConfig[]).map((so
       label: param.label,
       unit: param.unit,
       def: String(param.default),
+      range: getInputRange(EXP_ID, source.id, param.key),
     })),
   };
 });
@@ -757,6 +763,9 @@ export default function SoundLightWorkspace() {
                         <span className="text-xs font-medium text-stone-400">
                           {p.label} ({p.unit})
                         </span>
+                        {rangeLabel(p.range, p.unit) && (
+                          <span className="text-[10px] font-medium text-amber-600">{rangeLabel(p.range, p.unit)}</span>
+                        )}
                         <input
                           type="number"
                           step="any"
@@ -768,7 +777,13 @@ export default function SoundLightWorkspace() {
                             }))
                           }
                           onWheel={(e) => e.currentTarget.blur()}
-                          className="h-9 w-28 rounded-lg border border-stone-200 bg-white px-3 text-right text-sm font-medium tabular-nums text-stone-800 shadow-sm outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                          aria-invalid={isOutsideRange(getParams(method)[p.key], p.range) || undefined}
+                          className={cn(
+                            "h-9 w-28 rounded-lg border bg-white px-3 text-right text-sm font-medium tabular-nums shadow-sm outline-none transition-all",
+                            isOutsideRange(getParams(method)[p.key], p.range)
+                              ? "border-amber-300 bg-amber-50 text-amber-900 focus:ring-4 focus:ring-amber-500/10"
+                              : "border-stone-200 text-stone-800 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                          )}
                         />
                       </label>
                     ))}
@@ -787,9 +802,15 @@ export default function SoundLightWorkspace() {
                       </p>
                     )}
                     <DataInputTable
-                      headers={table.cols.map((c) => ({ label: c.label, readOnly: c.readOnly }))}
+                      headers={table.cols.map((c) => ({
+                        label: c.label,
+                        readOnly: c.readOnly,
+                        range: c.range,
+                        unit: c.unit,
+                      }))}
                       data={getRows(method, ti)}
                       onChange={(d) => setRows(method, ti, d)}
+                      ocr={{ experimentId: EXP_ID, tableId: `${method}-${ti}` }}
                     />
                   </div>
                 ))}
