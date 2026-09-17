@@ -1,0 +1,698 @@
+{
+  "id": "photoelectric-franck-hertz",
+  "name": "光电效应与弗兰克-赫兹实验",
+  "category": "近代物理",
+  "description": "综合研究光电效应、普朗克常数和弗兰克-赫兹原子激发能级。",
+  "processingTime": "~1分钟",
+  "measurements": [
+    "五条谱线截止电压",
+    "光电管 U-I 数据",
+    "光阑孔径与饱和光电流",
+    "加速电压与板极电流",
+    "连续峰值电压",
+    "炉温及电极参数"
+  ],
+  "methods": [
+    {
+      "id": "planck",
+      "name": "零电流法测普朗克常数",
+      "required": true,
+      "description": "拟合 US-ν",
+      "rowCount": 5,
+      "columns": [
+        {
+          "key": "wavelength",
+          "label": "波长 λ",
+          "unit": "nm"
+        },
+        {
+          "key": "us1",
+          "label": "US1",
+          "unit": "V"
+        },
+        {
+          "key": "us2",
+          "label": "US2",
+          "unit": "V"
+        },
+        {
+          "key": "us3",
+          "label": "US3",
+          "unit": "V"
+        },
+        {
+          "key": "us4",
+          "label": "US4",
+          "unit": "V"
+        }
+      ],
+      "prefill": {
+        "wavelength": [
+          365,
+          405,
+          436,
+          546,
+          577
+        ]
+      },
+      "results": [
+        {
+          "key": "h",
+          "label": "普朗克常数 h",
+          "unit": "J·s"
+        },
+        {
+          "key": "h_error",
+          "label": "h 相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "nu0",
+          "label": "红限频率 ν0",
+          "unit": "Hz"
+        },
+        {
+          "key": "work_function",
+          "label": "逸出功",
+          "unit": "eV"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        }
+      ],
+      "sourceExperimentId": "photoelectric"
+    },
+    {
+      "id": "iv_436",
+      "name": "436 nm 伏安特性",
+      "required": true,
+      "description": "Φ=2 mm；按讲义在 -4~0 V、0~15 V、15~30 V 分段取点",
+      "rowCount": 34,
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "UAK",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "10⁻¹³ A"
+        }
+      ],
+      "prefill": {
+        "voltage": [
+          -4,
+          -3.5,
+          -3,
+          -2.5,
+          -2,
+          -1.5,
+          -1,
+          -0.5,
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16.5,
+          18,
+          19.5,
+          21,
+          22.5,
+          24,
+          25.5,
+          27,
+          28.5,
+          30
+        ]
+      },
+      "results": [
+        {
+          "key": "max_current",
+          "label": "最大光电流",
+          "unit": "10⁻¹³ A"
+        },
+        {
+          "key": "min_current",
+          "label": "最小光电流",
+          "unit": "10⁻¹³ A"
+        }
+      ],
+      "sourceExperimentId": "photoelectric"
+    },
+    {
+      "id": "iv_546",
+      "name": "546 nm 伏安特性",
+      "required": true,
+      "description": "Φ=4 mm；按讲义在 -4~0 V、0~15 V、15~30 V 分段取点",
+      "rowCount": 34,
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "UAK",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "10⁻¹³ A"
+        }
+      ],
+      "prefill": {
+        "voltage": [
+          -4,
+          -3.5,
+          -3,
+          -2.5,
+          -2,
+          -1.5,
+          -1,
+          -0.5,
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16.5,
+          18,
+          19.5,
+          21,
+          22.5,
+          24,
+          25.5,
+          27,
+          28.5,
+          30
+        ]
+      },
+      "results": [
+        {
+          "key": "max_current",
+          "label": "最大光电流",
+          "unit": "10⁻¹³ A"
+        },
+        {
+          "key": "min_current",
+          "label": "最小光电流",
+          "unit": "10⁻¹³ A"
+        }
+      ],
+      "sourceExperimentId": "photoelectric"
+    },
+    {
+      "id": "saturation",
+      "name": "饱和电流与光强",
+      "required": true,
+      "description": "验证 Im 与 Φ² 正比",
+      "rowCount": 6,
+      "columns": [
+        {
+          "key": "wavelength",
+          "label": "波长",
+          "unit": "nm"
+        },
+        {
+          "key": "diameter",
+          "label": "光阑 Φ",
+          "unit": "mm"
+        },
+        {
+          "key": "i1",
+          "label": "I1",
+          "unit": "10⁻¹⁰ A"
+        },
+        {
+          "key": "i2",
+          "label": "I2",
+          "unit": "10⁻¹⁰ A"
+        },
+        {
+          "key": "i3",
+          "label": "I3",
+          "unit": "10⁻¹⁰ A"
+        }
+      ],
+      "prefill": {
+        "wavelength": [
+          436,
+          436,
+          436,
+          546,
+          546,
+          546
+        ],
+        "diameter": [
+          2,
+          4,
+          8,
+          2,
+          4,
+          8
+        ]
+      },
+      "results": [
+        {
+          "key": "r_squared_436",
+          "label": "436 nm R²",
+          "unit": ""
+        },
+        {
+          "key": "r_squared_546",
+          "label": "546 nm R²",
+          "unit": ""
+        }
+      ],
+      "sourceExperimentId": "photoelectric"
+    },
+    {
+      "id": "compensation",
+      "name": "补偿法测普朗克常数（选做）",
+      "required": false,
+      "description": "任选一个光阑，每个频率至少重复测量 3 次",
+      "rowCount": 5,
+      "params": [
+        {
+          "key": "aperture",
+          "label": "光阑 Φ",
+          "unit": "mm",
+          "default": 4
+        }
+      ],
+      "columns": [
+        {
+          "key": "wavelength",
+          "label": "波长 λ",
+          "unit": "nm"
+        },
+        {
+          "key": "us1",
+          "label": "US1",
+          "unit": "V"
+        },
+        {
+          "key": "us2",
+          "label": "US2",
+          "unit": "V"
+        },
+        {
+          "key": "us3",
+          "label": "US3",
+          "unit": "V"
+        }
+      ],
+      "prefill": {
+        "wavelength": [
+          365,
+          405,
+          436,
+          546,
+          577
+        ]
+      },
+      "results": [
+        {
+          "key": "h",
+          "label": "普朗克常数 h",
+          "unit": "J·s"
+        },
+        {
+          "key": "h_error",
+          "label": "h 相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "nu0",
+          "label": "红限频率 ν0",
+          "unit": "Hz"
+        },
+        {
+          "key": "work_function",
+          "label": "逸出功",
+          "unit": "eV"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        }
+      ],
+      "sourceExperimentId": "photoelectric"
+    },
+    {
+      "id": "curve",
+      "name": "IP-VG2K 特性",
+      "required": true,
+      "description": "0~4 V 每 1 V，4 V 后每 0.5 V，测至 60 V",
+      "rowCount": 117,
+      "params": [
+        {
+          "key": "temperature",
+          "label": "炉温",
+          "unit": "°C",
+          "default": 220
+        },
+        {
+          "key": "vf",
+          "label": "VF",
+          "unit": "V",
+          "default": 0.9
+        },
+        {
+          "key": "vg1k",
+          "label": "VG1K",
+          "unit": "V",
+          "default": 1.5
+        },
+        {
+          "key": "vg2p",
+          "label": "VG2P",
+          "unit": "V",
+          "default": 1.3
+        }
+      ],
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "VG2K",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "IP",
+          "unit": "nA"
+        }
+      ],
+      "prefill": {
+        "voltage": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          4.5,
+          5.0,
+          5.5,
+          6.0,
+          6.5,
+          7.0,
+          7.5,
+          8.0,
+          8.5,
+          9.0,
+          9.5,
+          10.0,
+          10.5,
+          11.0,
+          11.5,
+          12.0,
+          12.5,
+          13.0,
+          13.5,
+          14.0,
+          14.5,
+          15.0,
+          15.5,
+          16.0,
+          16.5,
+          17.0,
+          17.5,
+          18.0,
+          18.5,
+          19.0,
+          19.5,
+          20.0,
+          20.5,
+          21.0,
+          21.5,
+          22.0,
+          22.5,
+          23.0,
+          23.5,
+          24.0,
+          24.5,
+          25.0,
+          25.5,
+          26.0,
+          26.5,
+          27.0,
+          27.5,
+          28.0,
+          28.5,
+          29.0,
+          29.5,
+          30.0,
+          30.5,
+          31.0,
+          31.5,
+          32.0,
+          32.5,
+          33.0,
+          33.5,
+          34.0,
+          34.5,
+          35.0,
+          35.5,
+          36.0,
+          36.5,
+          37.0,
+          37.5,
+          38.0,
+          38.5,
+          39.0,
+          39.5,
+          40.0,
+          40.5,
+          41.0,
+          41.5,
+          42.0,
+          42.5,
+          43.0,
+          43.5,
+          44.0,
+          44.5,
+          45.0,
+          45.5,
+          46.0,
+          46.5,
+          47.0,
+          47.5,
+          48.0,
+          48.5,
+          49.0,
+          49.5,
+          50.0,
+          50.5,
+          51.0,
+          51.5,
+          52.0,
+          52.5,
+          53.0,
+          53.5,
+          54.0,
+          54.5,
+          55.0,
+          55.5,
+          56.0,
+          56.5,
+          57.0,
+          57.5,
+          58.0,
+          58.5,
+          59.0,
+          59.5,
+          60.0
+        ]
+      },
+      "results": [
+        {
+          "key": "data_points",
+          "label": "有效点数",
+          "unit": ""
+        },
+        {
+          "key": "current_max",
+          "label": "最大板极电流",
+          "unit": "nA"
+        }
+      ],
+      "sourceExperimentId": "franck-hertz"
+    },
+    {
+      "id": "peaks",
+      "name": "峰值位置与逐差",
+      "required": true,
+      "description": "以峰间距计算第一激发电位",
+      "rowCount": 6,
+      "columns": [
+        {
+          "key": "peak_voltage",
+          "label": "峰值电压 Up",
+          "unit": "V"
+        }
+      ],
+      "results": [
+        {
+          "key": "v0",
+          "label": "第一激发电位 V0",
+          "unit": "V"
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "spacing_std",
+          "label": "峰间距标准差",
+          "unit": "V"
+        }
+      ],
+      "sourceExperimentId": "franck-hertz"
+    },
+    {
+      "id": "parameter_curve",
+      "name": "改变工作参数的对比曲线（选做）",
+      "required": false,
+      "description": "自行改变炉温、拒斥电压或灯丝电压，记录对比曲线",
+      "rowCount": 30,
+      "params": [
+        {
+          "key": "temperature",
+          "label": "炉温",
+          "unit": "°C",
+          "default": 220
+        },
+        {
+          "key": "vf",
+          "label": "VF",
+          "unit": "V",
+          "default": 0.9
+        },
+        {
+          "key": "vg1k",
+          "label": "VG1K",
+          "unit": "V",
+          "default": 1.5
+        },
+        {
+          "key": "vg2p",
+          "label": "VG2P",
+          "unit": "V",
+          "default": 1.3
+        }
+      ],
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "VG2K",
+          "unit": "V"
+        },
+        {
+          "key": "current_reference",
+          "label": "IP 基准",
+          "unit": "nA"
+        },
+        {
+          "key": "current_variant",
+          "label": "IP 改参后",
+          "unit": "nA"
+        }
+      ],
+      "results": [
+        {
+          "key": "data_points",
+          "label": "有效对比点数",
+          "unit": ""
+        },
+        {
+          "key": "max_difference",
+          "label": "最大电流差",
+          "unit": "nA"
+        }
+      ],
+      "sourceExperimentId": "franck-hertz"
+    },
+    {
+      "id": "higher_curve",
+      "name": "较高激发能级（选做）",
+      "required": false,
+      "description": "炉温降至 100~135 °C 后记录 IP-UKG1 曲线",
+      "rowCount": 30,
+      "params": [
+        {
+          "key": "temperature",
+          "label": "炉温",
+          "unit": "°C",
+          "default": 120
+        },
+        {
+          "key": "vf",
+          "label": "VF",
+          "unit": "V",
+          "default": 0.9
+        },
+        {
+          "key": "vg2p",
+          "label": "VG2P",
+          "unit": "V",
+          "default": 1.3
+        }
+      ],
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "UKG1",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "IP",
+          "unit": "nA"
+        }
+      ],
+      "results": [
+        {
+          "key": "data_points",
+          "label": "有效点数",
+          "unit": ""
+        },
+        {
+          "key": "current_max",
+          "label": "最大板极电流",
+          "unit": "nA"
+        }
+      ],
+      "sourceExperimentId": "franck-hertz"
+    }
+  ],
+  "discussion": {
+    "errors": "光电管暗电流、截止电压判定、波长标定、峰位读数、接触电势和仪器分辨率。",
+    "suggestions": "先稳定光源和管温，再记录重复读数；峰位应在原始曲线上复核。",
+    "extensions": "比较不同光频率下的截止电压，并讨论弗兰克-赫兹峰间距与原子能级。"
+  }
+}

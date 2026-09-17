@@ -1,0 +1,331 @@
+{
+  "id": "solar-cell",
+  "name": "太阳能电池特性",
+  "category": "电磁学",
+  "description": "测量太阳能电池伏安与功率特性，研究遮挡和超级电容充电。",
+  "processingTime": "~45秒",
+  "measurements": [
+    "输出电压与电流",
+    "遮挡工况短路电流",
+    "充电时间、电压和电流"
+  ],
+  "methods": [
+    {
+      "id": "iv",
+      "name": "伏安与功率特性",
+      "required": true,
+      "description": "确定最大功率点和填充因子",
+      "rowCount": 16,
+      "params": [
+        {
+          "key": "isc",
+          "label": "短路电流 Isc",
+          "unit": "mA",
+          "default": 80
+        },
+        {
+          "key": "uoc",
+          "label": "开路电压 Uoc",
+          "unit": "V",
+          "default": 12
+        }
+      ],
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "U",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "mA"
+        }
+      ],
+      "prefill": {
+        "voltage": [
+          1,
+          2,
+          4,
+          6,
+          8,
+          10,
+          10.2,
+          10.4,
+          10.6,
+          10.8,
+          11,
+          11.2,
+          11.4,
+          11.6,
+          11.8,
+          12
+        ]
+      },
+      "results": [
+        {
+          "key": "p_max",
+          "label": "最大功率 Pmax",
+          "unit": "mW"
+        },
+        {
+          "key": "u_opt",
+          "label": "最佳电压",
+          "unit": "V"
+        },
+        {
+          "key": "i_opt",
+          "label": "最佳电流",
+          "unit": "mA"
+        },
+        {
+          "key": "fill_factor",
+          "label": "填充因子 FF",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "shading",
+      "name": "遮挡影响",
+      "required": true,
+      "description": "比较七种遮挡工况短路电流",
+      "rowCount": 7,
+      "columns": [
+        {
+          "key": "condition",
+          "label": "工况编号",
+          "unit": ""
+        },
+        {
+          "key": "isc",
+          "label": "短路电流",
+          "unit": "mA"
+        }
+      ],
+      "prefill": {
+        "condition": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "results": [
+        {
+          "key": "unshaded_isc",
+          "label": "无遮挡 Isc",
+          "unit": "mA"
+        },
+        {
+          "key": "minimum_ratio",
+          "label": "最小保留比例",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "id": "charge_direct",
+      "name": "超级电容直接充电",
+      "required": true,
+      "description": "记录直接充电 P-t",
+      "rowCount": 12,
+      "columns": [
+        {
+          "key": "time",
+          "label": "t",
+          "unit": "min"
+        },
+        {
+          "key": "voltage",
+          "label": "U",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "mA"
+        }
+      ],
+      "results": [
+        {
+          "key": "energy",
+          "label": "输入能量",
+          "unit": "J"
+        },
+        {
+          "key": "final_voltage",
+          "label": "末电压",
+          "unit": "V"
+        },
+        {
+          "key": "duration",
+          "label": "充电时长",
+          "unit": "min"
+        }
+      ]
+    },
+    {
+      "id": "charge_dcdc",
+      "name": "DC-DC 恒功率充电",
+      "required": true,
+      "description": "记录 DC-DC 充电 P-t",
+      "rowCount": 12,
+      "columns": [
+        {
+          "key": "time",
+          "label": "t",
+          "unit": "min"
+        },
+        {
+          "key": "voltage",
+          "label": "U",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "mA"
+        }
+      ],
+      "results": [
+        {
+          "key": "energy",
+          "label": "输入能量",
+          "unit": "J"
+        },
+        {
+          "key": "final_voltage",
+          "label": "末电压",
+          "unit": "V"
+        },
+        {
+          "key": "duration",
+          "label": "充电时长",
+          "unit": "min"
+        }
+      ]
+    },
+    {
+      "id": "fan",
+      "name": "直流风扇负载",
+      "required": true,
+      "description": "比较并联电容前后工作点",
+      "rowCount": 2,
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "U",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "mA"
+        }
+      ],
+      "results": [
+        {
+          "key": "power_before",
+          "label": "并联前功率",
+          "unit": "mW"
+        },
+        {
+          "key": "power_after",
+          "label": "并联后功率",
+          "unit": "mW"
+        }
+      ]
+    },
+    {
+      "id": "load_dcdc",
+      "name": "DC-DC 匹配直流负载（选做）",
+      "required": false,
+      "description": "比较接入 DC-DC 前后负载获得的功率",
+      "rowCount": 1,
+      "columns": [
+        {
+          "key": "voltage_before",
+          "label": "接入前 U1",
+          "unit": "V"
+        },
+        {
+          "key": "current_before",
+          "label": "接入前 I1",
+          "unit": "mA"
+        },
+        {
+          "key": "voltage_after",
+          "label": "接入后 U2",
+          "unit": "V"
+        },
+        {
+          "key": "current_after",
+          "label": "接入后 I2",
+          "unit": "mA"
+        }
+      ],
+      "results": [
+        {
+          "key": "power_before",
+          "label": "接入前功率",
+          "unit": "mW"
+        },
+        {
+          "key": "power_after",
+          "label": "接入后功率",
+          "unit": "mW"
+        },
+        {
+          "key": "power_gain",
+          "label": "功率增量",
+          "unit": "mW"
+        }
+      ]
+    },
+    {
+      "id": "inverter",
+      "name": "DC-AC 逆变与交流负载（选做）",
+      "required": false,
+      "description": "记录逆变器输入工况与节能灯点亮现象",
+      "rowCount": 1,
+      "columns": [
+        {
+          "key": "input_voltage",
+          "label": "直流侧电压",
+          "unit": "V"
+        },
+        {
+          "key": "input_current",
+          "label": "直流侧电流",
+          "unit": "mA"
+        },
+        {
+          "key": "lit_code",
+          "label": "节能灯点亮(1是/0否)",
+          "unit": ""
+        }
+      ],
+      "results": [
+        {
+          "key": "input_power",
+          "label": "直流侧输入功率",
+          "unit": "mW"
+        },
+        {
+          "key": "lit_code",
+          "label": "点亮记录",
+          "unit": ""
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "光源不稳定、面板温升、负载调节误差、遮挡位置重复性和充电过程采样间隔。",
+    "suggestions": "卤钨灯预热后固定几何位置；10 V 以上加密取点；超级电容不超过 11 V 且禁止短路。",
+    "extensions": "可比较两种充电方式的输入能量、充电时间与储能增量。"
+  }
+}

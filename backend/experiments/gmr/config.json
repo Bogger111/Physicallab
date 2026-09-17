@@ -1,0 +1,281 @@
+{
+  "id": "gmr",
+  "name": "巨磁电阻效应及应用",
+  "category": "电磁学",
+  "description": "测量 GMR 传感器磁电转换、磁阻特性和无接触电流标定。",
+  "processingTime": "~45秒",
+  "measurements": [
+    "励磁电流与输出电压",
+    "两种接线回路电流",
+    "待测导线电流"
+  ],
+  "methods": [
+    {
+      "id": "transfer",
+      "name": "磁电转换特性",
+      "required": true,
+      "description": "增磁、减磁各 21 点，绘制 Vout-B 回线",
+      "rowCount": 42,
+      "columns": [
+        {
+          "key": "excitation",
+          "label": "励磁电流",
+          "unit": "mA"
+        },
+        {
+          "key": "output",
+          "label": "Vout",
+          "unit": "mV"
+        },
+        {
+          "key": "direction",
+          "label": "方向(1增/-1减)",
+          "unit": ""
+        }
+      ],
+      "prefill": {
+        "excitation": [
+          -200,
+          -180,
+          -160,
+          -140,
+          -120,
+          -100,
+          -80,
+          -60,
+          -40,
+          -20,
+          0,
+          20,
+          40,
+          60,
+          80,
+          100,
+          120,
+          140,
+          160,
+          180,
+          200,
+          200,
+          180,
+          160,
+          140,
+          120,
+          100,
+          80,
+          60,
+          40,
+          20,
+          0,
+          -20,
+          -40,
+          -60,
+          -80,
+          -100,
+          -120,
+          -140,
+          -160,
+          -180,
+          -200
+        ],
+        "direction": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1
+        ]
+      },
+      "results": [
+        {
+          "key": "sensitivity",
+          "label": "线性灵敏度",
+          "unit": "mV/Gs"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "b_max",
+          "label": "最大磁场",
+          "unit": "Gs"
+        }
+      ]
+    },
+    {
+      "id": "resistance",
+      "name": "内部磁阻特性",
+      "required": true,
+      "description": "增磁、减磁各 21 点，反解两种接线状态电阻并计算 GMR",
+      "rowCount": 42,
+      "params": [
+        {
+          "key": "supply",
+          "label": "工作电压 U",
+          "unit": "V",
+          "default": 2
+        }
+      ],
+      "columns": [
+        {
+          "key": "excitation",
+          "label": "励磁电流",
+          "unit": "mA"
+        },
+        {
+          "key": "ir_a",
+          "label": "状态 A 回路电流",
+          "unit": "mA"
+        },
+        {
+          "key": "ir_b",
+          "label": "状态 B 回路电流",
+          "unit": "mA"
+        }
+      ],
+      "prefill": {
+        "excitation": [
+          -200,
+          -180,
+          -160,
+          -140,
+          -120,
+          -100,
+          -80,
+          -60,
+          -40,
+          -20,
+          0,
+          20,
+          40,
+          60,
+          80,
+          100,
+          120,
+          140,
+          160,
+          180,
+          200,
+          200,
+          180,
+          160,
+          140,
+          120,
+          100,
+          80,
+          60,
+          40,
+          20,
+          0,
+          -20,
+          -40,
+          -60,
+          -80,
+          -100,
+          -120,
+          -140,
+          -160,
+          -180,
+          -200
+        ]
+      },
+      "results": [
+        {
+          "key": "gmr_a",
+          "label": "状态 A GMR",
+          "unit": "%"
+        },
+        {
+          "key": "gmr_b",
+          "label": "状态 B GMR",
+          "unit": "%"
+        },
+        {
+          "key": "sensitive_state",
+          "label": "敏感状态(A=1/B=2)",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "current_sensor",
+      "name": "无接触电流测量（选做）",
+      "required": false,
+      "description": "Vout-I 标定",
+      "rowCount": 11,
+      "columns": [
+        {
+          "key": "current",
+          "label": "导线电流",
+          "unit": "mA"
+        },
+        {
+          "key": "output25",
+          "label": "25mV偏置输出",
+          "unit": "mV"
+        },
+        {
+          "key": "output100",
+          "label": "100mV偏置输出",
+          "unit": "mV"
+        }
+      ],
+      "results": [
+        {
+          "key": "sensitivity25",
+          "label": "25mV 灵敏度",
+          "unit": "mV/A"
+        },
+        {
+          "key": "sensitivity100",
+          "label": "100mV 灵敏度",
+          "unit": "mV/A"
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "励磁回程磁滞、零点漂移、螺线管场非均匀、接线电阻和毫安读数分辨率。",
+    "suggestions": "按同一路径完成增磁和减磁；供电使用限流通道并严格核对航空插头方向。",
+    "extensions": "可从双向曲线估算迟滞宽度和零场剩磁输出。"
+  }
+}

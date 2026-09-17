@@ -2,13 +2,13 @@ from unittest.mock import patch
 
 import matplotlib.pyplot as plt
 
-from experiments.general.engine import _plot
+from experiments.core.numerics import plot
 
 
 def test_plot_can_connect_measurements_into_a_curve():
     original = plt.Axes.plot
     with patch.object(plt.Axes, "plot", autospec=True, side_effect=original) as draw_line:
-        _plot(
+        plot(
             [0, 1, 2],
             [([1, 3, 2], "实验曲线", "#2563eb")],
             "x",
@@ -26,7 +26,7 @@ def test_plot_highlights_and_draws_the_selected_local_fit():
         patch.object(plt.Axes, "scatter", autospec=True, side_effect=original_scatter) as draw_points,
         patch.object(plt.Axes, "plot", autospec=True, side_effect=original_plot) as draw_line,
     ):
-        _plot(
+        plot(
             [0.0, 1.0, 2.0, 3.0],
             [([40.0, 38.0, 36.0, 35.0], "冷却曲线", "#2563eb")],
             "t / s",
@@ -47,7 +47,7 @@ def test_fit_plot_keeps_measurement_points_and_draws_fit_line():
         patch.object(plt.Axes, "scatter", autospec=True, side_effect=original_scatter) as draw_points,
         patch.object(plt.Axes, "plot", autospec=True, side_effect=original_plot) as draw_line,
     ):
-        _plot(
+        plot(
             [0, 1, 2],
             [([1, 3, 5], "测量点", "#2563eb")],
             "x",

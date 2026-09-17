@@ -1,0 +1,231 @@
+{
+  "id": "nmr",
+  "name": "核磁共振实验",
+  "category": "近代物理",
+  "description": "拟合氢核和氟核共振频率与磁场关系，求磁旋比和 g 因子。",
+  "processingTime": "~30秒",
+  "measurements": [
+    "射频频率 ν",
+    "共振磁场 B0",
+    "吸收信号与尾波观察"
+  ],
+  "methods": [
+    {
+      "id": "waveform",
+      "name": "共振信号与尾波观察",
+      "required": true,
+      "description": "分别记录掺硫酸铜水样与聚四氟乙烯样品的共振现象",
+      "rowCount": 2,
+      "columns": [
+        {
+          "key": "sample_code",
+          "label": "样品(1水/2聚四氟乙烯)",
+          "unit": ""
+        },
+        {
+          "key": "tail_count",
+          "label": "尾波振荡次数",
+          "unit": "次"
+        },
+        {
+          "key": "t1",
+          "label": "T1",
+          "unit": "ms"
+        },
+        {
+          "key": "t2",
+          "label": "T2",
+          "unit": "ms"
+        }
+      ],
+      "prefill": {
+        "sample_code": [
+          1,
+          2
+        ]
+      },
+      "results": [
+        {
+          "key": "observed_rows",
+          "label": "已记录样品数",
+          "unit": ""
+        },
+        {
+          "key": "max_symmetry_error",
+          "label": "最大 |T1-T2|",
+          "unit": "ms"
+        }
+      ]
+    },
+    {
+      "id": "hydrogen",
+      "name": "1H 核磁共振",
+      "required": true,
+      "description": "10.0 MHz 起每次增加 0.2 MHz，拟合 ν-B0",
+      "rowCount": 10,
+      "columns": [
+        {
+          "key": "frequency",
+          "label": "ν",
+          "unit": "MHz"
+        },
+        {
+          "key": "field",
+          "label": "B0",
+          "unit": "mT"
+        }
+      ],
+      "prefill": {
+        "frequency": [
+          10,
+          10.2,
+          10.4,
+          10.6,
+          10.8,
+          11,
+          11.2,
+          11.4,
+          11.6,
+          11.8
+        ]
+      },
+      "results": [
+        {
+          "key": "gamma",
+          "label": "γ/2π",
+          "unit": "MHz/T"
+        },
+        {
+          "key": "g_factor",
+          "label": "g 因子",
+          "unit": ""
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "r_squared",
+          "label": "R^2",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "fluorine",
+      "name": "19F 核磁共振",
+      "required": true,
+      "description": "10.0 MHz 起每次增加 0.2 MHz，拟合 ν-B0",
+      "rowCount": 10,
+      "columns": [
+        {
+          "key": "frequency",
+          "label": "ν",
+          "unit": "MHz"
+        },
+        {
+          "key": "field",
+          "label": "B0",
+          "unit": "mT"
+        }
+      ],
+      "prefill": {
+        "frequency": [
+          10,
+          10.2,
+          10.4,
+          10.6,
+          10.8,
+          11,
+          11.2,
+          11.4,
+          11.6,
+          11.8
+        ]
+      },
+      "results": [
+        {
+          "key": "gamma",
+          "label": "γ/2π",
+          "unit": "MHz/T"
+        },
+        {
+          "key": "g_factor",
+          "label": "g 因子",
+          "unit": ""
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "r_squared",
+          "label": "R^2",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "pure_water",
+      "name": "纯水样品 g 因子（选做）",
+      "required": false,
+      "description": "按 1H 方法自行设计并记录纯水样品数据",
+      "rowCount": 10,
+      "columns": [
+        {
+          "key": "frequency",
+          "label": "ν",
+          "unit": "MHz"
+        },
+        {
+          "key": "field",
+          "label": "B0",
+          "unit": "mT"
+        }
+      ],
+      "prefill": {
+        "frequency": [
+          10,
+          10.2,
+          10.4,
+          10.6,
+          10.8,
+          11,
+          11.2,
+          11.4,
+          11.6,
+          11.8
+        ]
+      },
+      "results": [
+        {
+          "key": "gamma",
+          "label": "γ/2π",
+          "unit": "MHz/T"
+        },
+        {
+          "key": "g_factor",
+          "label": "g 因子",
+          "unit": ""
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "r_squared",
+          "label": "R^2",
+          "unit": ""
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "特斯拉计零点、探头角度、共振对称判定、扫场非线性和频率读数误差。",
+    "suggestions": "在无磁场区严密调零；轻转探头取最大值；微调扫场使 T1=T2 后再记录。",
+    "extensions": "可比较液体尾波与固体宽包络所反映的弛豫机制。"
+  }
+}

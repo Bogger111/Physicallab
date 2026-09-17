@@ -1,0 +1,202 @@
+{
+  "id": "thermal-conductivity",
+  "name": "稳态法测固体导热系数",
+  "category": "热学",
+  "description": "由稳态温差与散热盘冷却速率测量不良导体导热系数。",
+  "processingTime": "~45秒",
+  "measurements": [
+    "铜盘与样品几何量",
+    "稳态温度",
+    "自然冷却温度序列"
+  ],
+  "methods": [
+    {
+      "id": "geometry",
+      "name": "几何参数",
+      "required": true,
+      "description": "铜盘和样品盘尺寸平均",
+      "rowCount": 5,
+      "columns": [
+        {
+          "key": "dc",
+          "label": "铜盘直径 DC",
+          "unit": "mm"
+        },
+        {
+          "key": "hc",
+          "label": "铜盘厚度 hC",
+          "unit": "mm"
+        },
+        {
+          "key": "db",
+          "label": "样品直径 DB",
+          "unit": "mm"
+        },
+        {
+          "key": "hb",
+          "label": "样品厚度 hB",
+          "unit": "mm"
+        }
+      ],
+      "results": [
+        {
+          "key": "dc_mean",
+          "label": "DC 均值",
+          "unit": "mm"
+        },
+        {
+          "key": "hc_mean",
+          "label": "hC 均值",
+          "unit": "mm"
+        },
+        {
+          "key": "db_mean",
+          "label": "DB 均值",
+          "unit": "mm"
+        },
+        {
+          "key": "hb_mean",
+          "label": "hB 均值",
+          "unit": "mm"
+        }
+      ]
+    },
+    {
+      "id": "heating",
+      "name": "升温与稳态记录",
+      "required": true,
+      "description": "记录 TA、TC 并确定稳态 T1、T2",
+      "rowCount": 15,
+      "columns": [
+        {
+          "key": "time",
+          "label": "t",
+          "unit": "min"
+        },
+        {
+          "key": "ta",
+          "label": "TA",
+          "unit": "°C"
+        },
+        {
+          "key": "tc",
+          "label": "TC",
+          "unit": "°C"
+        }
+      ],
+      "results": [
+        {
+          "key": "t1",
+          "label": "稳态 T1",
+          "unit": "°C"
+        },
+        {
+          "key": "t2",
+          "label": "稳态 T2",
+          "unit": "°C"
+        },
+        {
+          "key": "steady_drift",
+          "label": "末五点最大漂移",
+          "unit": "°C"
+        }
+      ]
+    },
+    {
+      "id": "cooling",
+      "name": "自然冷却曲线",
+      "required": true,
+      "description": "拟合 T2 附近冷却速率并计算 λ",
+      "rowCount": 16,
+      "params": [
+        {
+          "key": "mass",
+          "label": "铜盘质量 m",
+          "unit": "g",
+          "default": 500
+        },
+        {
+          "key": "specific_heat",
+          "label": "紫铜比热 c",
+          "unit": "J/(kg·K)",
+          "default": 394
+        },
+        {
+          "key": "t1",
+          "label": "稳态 T1",
+          "unit": "°C",
+          "default": 50
+        },
+        {
+          "key": "t2",
+          "label": "稳态 T2",
+          "unit": "°C",
+          "default": 35
+        },
+        {
+          "key": "dc",
+          "label": "铜盘直径 DC",
+          "unit": "mm",
+          "default": 100
+        },
+        {
+          "key": "hc",
+          "label": "铜盘厚度 hC",
+          "unit": "mm",
+          "default": 10
+        },
+        {
+          "key": "db",
+          "label": "样品直径 DB",
+          "unit": "mm",
+          "default": 100
+        },
+        {
+          "key": "hb",
+          "label": "样品厚度 hB",
+          "unit": "mm",
+          "default": 8
+        }
+      ],
+      "columns": [
+        {
+          "key": "time",
+          "label": "t",
+          "unit": "s"
+        },
+        {
+          "key": "temperature",
+          "label": "TC",
+          "unit": "°C"
+        }
+      ],
+      "results": [
+        {
+          "key": "cooling_rate",
+          "label": "|dT/dt|",
+          "unit": "K/s"
+        },
+        {
+          "key": "lambda",
+          "label": "导热系数 λ",
+          "unit": "W/(m·K)"
+        },
+        {
+          "key": "geometry_factor",
+          "label": "几何修正 ξ",
+          "unit": ""
+        },
+        {
+          "key": "r_squared",
+          "label": "局部拟合 R²",
+          "unit": ""
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "铂电阻零位差、稳态未建立、冷却曲线取点区间、尺寸质量误差和边缘散热。",
+    "suggestions": "先做室温零位修正；按 10 分钟漂移阈值判断稳态；在 T2 上下对称区间拟合。",
+    "extensions": "可传播几何量、温差与冷却斜率不确定度，并比较不同材料。"
+  }
+}

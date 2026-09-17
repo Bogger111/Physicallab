@@ -14,16 +14,16 @@
 |---|---|---|---|---|
 | 偏振光与双折射 | `polarization` | 专用 | `experiments.polarization.adapter.PolarizationAdapter` | 通过 |
 | 声速光速的测量 | `sound-light` | 专用、逐方法处理 | `experiments.soundlight.engine.process_method` | 通过 |
-| 万用表的组装与校准 | `multimeter` | 配置驱动 | `experiments.general.engine._multimeter` | 通过 |
-| 交直流电桥的原理及应用 | `bridge` | 配置驱动 | `experiments.general.engine._bridge` | 通过 |
-| 太阳能电池特性 | `solar-cell` | 配置驱动 | `experiments.general.engine._solar` | 通过 |
-| 巨磁电阻效应及应用 | `gmr` | 配置驱动 | `experiments.general.engine._gmr` | 通过 |
-| 核磁共振实验 | `nmr` | 配置驱动 | `experiments.general.engine._nmr` | 通过 |
-| 落球法测液体粘滞系数 | `viscosity` | 配置驱动 | `experiments.general.engine._viscosity` | 通过 |
-| 液体表面张力系数测量 | `surface-tension` | 配置驱动 | `experiments.general.engine._surface` | 通过 |
-| 稳态法测固体导热系数 | `thermal-conductivity` | 配置驱动 | `experiments.general.engine._thermal` | 通过 |
-| 迈克尔逊干涉实验 | `michelson` | 配置驱动 | `experiments.general.engine._michelson` | 通过 |
-| 光电效应与弗兰克-赫兹实验 | `photoelectric-franck-hertz` | 合并公开入口 | `process_experiment` 分派至 `_photoelectric` 与 `_franck` | 通过 |
+| 万用表的组装与校准 | `multimeter` | 配置驱动 | `experiments.multimeter.adapter.calculate` | 通过 |
+| 交直流电桥的原理及应用 | `bridge` | 配置驱动 | `experiments.bridge.adapter.calculate` | 通过 |
+| 太阳能电池特性 | `solar-cell` | 配置驱动 | `experiments.solar_cell.adapter.calculate` | 通过 |
+| 巨磁电阻效应及应用 | `gmr` | 配置驱动 | `experiments.gmr.adapter.calculate` | 通过 |
+| 核磁共振实验 | `nmr` | 配置驱动 | `experiments.nmr.adapter.calculate` | 通过 |
+| 落球法测液体粘滞系数 | `viscosity` | 配置驱动 | `experiments.viscosity.adapter.calculate` | 通过 |
+| 液体表面张力系数测量 | `surface-tension` | 配置驱动 | `experiments.surface_tension.adapter.calculate` | 通过 |
+| 稳态法测固体导热系数 | `thermal-conductivity` | 配置驱动 | `experiments.thermal_conductivity.adapter.calculate` | 通过 |
+| 迈克尔逊干涉实验 | `michelson` | 配置驱动 | `experiments.michelson.adapter.calculate` | 通过 |
+| 光电效应与弗兰克-赫兹实验 | `photoelectric-franck-hertz` | 合并公开入口 | `PhotoelectricFranckHertzExperiment` 委托两个 legacy adapter | 通过 |
 
 `GET /api/experiments` 现在由后端直接返回以上12项。旧 `photoelectric` 实现和路由继续保留，兼容调用方可显式使用 `GET /api/experiments?include_legacy=true` 查询 legacy 目录；前端不再承担过滤公开目录的责任。
 

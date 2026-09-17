@@ -1,0 +1,335 @@
+{
+  "id": "multimeter",
+  "name": "万用表的组装与校准",
+  "category": "电磁学",
+  "description": "完成数字万用表电压、电流和电阻档校准，并检验未知电阻测量结果。",
+  "processingTime": "~30秒",
+  "measurements": [
+    "标准值与组装表读数",
+    "未知电阻对照值",
+    "校准档位与量程"
+  ],
+  "methods": [
+    {
+      "id": "voltage",
+      "name": "直流电压档校准",
+      "required": true,
+      "description": "200 mV 档校准曲线",
+      "rowCount": 11,
+      "columns": [
+        {
+          "key": "set",
+          "label": "U设",
+          "unit": "mV"
+        },
+        {
+          "key": "measured",
+          "label": "U测",
+          "unit": "mV"
+        }
+      ],
+      "prefill": {
+        "set": [
+          0,
+          20,
+          40,
+          60,
+          80,
+          100,
+          120,
+          140,
+          160,
+          180,
+          199.9
+        ]
+      },
+      "results": [
+        {
+          "key": "slope",
+          "label": "校准斜率",
+          "unit": ""
+        },
+        {
+          "key": "intercept",
+          "label": "截距",
+          "unit": "mV"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "max_abs_error",
+          "label": "最大绝对误差",
+          "unit": "mV"
+        }
+      ]
+    },
+    {
+      "id": "current",
+      "name": "直流电流档校准",
+      "required": true,
+      "description": "20 mA 档校准曲线",
+      "rowCount": 11,
+      "columns": [
+        {
+          "key": "set",
+          "label": "I设",
+          "unit": "mA"
+        },
+        {
+          "key": "measured",
+          "label": "I测",
+          "unit": "mA"
+        }
+      ],
+      "prefill": {
+        "set": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          19.99
+        ]
+      },
+      "results": [
+        {
+          "key": "slope",
+          "label": "校准斜率",
+          "unit": ""
+        },
+        {
+          "key": "intercept",
+          "label": "截距",
+          "unit": "mA"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "max_abs_error",
+          "label": "最大绝对误差",
+          "unit": "mA"
+        }
+      ]
+    },
+    {
+      "id": "resistance",
+      "name": "电阻档校准",
+      "required": true,
+      "description": "2 kΩ 档校准曲线",
+      "rowCount": 11,
+      "columns": [
+        {
+          "key": "set",
+          "label": "R设",
+          "unit": "kΩ"
+        },
+        {
+          "key": "measured",
+          "label": "R测",
+          "unit": "kΩ"
+        }
+      ],
+      "prefill": {
+        "set": [
+          0,
+          0.2,
+          0.4,
+          0.6,
+          0.8,
+          1,
+          1.2,
+          1.4,
+          1.6,
+          1.8,
+          1.999
+        ]
+      },
+      "results": [
+        {
+          "key": "slope",
+          "label": "校准斜率",
+          "unit": ""
+        },
+        {
+          "key": "intercept",
+          "label": "截距",
+          "unit": "kΩ"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "max_abs_error",
+          "label": "最大绝对误差",
+          "unit": "kΩ"
+        }
+      ]
+    },
+    {
+      "id": "unknown",
+      "name": "未知电阻测量",
+      "required": true,
+      "description": "组装表与标准表结果比较",
+      "rowCount": 3,
+      "columns": [
+        {
+          "key": "reference",
+          "label": "标准表读数",
+          "unit": "kΩ"
+        },
+        {
+          "key": "measured",
+          "label": "组装表读数",
+          "unit": "kΩ"
+        }
+      ],
+      "results": [
+        {
+          "key": "mean_reference",
+          "label": "标准值均值",
+          "unit": "kΩ"
+        },
+        {
+          "key": "mean_measured",
+          "label": "测量值均值",
+          "unit": "kΩ"
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "id": "ac_voltage",
+      "name": "交流电压档校准（选做）",
+      "required": false,
+      "description": "200 mV 交流电压档校准",
+      "rowCount": 11,
+      "columns": [
+        {
+          "key": "set",
+          "label": "U设",
+          "unit": "mV"
+        },
+        {
+          "key": "measured",
+          "label": "U测",
+          "unit": "mV"
+        }
+      ],
+      "prefill": {
+        "set": [
+          0,
+          20,
+          40,
+          60,
+          80,
+          100,
+          120,
+          140,
+          160,
+          180,
+          199.9
+        ]
+      },
+      "results": [
+        {
+          "key": "slope",
+          "label": "校准斜率",
+          "unit": ""
+        },
+        {
+          "key": "intercept",
+          "label": "截距",
+          "unit": "mV"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "max_abs_error",
+          "label": "最大绝对误差",
+          "unit": "mV"
+        }
+      ]
+    },
+    {
+      "id": "ac_current",
+      "name": "交流电流档校准（选做）",
+      "required": false,
+      "description": "20 mA 交流电流档校准",
+      "rowCount": 11,
+      "columns": [
+        {
+          "key": "set",
+          "label": "I设",
+          "unit": "mA"
+        },
+        {
+          "key": "measured",
+          "label": "I测",
+          "unit": "mA"
+        }
+      ],
+      "prefill": {
+        "set": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          19.99
+        ]
+      },
+      "results": [
+        {
+          "key": "slope",
+          "label": "校准斜率",
+          "unit": ""
+        },
+        {
+          "key": "intercept",
+          "label": "截距",
+          "unit": "mA"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "max_abs_error",
+          "label": "最大绝对误差",
+          "unit": "mA"
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "量化分辨率、分压分流电阻容差、标准表准确度、接触电阻与读数波动。",
+    "suggestions": "各档位预热后校零，输入从低到高单向调节并重复测量；未知电阻应落在校准区间内。",
+    "extensions": "可进一步做量化误差占比和电阻网络最坏容差传播分析。"
+  }
+}

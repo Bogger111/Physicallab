@@ -17,61 +17,61 @@
       "id": "multimeter",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/multimeter/process",
-      "calculation_entry": "experiments.general.engine._multimeter"
+      "calculation_entry": "experiments.multimeter.adapter.calculate"
     },
     {
       "id": "bridge",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/bridge/process",
-      "calculation_entry": "experiments.general.engine._bridge"
+      "calculation_entry": "experiments.bridge.adapter.calculate"
     },
     {
       "id": "solar-cell",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/solar-cell/process",
-      "calculation_entry": "experiments.general.engine._solar"
+      "calculation_entry": "experiments.solar_cell.adapter.calculate"
     },
     {
       "id": "gmr",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/gmr/process",
-      "calculation_entry": "experiments.general.engine._gmr"
+      "calculation_entry": "experiments.gmr.adapter.calculate"
     },
     {
       "id": "nmr",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/nmr/process",
-      "calculation_entry": "experiments.general.engine._nmr"
+      "calculation_entry": "experiments.nmr.adapter.calculate"
     },
     {
       "id": "viscosity",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/viscosity/process",
-      "calculation_entry": "experiments.general.engine._viscosity"
+      "calculation_entry": "experiments.viscosity.adapter.calculate"
     },
     {
       "id": "surface-tension",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/surface-tension/process",
-      "calculation_entry": "experiments.general.engine._surface"
+      "calculation_entry": "experiments.surface_tension.adapter.calculate"
     },
     {
       "id": "thermal-conductivity",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/thermal-conductivity/process",
-      "calculation_entry": "experiments.general.engine._thermal"
+      "calculation_entry": "experiments.thermal_conductivity.adapter.calculate"
     },
     {
       "id": "michelson",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/michelson/process",
-      "calculation_entry": "experiments.general.engine._michelson"
+      "calculation_entry": "experiments.michelson.adapter.calculate"
     },
     {
       "id": "photoelectric-franck-hertz",
       "kind": "general",
       "process_endpoint": "POST /api/experiments/photoelectric-franck-hertz/process",
-      "calculation_entry": "experiments.general.engine.process_experiment -> _photoelectric + _franck"
+      "calculation_entry": "experiments.photoelectric_franck_hertz.adapter.PhotoelectricFranckHertzExperiment"
     }
   ]
 }

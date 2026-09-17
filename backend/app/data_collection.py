@@ -138,9 +138,11 @@ def _method_specs(experiment_id: str) -> tuple[dict[str, dict[str, set[str]]], s
         }
         return specs, set()
 
-    from experiments.general.engine import CONFIG_BY_ID
-    config = CONFIG_BY_ID.get(experiment_id)
-    if not config:
+    from experiments.core.exceptions import UnknownExperimentError
+    from experiments.core.registry import registry
+    try:
+        config = registry.get(experiment_id).config
+    except UnknownExperimentError:
         raise CollectionValidationError("实验不存在或未公开")
     specs = {
         method["id"]: {

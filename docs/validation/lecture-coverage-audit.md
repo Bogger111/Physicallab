@@ -3,7 +3,7 @@
 复核日期：2026-09-10
 
 复核范围为 `D:\PhysicsLab\text_dumps` 中的讲义提取文本，以及网站配置
-`backend/experiments/general/configs.json`。这里的“覆盖”表示网站已提供对应的记录入口和计算适配器；
+各 `backend/experiments/<experiment>/config.json`。这里的“覆盖”表示网站已提供对应的记录入口和独立计算适配器；
 不表示已经使用完整真实实验数据完成端到端验证。
 
 | 网站实验 | 讲义必做内容 | 讲义选做/拓展内容 | 网站实现 | 复核结果 |

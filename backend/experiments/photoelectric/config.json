@@ -1,0 +1,364 @@
+{
+  "id": "photoelectric",
+  "name": "光电效应与普朗克常数",
+  "category": "近代物理",
+  "description": "由截止电压与频率关系测普朗克常数，并研究光电管伏安及饱和电流特性。",
+  "processingTime": "~45秒",
+  "measurements": [
+    "五条谱线截止电压",
+    "光电管 U-I 数据",
+    "光阑孔径与饱和光电流"
+  ],
+  "methods": [
+    {
+      "id": "planck",
+      "name": "零电流法测普朗克常数",
+      "required": true,
+      "description": "拟合 US-ν",
+      "rowCount": 5,
+      "columns": [
+        {
+          "key": "wavelength",
+          "label": "波长 λ",
+          "unit": "nm"
+        },
+        {
+          "key": "us1",
+          "label": "US1",
+          "unit": "V"
+        },
+        {
+          "key": "us2",
+          "label": "US2",
+          "unit": "V"
+        },
+        {
+          "key": "us3",
+          "label": "US3",
+          "unit": "V"
+        },
+        {
+          "key": "us4",
+          "label": "US4",
+          "unit": "V"
+        }
+      ],
+      "prefill": {
+        "wavelength": [
+          365,
+          405,
+          436,
+          546,
+          577
+        ]
+      },
+      "results": [
+        {
+          "key": "h",
+          "label": "普朗克常数 h",
+          "unit": "J·s"
+        },
+        {
+          "key": "h_error",
+          "label": "h 相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "nu0",
+          "label": "红限频率 ν0",
+          "unit": "Hz"
+        },
+        {
+          "key": "work_function",
+          "label": "逸出功",
+          "unit": "eV"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "iv_436",
+      "name": "436 nm 伏安特性",
+      "required": true,
+      "description": "Φ=2 mm；按讲义在 -4~0 V、0~15 V、15~30 V 分段取点",
+      "rowCount": 34,
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "UAK",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "10⁻¹³ A"
+        }
+      ],
+      "prefill": {
+        "voltage": [
+          -4,
+          -3.5,
+          -3,
+          -2.5,
+          -2,
+          -1.5,
+          -1,
+          -0.5,
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16.5,
+          18,
+          19.5,
+          21,
+          22.5,
+          24,
+          25.5,
+          27,
+          28.5,
+          30
+        ]
+      },
+      "results": [
+        {
+          "key": "max_current",
+          "label": "最大光电流",
+          "unit": "10⁻¹³ A"
+        },
+        {
+          "key": "min_current",
+          "label": "最小光电流",
+          "unit": "10⁻¹³ A"
+        }
+      ]
+    },
+    {
+      "id": "iv_546",
+      "name": "546 nm 伏安特性",
+      "required": true,
+      "description": "Φ=4 mm；按讲义在 -4~0 V、0~15 V、15~30 V 分段取点",
+      "rowCount": 34,
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "UAK",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "I",
+          "unit": "10⁻¹³ A"
+        }
+      ],
+      "prefill": {
+        "voltage": [
+          -4,
+          -3.5,
+          -3,
+          -2.5,
+          -2,
+          -1.5,
+          -1,
+          -0.5,
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16.5,
+          18,
+          19.5,
+          21,
+          22.5,
+          24,
+          25.5,
+          27,
+          28.5,
+          30
+        ]
+      },
+      "results": [
+        {
+          "key": "max_current",
+          "label": "最大光电流",
+          "unit": "10⁻¹³ A"
+        },
+        {
+          "key": "min_current",
+          "label": "最小光电流",
+          "unit": "10⁻¹³ A"
+        }
+      ]
+    },
+    {
+      "id": "saturation",
+      "name": "饱和电流与光强",
+      "required": true,
+      "description": "验证 Im 与 Φ² 正比",
+      "rowCount": 6,
+      "columns": [
+        {
+          "key": "wavelength",
+          "label": "波长",
+          "unit": "nm"
+        },
+        {
+          "key": "diameter",
+          "label": "光阑 Φ",
+          "unit": "mm"
+        },
+        {
+          "key": "i1",
+          "label": "I1",
+          "unit": "10⁻¹⁰ A"
+        },
+        {
+          "key": "i2",
+          "label": "I2",
+          "unit": "10⁻¹⁰ A"
+        },
+        {
+          "key": "i3",
+          "label": "I3",
+          "unit": "10⁻¹⁰ A"
+        }
+      ],
+      "prefill": {
+        "wavelength": [
+          436,
+          436,
+          436,
+          546,
+          546,
+          546
+        ],
+        "diameter": [
+          2,
+          4,
+          8,
+          2,
+          4,
+          8
+        ]
+      },
+      "results": [
+        {
+          "key": "r_squared_436",
+          "label": "436 nm R²",
+          "unit": ""
+        },
+        {
+          "key": "r_squared_546",
+          "label": "546 nm R²",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "compensation",
+      "name": "补偿法测普朗克常数（选做）",
+      "required": false,
+      "description": "任选一个光阑，每个频率至少重复测量 3 次",
+      "rowCount": 5,
+      "params": [
+        {
+          "key": "aperture",
+          "label": "光阑 Φ",
+          "unit": "mm",
+          "default": 4
+        }
+      ],
+      "columns": [
+        {
+          "key": "wavelength",
+          "label": "波长 λ",
+          "unit": "nm"
+        },
+        {
+          "key": "us1",
+          "label": "US1",
+          "unit": "V"
+        },
+        {
+          "key": "us2",
+          "label": "US2",
+          "unit": "V"
+        },
+        {
+          "key": "us3",
+          "label": "US3",
+          "unit": "V"
+        }
+      ],
+      "prefill": {
+        "wavelength": [
+          365,
+          405,
+          436,
+          546,
+          577
+        ]
+      },
+      "results": [
+        {
+          "key": "h",
+          "label": "普朗克常数 h",
+          "unit": "J·s"
+        },
+        {
+          "key": "h_error",
+          "label": "h 相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "nu0",
+          "label": "红限频率 ν0",
+          "unit": "Hz"
+        },
+        {
+          "key": "work_function",
+          "label": "逸出功",
+          "unit": "eV"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "截止电压零点、暗电流、滤光片带宽、光阑定位与微电流漂移。",
+    "suggestions": "先测普朗克常数再测伏安特性；每次更换滤光片或光阑后盖严遮光盖并重新调零。",
+    "extensions": "可用暗电流外推修正截止电压，并评估滤光片带宽引入的谱线加权误差。"
+  }
+}

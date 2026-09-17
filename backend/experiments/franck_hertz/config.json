@@ -1,0 +1,341 @@
+{
+  "id": "franck-hertz",
+  "name": "弗兰克-赫兹实验",
+  "category": "近代物理",
+  "description": "测量汞原子第一激发电位并观察原子能级量子化。",
+  "processingTime": "~30秒",
+  "measurements": [
+    "加速电压与板极电流",
+    "连续峰值电压",
+    "炉温及电极参数"
+  ],
+  "methods": [
+    {
+      "id": "curve",
+      "name": "IP-VG2K 特性",
+      "required": true,
+      "description": "0~4 V 每 1 V，4 V 后每 0.5 V，测至 60 V",
+      "rowCount": 117,
+      "params": [
+        {
+          "key": "temperature",
+          "label": "炉温",
+          "unit": "°C",
+          "default": 220
+        },
+        {
+          "key": "vf",
+          "label": "VF",
+          "unit": "V",
+          "default": 0.9
+        },
+        {
+          "key": "vg1k",
+          "label": "VG1K",
+          "unit": "V",
+          "default": 1.5
+        },
+        {
+          "key": "vg2p",
+          "label": "VG2P",
+          "unit": "V",
+          "default": 1.3
+        }
+      ],
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "VG2K",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "IP",
+          "unit": "nA"
+        }
+      ],
+      "prefill": {
+        "voltage": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          4.5,
+          5.0,
+          5.5,
+          6.0,
+          6.5,
+          7.0,
+          7.5,
+          8.0,
+          8.5,
+          9.0,
+          9.5,
+          10.0,
+          10.5,
+          11.0,
+          11.5,
+          12.0,
+          12.5,
+          13.0,
+          13.5,
+          14.0,
+          14.5,
+          15.0,
+          15.5,
+          16.0,
+          16.5,
+          17.0,
+          17.5,
+          18.0,
+          18.5,
+          19.0,
+          19.5,
+          20.0,
+          20.5,
+          21.0,
+          21.5,
+          22.0,
+          22.5,
+          23.0,
+          23.5,
+          24.0,
+          24.5,
+          25.0,
+          25.5,
+          26.0,
+          26.5,
+          27.0,
+          27.5,
+          28.0,
+          28.5,
+          29.0,
+          29.5,
+          30.0,
+          30.5,
+          31.0,
+          31.5,
+          32.0,
+          32.5,
+          33.0,
+          33.5,
+          34.0,
+          34.5,
+          35.0,
+          35.5,
+          36.0,
+          36.5,
+          37.0,
+          37.5,
+          38.0,
+          38.5,
+          39.0,
+          39.5,
+          40.0,
+          40.5,
+          41.0,
+          41.5,
+          42.0,
+          42.5,
+          43.0,
+          43.5,
+          44.0,
+          44.5,
+          45.0,
+          45.5,
+          46.0,
+          46.5,
+          47.0,
+          47.5,
+          48.0,
+          48.5,
+          49.0,
+          49.5,
+          50.0,
+          50.5,
+          51.0,
+          51.5,
+          52.0,
+          52.5,
+          53.0,
+          53.5,
+          54.0,
+          54.5,
+          55.0,
+          55.5,
+          56.0,
+          56.5,
+          57.0,
+          57.5,
+          58.0,
+          58.5,
+          59.0,
+          59.5,
+          60.0
+        ]
+      },
+      "results": [
+        {
+          "key": "data_points",
+          "label": "有效点数",
+          "unit": ""
+        },
+        {
+          "key": "current_max",
+          "label": "最大板极电流",
+          "unit": "nA"
+        }
+      ]
+    },
+    {
+      "id": "peaks",
+      "name": "峰值位置与逐差",
+      "required": true,
+      "description": "以峰间距计算第一激发电位",
+      "rowCount": 6,
+      "columns": [
+        {
+          "key": "peak_voltage",
+          "label": "峰值电压 Up",
+          "unit": "V"
+        }
+      ],
+      "results": [
+        {
+          "key": "v0",
+          "label": "第一激发电位 V0",
+          "unit": "V"
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "spacing_std",
+          "label": "峰间距标准差",
+          "unit": "V"
+        }
+      ]
+    },
+    {
+      "id": "parameter_curve",
+      "name": "改变工作参数的对比曲线（选做）",
+      "required": false,
+      "description": "自行改变炉温、拒斥电压或灯丝电压，记录对比曲线",
+      "rowCount": 30,
+      "params": [
+        {
+          "key": "temperature",
+          "label": "炉温",
+          "unit": "°C",
+          "default": 220
+        },
+        {
+          "key": "vf",
+          "label": "VF",
+          "unit": "V",
+          "default": 0.9
+        },
+        {
+          "key": "vg1k",
+          "label": "VG1K",
+          "unit": "V",
+          "default": 1.5
+        },
+        {
+          "key": "vg2p",
+          "label": "VG2P",
+          "unit": "V",
+          "default": 1.3
+        }
+      ],
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "VG2K",
+          "unit": "V"
+        },
+        {
+          "key": "current_reference",
+          "label": "IP 基准",
+          "unit": "nA"
+        },
+        {
+          "key": "current_variant",
+          "label": "IP 改参后",
+          "unit": "nA"
+        }
+      ],
+      "results": [
+        {
+          "key": "data_points",
+          "label": "有效对比点数",
+          "unit": ""
+        },
+        {
+          "key": "max_difference",
+          "label": "最大电流差",
+          "unit": "nA"
+        }
+      ]
+    },
+    {
+      "id": "higher_curve",
+      "name": "较高激发能级（选做）",
+      "required": false,
+      "description": "炉温降至 100~135 °C 后记录 IP-UKG1 曲线",
+      "rowCount": 30,
+      "params": [
+        {
+          "key": "temperature",
+          "label": "炉温",
+          "unit": "°C",
+          "default": 120
+        },
+        {
+          "key": "vf",
+          "label": "VF",
+          "unit": "V",
+          "default": 0.9
+        },
+        {
+          "key": "vg2p",
+          "label": "VG2P",
+          "unit": "V",
+          "default": 1.3
+        }
+      ],
+      "columns": [
+        {
+          "key": "voltage",
+          "label": "UKG1",
+          "unit": "V"
+        },
+        {
+          "key": "current",
+          "label": "IP",
+          "unit": "nA"
+        }
+      ],
+      "results": [
+        {
+          "key": "data_points",
+          "label": "有效点数",
+          "unit": ""
+        },
+        {
+          "key": "current_max",
+          "label": "最大板极电流",
+          "unit": "nA"
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "炉温未稳定、接触电势差、峰位人工判读、步长过大和微电流噪声。",
+    "suggestions": "恒温稳定 10–15 分钟后测量；峰谷附近加密取点；激发电位必须由连续峰间距求得。",
+    "extensions": "可比较不同炉温或拒斥电压下峰宽、峰高和基线变化。"
+  }
+}

@@ -21,8 +21,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 
 from tests.test_documents import _polarization_fixture, _sound_fixture
 from tests.test_general_experiments import fixtures as general_fixtures
-from experiments.general import docs as general_docs
-from experiments.general.engine import process_experiment
+from experiments.core.registry import registry
 from experiments.polarization import docbuild as polarization_docs
 from experiments.soundlight import docs as sound_docs
 from experiments.soundlight import engine as sound_engine
@@ -49,10 +48,11 @@ def main() -> None:
                         for method_id, payload in sound.items()},
     }
     for experiment_id, data in general_fixtures().items():
-        result_summary[experiment_id] = process_experiment(experiment_id, data)
+        experiment = registry.get(experiment_id)
+        result_summary[experiment_id] = experiment.process(data)
         reports[experiment_id] = {
-            "docx": general_docs.report_bytes(experiment_id, data, "docx"),
-            "pdf": general_docs.report_bytes(experiment_id, data, "pdf"),
+            "docx": experiment.build_report(data, "docx"),
+            "pdf": experiment.build_report(data, "pdf"),
         }
 
     manifest = {"validation_boundary": "synthetic fixtures and unit tests only; not complete real-data validation", "reports": {}}

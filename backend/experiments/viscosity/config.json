@@ -1,0 +1,237 @@
+{
+  "id": "viscosity",
+  "name": "落球法测液体粘滞系数",
+  "category": "力学",
+  "description": "用落球法测定蓖麻油粘滞系数随温度的变化并进行管壁和雷诺数修正。",
+  "processingTime": "~45秒",
+  "measurements": [
+    "钢球显微镜坐标",
+    "下落距离与四次时间",
+    "油温与球径"
+  ],
+  "methods": [
+    {
+      "id": "diameter",
+      "name": "钢球直径测量",
+      "required": true,
+      "description": "由三个方向坐标差求平均直径",
+      "rowCount": 3,
+      "columns": [
+        {
+          "key": "x1",
+          "label": "边缘坐标 x1",
+          "unit": "mm"
+        },
+        {
+          "key": "x2",
+          "label": "边缘坐标 x2",
+          "unit": "mm"
+        }
+      ],
+      "results": [
+        {
+          "key": "diameter",
+          "label": "平均直径 d",
+          "unit": "mm"
+        },
+        {
+          "key": "diameter_std",
+          "label": "标准差",
+          "unit": "mm"
+        }
+      ]
+    },
+    {
+      "id": "viscosity",
+      "name": "不同温度粘滞系数",
+      "required": true,
+      "description": "计算 η、Re 与 Oseen 修正",
+      "rowCount": 5,
+      "params": [
+        {
+          "key": "distance",
+          "label": "下落距离 L",
+          "unit": "cm",
+          "default": 20
+        },
+        {
+          "key": "diameter",
+          "label": "钢球直径 d",
+          "unit": "mm",
+          "default": 1.5
+        },
+        {
+          "key": "rho_ball",
+          "label": "钢球密度",
+          "unit": "kg/m³",
+          "default": 7800
+        },
+        {
+          "key": "rho_oil",
+          "label": "油密度",
+          "unit": "kg/m³",
+          "default": 950
+        },
+        {
+          "key": "tube_diameter",
+          "label": "管内径 D",
+          "unit": "cm",
+          "default": 2
+        },
+        {
+          "key": "g",
+          "label": "重力加速度",
+          "unit": "m/s²",
+          "default": 9.794
+        }
+      ],
+      "columns": [
+        {
+          "key": "temperature",
+          "label": "温度 T",
+          "unit": "°C"
+        },
+        {
+          "key": "t1",
+          "label": "t1",
+          "unit": "s"
+        },
+        {
+          "key": "t2",
+          "label": "t2",
+          "unit": "s"
+        },
+        {
+          "key": "t3",
+          "label": "t3",
+          "unit": "s"
+        },
+        {
+          "key": "t4",
+          "label": "t4",
+          "unit": "s"
+        }
+      ],
+      "prefill": {
+        "temperature": [
+          20,
+          25,
+          30,
+          35,
+          40
+        ]
+      },
+      "results": [
+        {
+          "key": "eta_20",
+          "label": "首温度 η′",
+          "unit": "Pa·s"
+        },
+        {
+          "key": "re_min",
+          "label": "Re 最小值",
+          "unit": ""
+        },
+        {
+          "key": "re_max",
+          "label": "Re 最大值",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "diameter_effect",
+      "name": "不同球径对比（拓展）",
+      "required": false,
+      "description": "同一温度下至少选择两个不同规格小球，比较 η 与 Re",
+      "rowCount": 3,
+      "params": [
+        {
+          "key": "distance",
+          "label": "下落距离 L",
+          "unit": "cm",
+          "default": 20
+        },
+        {
+          "key": "temperature",
+          "label": "液体温度 T",
+          "unit": "°C",
+          "default": 40
+        },
+        {
+          "key": "rho_ball",
+          "label": "钢球密度",
+          "unit": "kg/m³",
+          "default": 7800
+        },
+        {
+          "key": "rho_oil",
+          "label": "油密度",
+          "unit": "kg/m³",
+          "default": 950
+        },
+        {
+          "key": "tube_diameter",
+          "label": "管内径 D",
+          "unit": "cm",
+          "default": 2
+        },
+        {
+          "key": "g",
+          "label": "重力加速度",
+          "unit": "m/s²",
+          "default": 9.794
+        }
+      ],
+      "columns": [
+        {
+          "key": "diameter",
+          "label": "小球直径 d",
+          "unit": "mm"
+        },
+        {
+          "key": "t1",
+          "label": "t1",
+          "unit": "s"
+        },
+        {
+          "key": "t2",
+          "label": "t2",
+          "unit": "s"
+        },
+        {
+          "key": "t3",
+          "label": "t3",
+          "unit": "s"
+        },
+        {
+          "key": "t4",
+          "label": "t4",
+          "unit": "s"
+        }
+      ],
+      "results": [
+        {
+          "key": "sample_count",
+          "label": "有效小球数",
+          "unit": ""
+        },
+        {
+          "key": "eta_mean",
+          "label": "平均修正粘度",
+          "unit": "Pa·s"
+        },
+        {
+          "key": "re_max",
+          "label": "最大 Re",
+          "unit": ""
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "球径和管径测量、计时反应、球偏心贴壁、温度不均匀及未达到收尾速度。",
+    "suggestions": "小球沿中轴释放；在缓冲区后计时；每温度充分恒温并重复四次。",
+    "extensions": "可拟合 η=Aexp(B/T)，并比较不同球径下雷诺数与修正量。"
+  }
+}

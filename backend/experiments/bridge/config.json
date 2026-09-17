@@ -1,0 +1,263 @@
+{
+  "id": "bridge",
+  "name": "交直流电桥的原理及应用",
+  "category": "电磁学",
+  "description": "用平衡与非平衡电桥测电阻和温度特性，并测量交流电容、电感参数。",
+  "processingTime": "~45秒",
+  "measurements": [
+    "平衡电阻 Rn",
+    "温度与非平衡输出 U0",
+    "交流电桥平衡参数"
+  ],
+  "methods": [
+    {
+      "id": "balanced",
+      "name": "平衡直流电桥",
+      "required": true,
+      "description": "测 Cu50 室温电阻",
+      "rowCount": 3,
+      "params": [
+        {
+          "key": "ra",
+          "label": "Ra",
+          "unit": "Ω",
+          "default": 1000
+        },
+        {
+          "key": "rb",
+          "label": "Rb",
+          "unit": "Ω",
+          "default": 5000
+        }
+      ],
+      "columns": [
+        {
+          "key": "rn",
+          "label": "平衡电阻 Rn",
+          "unit": "Ω"
+        }
+      ],
+      "results": [
+        {
+          "key": "rx_mean",
+          "label": "Rx 均值",
+          "unit": "Ω"
+        },
+        {
+          "key": "relative_error",
+          "label": "相对 Cu50 理论偏差",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "id": "cu50",
+      "name": "卧式电桥测 Cu50",
+      "required": true,
+      "description": "严格非线性反解并拟合 R-t",
+      "rowCount": 10,
+      "params": [
+        {
+          "key": "us",
+          "label": "电源 Us",
+          "unit": "V",
+          "default": 3
+        },
+        {
+          "key": "r",
+          "label": "桥臂 R",
+          "unit": "Ω",
+          "default": 1000
+        },
+        {
+          "key": "rn",
+          "label": "预平衡 Rn",
+          "unit": "Ω",
+          "default": 50
+        }
+      ],
+      "columns": [
+        {
+          "key": "temperature",
+          "label": "温度 t",
+          "unit": "°C"
+        },
+        {
+          "key": "u0",
+          "label": "输出 U0",
+          "unit": "mV"
+        }
+      ],
+      "results": [
+        {
+          "key": "r0",
+          "label": "拟合 R0",
+          "unit": "Ω"
+        },
+        {
+          "key": "alpha",
+          "label": "温度系数 α",
+          "unit": "1/°C"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "alpha_error",
+          "label": "α 相对误差",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "id": "capacitor",
+      "name": "交流电桥测电容",
+      "required": true,
+      "description": "计算 Cx、损耗电阻与 tanδ",
+      "rowCount": 3,
+      "params": [
+        {
+          "key": "ra",
+          "label": "Ra",
+          "unit": "Ω",
+          "default": 100
+        },
+        {
+          "key": "rb",
+          "label": "Rb",
+          "unit": "Ω",
+          "default": 120
+        },
+        {
+          "key": "f",
+          "label": "频率 f",
+          "unit": "Hz",
+          "default": 1000
+        }
+      ],
+      "columns": [
+        {
+          "key": "cn",
+          "label": "Cn",
+          "unit": "μF"
+        },
+        {
+          "key": "rn",
+          "label": "Rn",
+          "unit": "Ω"
+        }
+      ],
+      "results": [
+        {
+          "key": "cx",
+          "label": "Cx 均值",
+          "unit": "μF"
+        },
+        {
+          "key": "rc",
+          "label": "rC 均值",
+          "unit": "Ω"
+        },
+        {
+          "key": "tan_delta",
+          "label": "tanδ 均值",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "inductor",
+      "name": "交流电桥测电感",
+      "required": true,
+      "description": "计算 Lx、线圈电阻与品质因数",
+      "rowCount": 3,
+      "params": [
+        {
+          "key": "ra",
+          "label": "Ra",
+          "unit": "Ω",
+          "default": 100
+        },
+        {
+          "key": "rb",
+          "label": "Rb",
+          "unit": "Ω",
+          "default": 100
+        },
+        {
+          "key": "f",
+          "label": "频率 f",
+          "unit": "Hz",
+          "default": 1000
+        }
+      ],
+      "columns": [
+        {
+          "key": "cn",
+          "label": "Cn",
+          "unit": "μF"
+        },
+        {
+          "key": "rn",
+          "label": "Rn",
+          "unit": "Ω"
+        }
+      ],
+      "results": [
+        {
+          "key": "lx",
+          "label": "Lx 均值",
+          "unit": "mH"
+        },
+        {
+          "key": "rl",
+          "label": "rL 均值",
+          "unit": "Ω"
+        },
+        {
+          "key": "q",
+          "label": "Q 均值",
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "id": "thermistor",
+      "name": "热敏电阻（选做）",
+      "required": false,
+      "description": "拟合 lnR-1/T 求材料常数 B",
+      "rowCount": 10,
+      "columns": [
+        {
+          "key": "temperature",
+          "label": "温度 t",
+          "unit": "°C"
+        },
+        {
+          "key": "resistance",
+          "label": "R",
+          "unit": "Ω"
+        }
+      ],
+      "results": [
+        {
+          "key": "b_constant",
+          "label": "材料常数 B",
+          "unit": "K"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "检流计零漂、桥臂标称误差、接线与接触电阻、温度滞后及 U0 单位换算。",
+    "suggestions": "温度稳定后读数；Cu50 全程使用严格反解式，避免高温段采用小信号近似。",
+    "extensions": "可比较严格反解与线性近似的偏差，并分析热敏电阻自热效应。"
+  }
+}

@@ -4,8 +4,7 @@
 
 > 当前发布通道为 **PhysKiller 2.0 Beta 1**。计算链、合成 fixture 和报告结构已经通过自动测试；完整真实实验数据与手写 OCR 仍需要学生、助教和教师共同验证。网页会持续显示测试版提示，所有 OCR 候选值必须人工确认。
 
-前端实验库现包含 12 个公开入口（API 目录额外保留带 `legacy: true` 的旧光电效应条目，旧的光电效应与弗兰克-赫兹入口仍兼容）。偏振光与声速/光速保留专用工作区，其余实验由
-`backend/experiments/general/configs.json` 驱动，共用数据录入、计算、绘图、记录表和报告流程。
+前端实验库现包含 12 个公开入口（API 目录额外保留带 `legacy: true` 的旧光电效应条目，旧的光电效应与弗兰克-赫兹入口仍兼容）。偏振光与声速/光速保留专用工作区；其余实验也已拆成独立的 `backend/experiments/<experiment>/` 模块。后端通过显式 Experiment Registry 统一访问 config、schema、validate、process、record sheet 和 report，共享数值、绘图与文档渲染基础设施。
 
 ## 功能
 
@@ -33,9 +32,12 @@ physicslab/
 │   │   ├── main.py            # FastAPI 应用
 │   │   └── routers/           # API 路由
 │   ├── experiments/
+│   │   ├── core/              # Registry、统一接口与共享基础设施
 │   │   ├── polarization/      # 偏振光实验
 │   │   ├── soundlight/        # 声速与光速实验
-│   │   └── general/           # 其余 11 个配置驱动实验
+│   │   ├── multimeter/        # 万用表实验（独立配置与适配器）
+│   │   ├── bridge/            # 交直流电桥实验
+│   │   └── .../               # 其余实验各自独立模块
 │   ├── tests/                 # 回归测试
 │   └── requirements.txt
 ├── frontend/                  # Next.js 前端
@@ -110,7 +112,7 @@ cd backend
 新增同类实验的主要步骤:
 1. 创建 `backend/experiments/<exp>/` 目录
 2. 添加实验 `config.json` 与 Calculation Adapter
-3. 注册 API 路由和前端实验入口
+3. 在 Experiment Registry 注册，并添加前端实验入口
 4. 复用现有记录表、报告和工作台组件；特殊交互再增加薄适配层
 
 ## 设计原则

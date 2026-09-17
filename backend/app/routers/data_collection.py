@@ -1,0 +1,115 @@
+"""Optional consent-first record-sheet collection API glue."""
+
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from starlette.concurrency import run_in_threadpool
+
+from app.models import CollectionCommitRequest
+from experiments.core.registry import PUBLIC_EXPERIMENT_IDS
+
+
+router = APIRouter()
+
+
+@router.get("/api/data-collection/status")
+async def data_collection_status():
+    from app.data_collection import TEMPLATE_VERSION, collection_enabled
+    return {"enabled": collection_enabled(), "template_version": TEMPLATE_VERSION}
+
+
+@router.post("/api/data-collection/sessions")
+async def create_data_collection_session(
+    image: UploadFile = File(...),
+    experiment_id: str = Form(...),
+    template_version: str = Form("2.0"),
+    consent: bool = Form(False),
+):
+    from app.data_collection import (
+        ALLOWED_IMAGE_TYPES,
+        MAX_COLLECTION_IMAGE_BYTES,
+        CollectionValidationError,
+        collection_enabled,
+        local_storage,
+        sanitize_record_image,
+        validate_template_version,
+    )
+    if not collection_enabled():
+        raise HTTPException(status_code=404, detail="数据贡献功能未启用")
+    if consent is not True:
+        raise HTTPException(status_code=400, detail="只有明确同意后才会保存记录表")
+    if experiment_id not in PUBLIC_EXPERIMENT_IDS:
+        raise HTTPException(status_code=400, detail="实验不存在或未公开")
+    if image.content_type and image.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=415, detail="请上传 JPG、PNG、WebP、BMP 或 TIFF 图片")
+    content = await image.read(MAX_COLLECTION_IMAGE_BYTES + 1)
+    try:
+        version = validate_template_version(template_version)
+        sanitized = await run_in_threadpool(sanitize_record_image, content)
+        metadata = await run_in_threadpool(
+            local_storage().create_session,
+            experiment_id=experiment_id,
+            template_version=version,
+            image=sanitized,
+        )
+    except CollectionValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="记录表贡献暂时不可用，不影响报告生成") from exc
+    return {"status": "pending_confirmation", "session_id": metadata["session_id"],
+            "revision": metadata["revision"]}
+
+
+@router.post("/api/data-collection/sessions/{session_id}/commit")
+async def commit_data_collection_session(session_id: str, req: CollectionCommitRequest):
+    from app.data_collection import (
+        CollectionNotFoundError,
+        CollectionValidationError,
+        collection_enabled,
+        local_storage,
+        normalize_confirmed_fields,
+        validate_template_version,
+    )
+    if not collection_enabled():
+        raise HTTPException(status_code=404, detail="数据贡献功能未启用")
+    if req.consent is not True:
+        raise HTTPException(status_code=400, detail="只有明确同意后才会保存确认数据")
+    if req.experiment_id not in PUBLIC_EXPERIMENT_IDS:
+        raise HTTPException(status_code=400, detail="实验不存在或未公开")
+    try:
+        version = validate_template_version(req.template_version)
+        fields = normalize_confirmed_fields(req.experiment_id, req.confirmed_data)
+        metadata = await run_in_threadpool(
+            local_storage().commit_session,
+            session_id=session_id,
+            experiment_id=req.experiment_id,
+            template_version=version,
+            fields=fields,
+        )
+    except CollectionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except CollectionValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="确认数据暂时无法保存，不影响报告生成") from exc
+    return {"status": metadata["status"], "session_id": metadata["session_id"],
+            "revision": metadata["revision"], "field_count": len(metadata["fields"])}
+
+
+@router.delete("/api/data-collection/sessions/{session_id}")
+async def delete_data_collection_session(session_id: str):
+    from app.data_collection import (
+        CollectionNotFoundError,
+        CollectionValidationError,
+        collection_enabled,
+        local_storage,
+    )
+    if not collection_enabled():
+        raise HTTPException(status_code=404, detail="数据贡献功能未启用")
+    try:
+        await run_in_threadpool(local_storage().delete_session, session_id)
+    except CollectionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except CollectionValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="暂时无法删除数据贡献会话") from exc
+    return {"status": "deleted"}

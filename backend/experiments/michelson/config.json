@@ -1,0 +1,125 @@
+{
+  "id": "michelson",
+  "name": "迈克尔逊干涉实验",
+  "category": "光学",
+  "description": "用逐差法测 He-Ne 激光波长并记录定域、非定域干涉现象。",
+  "processingTime": "~30秒",
+  "measurements": [
+    "每 50 环的反射镜位置",
+    "主尺/窗口/鼓轮总读数",
+    "干涉现象观察"
+  ],
+  "methods": [
+    {
+      "id": "wavelength",
+      "name": "He-Ne 激光波长测量",
+      "required": true,
+      "description": "10 点单向读数、隔 5 档逐差",
+      "rowCount": 10,
+      "params": [
+        {
+          "key": "fringes_per_step",
+          "label": "每档环数",
+          "unit": "环",
+          "default": 50
+        }
+      ],
+      "columns": [
+        {
+          "key": "fringe_count",
+          "label": "累计圈数 N",
+          "unit": "环"
+        },
+        {
+          "key": "position",
+          "label": "反射镜位置 d",
+          "unit": "mm"
+        }
+      ],
+      "prefill": {
+        "fringe_count": [
+          50,
+          100,
+          150,
+          200,
+          250,
+          300,
+          350,
+          400,
+          450,
+          500
+        ]
+      },
+      "results": [
+        {
+          "key": "wavelength",
+          "label": "实验波长 λ",
+          "unit": "nm"
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差",
+          "unit": "%"
+        },
+        {
+          "key": "delta_d_mean",
+          "label": "逐差平均 Δd",
+          "unit": "mm"
+        },
+        {
+          "key": "delta_d_std",
+          "label": "逐差标准差",
+          "unit": "mm"
+        }
+      ]
+    },
+    {
+      "id": "observations",
+      "name": "点光源与扩展光源干涉现象",
+      "required": true,
+      "description": "三行依次记录未扩束激光、扩束激光和钠灯扩展光源",
+      "rowCount": 3,
+      "columns": [
+        {
+          "key": "setup_code",
+          "label": "光路(1未扩束/2扩束/3钠灯)",
+          "unit": ""
+        },
+        {
+          "key": "pattern_code",
+          "label": "形态(1圆环/2直纹)",
+          "unit": ""
+        },
+        {
+          "key": "motion_code",
+          "label": "移动(1涌出/-1淹没/0不适用)",
+          "unit": ""
+        },
+        {
+          "key": "localized_code",
+          "label": "定域(1是/0否)",
+          "unit": ""
+        }
+      ],
+      "prefill": {
+        "setup_code": [
+          1,
+          2,
+          3
+        ]
+      },
+      "results": [
+        {
+          "key": "observed_rows",
+          "label": "已记录现象数",
+          "unit": ""
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "条纹计数、读数合成、反射镜倾斜、空气扰动和鼓轮机械空程差。",
+    "suggestions": "鼓轮始终单向连续缓慢旋转；一旦反转，应回旋多圈重新调零；严禁直视未扩束激光。",
+    "extensions": "可分析逐差离散度，并比较点光源非定域干涉与扩展光源定域等倾干涉。"
+  }
+}

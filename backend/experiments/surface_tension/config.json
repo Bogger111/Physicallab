@@ -1,0 +1,355 @@
+{
+  "id": "surface-tension",
+  "name": "液体表面张力系数测量",
+  "category": "力学",
+  "description": "用拉脱法和毛细管法测量液体表面张力，并标定力敏传感器。",
+  "processingTime": "~45秒",
+  "measurements": [
+    "砝码质量与传感器电压",
+    "破膜前后电压",
+    "液面和毛细管坐标"
+  ],
+  "methods": [
+    {
+      "id": "calibration",
+      "name": "力敏传感器定标",
+      "required": true,
+      "description": "拟合 U-F 求灵敏度 K",
+      "rowCount": 8,
+      "params": [
+        {
+          "key": "g",
+          "label": "重力加速度",
+          "unit": "m/s²",
+          "default": 9.79338
+        }
+      ],
+      "columns": [
+        {
+          "key": "mass",
+          "label": "砝码质量",
+          "unit": "g"
+        },
+        {
+          "key": "u_up",
+          "label": "加载 U",
+          "unit": "mV"
+        },
+        {
+          "key": "u_down",
+          "label": "卸载 U",
+          "unit": "mV"
+        }
+      ],
+      "prefill": {
+        "mass": [
+          0,
+          0.5,
+          1,
+          1.5,
+          2,
+          2.5,
+          3,
+          3.5
+        ]
+      },
+      "results": [
+        {
+          "key": "sensitivity",
+          "label": "灵敏度 K",
+          "unit": "mV/N"
+        },
+        {
+          "key": "r_squared",
+          "label": "R²",
+          "unit": ""
+        },
+        {
+          "key": "hysteresis",
+          "label": "最大回程差",
+          "unit": "mV"
+        }
+      ]
+    },
+    {
+      "id": "pull_off",
+      "name": "拉脱法",
+      "required": true,
+      "description": "自动使用定标所得 K，由破膜电压差求表面张力并与纯水标准值比较",
+      "rowCount": 5,
+      "params": [
+        {
+          "key": "d1",
+          "label": "吊环直径 D1",
+          "unit": "cm",
+          "default": 3.31
+        },
+        {
+          "key": "d2",
+          "label": "吊环直径 D2",
+          "unit": "cm",
+          "default": 3.496
+        },
+        {
+          "key": "sigma_reference",
+          "label": "纯水标准值 σ0",
+          "unit": "N/m",
+          "default": 0.07275
+        }
+      ],
+      "columns": [
+        {
+          "key": "u1",
+          "label": "破膜前 U1",
+          "unit": "mV"
+        },
+        {
+          "key": "u2",
+          "label": "破膜后 U2",
+          "unit": "mV"
+        }
+      ],
+      "results": [
+        {
+          "key": "sensitivity_used",
+          "label": "采用的定标 K",
+          "unit": "mV/N"
+        },
+        {
+          "key": "sigma",
+          "label": "表面张力 σ",
+          "unit": "N/m"
+        },
+        {
+          "key": "sigma_std",
+          "label": "重复测量标准差",
+          "unit": "N/m"
+        },
+        {
+          "key": "sigma_reference",
+          "label": "纯水标准值 σ0",
+          "unit": "N/m"
+        },
+        {
+          "key": "absolute_error",
+          "label": "绝对误差 Δσ",
+          "unit": "N/m"
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差 Er",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "id": "capillary",
+      "name": "毛细管法",
+      "required": true,
+      "description": "含弯月面体积修正，并与纯水标准值比较",
+      "rowCount": 5,
+      "params": [
+        {
+          "key": "density",
+          "label": "液体密度 ρ",
+          "unit": "kg/m³",
+          "default": 998
+        },
+        {
+          "key": "g",
+          "label": "重力加速度",
+          "unit": "m/s²",
+          "default": 9.79338
+        },
+        {
+          "key": "sigma_reference",
+          "label": "纯水标准值 σ0",
+          "unit": "N/m",
+          "default": 0.07275
+        }
+      ],
+      "columns": [
+        {
+          "key": "y1",
+          "label": "凹液面 y1",
+          "unit": "mm"
+        },
+        {
+          "key": "y2",
+          "label": "烧杯液面 y2",
+          "unit": "mm"
+        },
+        {
+          "key": "x1",
+          "label": "内壁 x1",
+          "unit": "mm"
+        },
+        {
+          "key": "x2",
+          "label": "内壁 x2",
+          "unit": "mm"
+        }
+      ],
+      "results": [
+        {
+          "key": "sigma",
+          "label": "表面张力 σ",
+          "unit": "N/m"
+        },
+        {
+          "key": "height",
+          "label": "平均液柱高",
+          "unit": "mm"
+        },
+        {
+          "key": "diameter",
+          "label": "平均内径",
+          "unit": "mm"
+        },
+        {
+          "key": "sigma_reference",
+          "label": "纯水标准值 σ0",
+          "unit": "N/m"
+        },
+        {
+          "key": "absolute_error",
+          "label": "绝对误差 Δσ",
+          "unit": "N/m"
+        },
+        {
+          "key": "relative_error",
+          "label": "相对误差 Er",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "id": "salt_pull_off",
+      "name": "盐水表面张力·拉脱法（拓展选做）",
+      "required": false,
+      "description": "选择拉脱法时记录盐水浓度与破膜电压",
+      "rowCount": 5,
+      "params": [
+        {
+          "key": "concentration",
+          "label": "盐水浓度",
+          "unit": "%",
+          "default": 5
+        },
+        {
+          "key": "sensitivity",
+          "label": "传感器 K",
+          "unit": "mV/N",
+          "default": 1000
+        },
+        {
+          "key": "d1",
+          "label": "吊环直径 D1",
+          "unit": "cm",
+          "default": 3.31
+        },
+        {
+          "key": "d2",
+          "label": "吊环直径 D2",
+          "unit": "cm",
+          "default": 3.496
+        }
+      ],
+      "columns": [
+        {
+          "key": "u1",
+          "label": "破膜前 U1",
+          "unit": "mV"
+        },
+        {
+          "key": "u2",
+          "label": "破膜后 U2",
+          "unit": "mV"
+        }
+      ],
+      "results": [
+        {
+          "key": "sigma",
+          "label": "表面张力 σ",
+          "unit": "N/m"
+        },
+        {
+          "key": "sigma_std",
+          "label": "标准差",
+          "unit": "N/m"
+        }
+      ]
+    },
+    {
+      "id": "salt_capillary",
+      "name": "盐水表面张力·毛细管法（拓展选做）",
+      "required": false,
+      "description": "选择毛细管法时记录盐水浓度、液柱高与管径",
+      "rowCount": 5,
+      "params": [
+        {
+          "key": "concentration",
+          "label": "盐水浓度",
+          "unit": "%",
+          "default": 5
+        },
+        {
+          "key": "density",
+          "label": "盐水密度 ρ",
+          "unit": "kg/m³",
+          "default": 1035
+        },
+        {
+          "key": "g",
+          "label": "重力加速度",
+          "unit": "m/s²",
+          "default": 9.79338
+        }
+      ],
+      "columns": [
+        {
+          "key": "y1",
+          "label": "凹液面 y1",
+          "unit": "mm"
+        },
+        {
+          "key": "y2",
+          "label": "烧杯液面 y2",
+          "unit": "mm"
+        },
+        {
+          "key": "x1",
+          "label": "内壁 x1",
+          "unit": "mm"
+        },
+        {
+          "key": "x2",
+          "label": "内壁 x2",
+          "unit": "mm"
+        }
+      ],
+      "results": [
+        {
+          "key": "sigma",
+          "label": "表面张力 σ",
+          "unit": "N/m"
+        },
+        {
+          "key": "height",
+          "label": "平均液柱高",
+          "unit": "mm"
+        },
+        {
+          "key": "diameter",
+          "label": "平均内径",
+          "unit": "mm"
+        }
+      ]
+    }
+  ],
+  "discussion": {
+    "errors": "传感器回程差、吊环不水平、拉脱瞬间判读、毛细管润湿和显微镜空程差。",
+    "suggestions": "砝码用镊子夹取且载荷不超过 0.098 N；鼓轮单向读数；吊环下沿与水面平行。",
+    "extensions": "可比较两种方法的系统偏差，并研究盐水浓度对表面张力的影响。"
+  }
+}

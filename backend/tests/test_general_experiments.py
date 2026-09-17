@@ -13,9 +13,21 @@ import numpy as np
 import pytest
 
 from app.main import app
-from experiments.general import docs
-from experiments.general.engine import CONFIGS, process_experiment
+from experiments.core import documents as docs
+from experiments.core.registry import registry
 from fastapi.testclient import TestClient
+
+
+CONFIG_IDS = (
+    "multimeter", "bridge", "photoelectric", "franck-hertz", "solar-cell",
+    "gmr", "nmr", "viscosity", "surface-tension", "thermal-conductivity",
+    "michelson",
+)
+CONFIGS = [registry.get(experiment_id).config for experiment_id in CONFIG_IDS]
+
+
+def process_experiment(experiment_id, data):
+    return registry.get(experiment_id).process(data)
 
 
 LECTURE_METHODS = {
@@ -181,7 +193,7 @@ def test_surface_tension_uses_calibrated_sensitivity_and_reports_water_errors():
         assert math.isfinite(run["results"][method_id]["relative_error"])
 
     report_text = "\n".join(
-        block.get("text", "") for block in docs.report_blocks("surface-tension", data)
+        block.get("text", "") for block in docs.report_blocks(registry.get("surface-tension"), data)
     )
     assert "最终结果：σ =" in report_text
     assert "相对误差 Er =" in report_text
@@ -196,7 +208,7 @@ def test_photoelectric_iv_wavelengths_share_one_combined_plot():
     assert "iv_546" not in run["plots"]
     assert "iv_curves" not in run["plots"]
 
-    blocks = docs.report_blocks("photoelectric", data)
+    blocks = docs.report_blocks(registry.get("photoelectric"), data)
     matching_images = [
         block for block in blocks
         if block.get("kind") == "image" and block.get("b64") == run["plots"]["iv_436"]
@@ -273,7 +285,7 @@ def test_lecture_required_and_optional_content_is_represented():
 @pytest.mark.document
 def test_blank_record_rows_are_writable_and_tables_fit_portrait_a4():
     for config in CONFIGS:
-        blocks = docs.record_blocks(config["id"])
+        blocks = docs.record_blocks(registry.get(config["id"]))
         raw_tables = [block for block in blocks if block["kind"] == "table" and len(block["rows"]) > 2]
         assert raw_tables
         for table in raw_tables:
@@ -287,13 +299,13 @@ def test_blank_record_rows_are_writable_and_tables_fit_portrait_a4():
 def test_all_general_report_structures_and_record_sheets():
     for config in CONFIGS:
         experiment_id=config["id"]
-        blocks=docs.report_blocks(experiment_id,fixtures()[experiment_id])
+        blocks=docs.report_blocks(registry.get(experiment_id),fixtures()[experiment_id])
         assert sum(block["kind"]=="pagebreak" for block in blocks)==3
         breaks=[i for i,block in enumerate(blocks) if block["kind"]=="pagebreak"]
         assert all(block["kind"] in ("h3","table","spacer") for block in blocks[:breaks[0]])
         assert all(block["kind"] in ("h3","image","spacer") for block in blocks[breaks[0]+1:breaks[1]])
         assert blocks[breaks[1]+1]["text"].startswith("第三部分")
-        record=docs.record_bytes(experiment_id,"docx")
+        record=registry.get(experiment_id).build_record_sheet("docx")
         with zipfile.ZipFile(io.BytesIO(record)) as archive:
             assert archive.testzip() is None
 
@@ -301,11 +313,11 @@ def test_all_general_report_structures_and_record_sheets():
 @pytest.mark.document
 def test_michelson_report_renders_word_and_pdf():
     data=fixtures()["michelson"]
-    docx=docs.report_bytes("michelson",data,"docx")
+    docx=registry.get("michelson").build_report(data,"docx")
     with zipfile.ZipFile(io.BytesIO(docx)) as archive:
         assert archive.testzip() is None
         assert archive.read("word/document.xml").count(b'w:type="page"') >= 3
-    pdf=fitz.open(stream=docs.report_bytes("michelson",data,"pdf"),filetype="pdf")
+    pdf=fitz.open(stream=registry.get("michelson").build_report(data,"pdf"),filetype="pdf")
     assert len(pdf)>=4
     assert all(page.rect.width == pytest.approx(595.28,abs=.2) for page in pdf)
 
@@ -313,7 +325,7 @@ def test_michelson_report_renders_word_and_pdf():
 @pytest.mark.document
 @pytest.mark.parametrize("experiment_id", [item["id"] for item in CONFIGS])
 def test_every_general_report_renders_printable_pdf(experiment_id):
-    pdf=fitz.open(stream=docs.report_bytes(experiment_id,fixtures()[experiment_id],"pdf"),filetype="pdf")
+    pdf=fitz.open(stream=registry.get(experiment_id).build_report(fixtures()[experiment_id],"pdf"),filetype="pdf")
     assert len(pdf)>=4
     for page in pdf:
         text=page.get_text()

@@ -1,5 +1,29 @@
 import soundLightConfig from "../../../backend/experiments/soundlight/config.json";
-import generalConfigs from "../../../backend/experiments/general/configs.json";
+import multimeterConfig from "../../../backend/experiments/multimeter/config.json";
+import bridgeConfig from "../../../backend/experiments/bridge/config.json";
+import photoelectricConfig from "../../../backend/experiments/photoelectric/config.json";
+import franckHertzConfig from "../../../backend/experiments/franck_hertz/config.json";
+import solarCellConfig from "../../../backend/experiments/solar_cell/config.json";
+import gmrConfig from "../../../backend/experiments/gmr/config.json";
+import nmrConfig from "../../../backend/experiments/nmr/config.json";
+import viscosityConfig from "../../../backend/experiments/viscosity/config.json";
+import surfaceTensionConfig from "../../../backend/experiments/surface_tension/config.json";
+import thermalConductivityConfig from "../../../backend/experiments/thermal_conductivity/config.json";
+import michelsonConfig from "../../../backend/experiments/michelson/config.json";
+
+const generalConfigs = [
+  multimeterConfig,
+  bridgeConfig,
+  photoelectricConfig,
+  franckHertzConfig,
+  solarCellConfig,
+  gmrConfig,
+  nmrConfig,
+  viscosityConfig,
+  surfaceTensionConfig,
+  thermalConductivityConfig,
+  michelsonConfig,
+];
 
 export interface Measurement {
   key: string;
