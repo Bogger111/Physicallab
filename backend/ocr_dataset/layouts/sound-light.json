@@ -1,0 +1,746 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "sound-light",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 0.8824,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "air_resonance.rows.row_01.l": {
+      "x1": 0.18812,
+      "y1": 0.08617,
+      "x2": 0.56625,
+      "y2": 0.10252,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_02.l": {
+      "x1": 0.18812,
+      "y1": 0.10252,
+      "x2": 0.56625,
+      "y2": 0.11843,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_03.l": {
+      "x1": 0.18812,
+      "y1": 0.11843,
+      "x2": 0.56625,
+      "y2": 0.13478,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_04.l": {
+      "x1": 0.18812,
+      "y1": 0.13478,
+      "x2": 0.56625,
+      "y2": 0.15068,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_05.l": {
+      "x1": 0.18812,
+      "y1": 0.15068,
+      "x2": 0.56625,
+      "y2": 0.16703,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_06.l": {
+      "x1": 0.18812,
+      "y1": 0.16703,
+      "x2": 0.56625,
+      "y2": 0.18338,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_07.l": {
+      "x1": 0.18812,
+      "y1": 0.18338,
+      "x2": 0.56625,
+      "y2": 0.19929,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_08.l": {
+      "x1": 0.18812,
+      "y1": 0.19929,
+      "x2": 0.56625,
+      "y2": 0.21564,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_09.l": {
+      "x1": 0.18812,
+      "y1": 0.21564,
+      "x2": 0.56625,
+      "y2": 0.23155,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_10.l": {
+      "x1": 0.18812,
+      "y1": 0.23155,
+      "x2": 0.56625,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_11.l": {
+      "x1": 0.18812,
+      "y1": 0.2479,
+      "x2": 0.56625,
+      "y2": 0.26381,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "air_resonance.rows.row_12.l": {
+      "x1": 0.18812,
+      "y1": 0.26381,
+      "x2": 0.56625,
+      "y2": 0.28016,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_lissajous.rows.row_01.x1": {
+      "x1": 0.18812,
+      "y1": 0.76977,
+      "x2": 0.43688,
+      "y2": 0.78568,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_lissajous.rows.row_01.x2": {
+      "x1": 0.43688,
+      "y1": 0.76977,
+      "x2": 0.68563,
+      "y2": 0.78568,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_lissajous.rows.row_02.x1": {
+      "x1": 0.18812,
+      "y1": 0.78568,
+      "x2": 0.43688,
+      "y2": 0.80203,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_lissajous.rows.row_02.x2": {
+      "x1": 0.43688,
+      "y1": 0.78568,
+      "x2": 0.68563,
+      "y2": 0.80203,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_lissajous.rows.row_03.x1": {
+      "x1": 0.18812,
+      "y1": 0.80203,
+      "x2": 0.43688,
+      "y2": 0.81838,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_lissajous.rows.row_03.x2": {
+      "x1": 0.43688,
+      "y1": 0.80203,
+      "x2": 0.68563,
+      "y2": 0.81838,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_01.T": {
+      "x1": 0.56625,
+      "y1": 0.58109,
+      "x2": 0.94437,
+      "y2": 0.59744,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_01.dt": {
+      "x1": 0.3125,
+      "y1": 0.67521,
+      "x2": 0.46625,
+      "y2": 0.69156,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_01.x1": {
+      "x1": 0.46625,
+      "y1": 0.67521,
+      "x2": 0.58125,
+      "y2": 0.69156,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_01.x2": {
+      "x1": 0.58125,
+      "y1": 0.67521,
+      "x2": 0.69563,
+      "y2": 0.69156,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_02.T": {
+      "x1": 0.56625,
+      "y1": 0.59744,
+      "x2": 0.94437,
+      "y2": 0.61335,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_02.dt": {
+      "x1": 0.3125,
+      "y1": 0.69156,
+      "x2": 0.46625,
+      "y2": 0.70791,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_02.x1": {
+      "x1": 0.46625,
+      "y1": 0.69156,
+      "x2": 0.58125,
+      "y2": 0.70791,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_02.x2": {
+      "x1": 0.58125,
+      "y1": 0.69156,
+      "x2": 0.69563,
+      "y2": 0.70791,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_03.T": {
+      "x1": 0.56625,
+      "y1": 0.61335,
+      "x2": 0.94437,
+      "y2": 0.6297,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_03.dt": {
+      "x1": 0.3125,
+      "y1": 0.70791,
+      "x2": 0.46625,
+      "y2": 0.72382,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_03.x1": {
+      "x1": 0.46625,
+      "y1": 0.70791,
+      "x2": 0.58125,
+      "y2": 0.72382,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "light_sine.rows.row_03.x2": {
+      "x1": 0.58125,
+      "y1": 0.70791,
+      "x2": 0.69563,
+      "y2": 0.72382,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_01.L": {
+      "x1": 0.18812,
+      "y1": 0.34158,
+      "x2": 0.56625,
+      "y2": 0.35749,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_01.T": {
+      "x1": 0.56625,
+      "y1": 0.34158,
+      "x2": 0.94437,
+      "y2": 0.35749,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_02.L": {
+      "x1": 0.18812,
+      "y1": 0.35749,
+      "x2": 0.56625,
+      "y2": 0.37384,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_02.T": {
+      "x1": 0.56625,
+      "y1": 0.35749,
+      "x2": 0.94437,
+      "y2": 0.37384,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_03.L": {
+      "x1": 0.18812,
+      "y1": 0.37384,
+      "x2": 0.56625,
+      "y2": 0.38975,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_03.T": {
+      "x1": 0.56625,
+      "y1": 0.37384,
+      "x2": 0.94437,
+      "y2": 0.38975,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_04.L": {
+      "x1": 0.18812,
+      "y1": 0.38975,
+      "x2": 0.56625,
+      "y2": 0.4061,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_04.T": {
+      "x1": 0.56625,
+      "y1": 0.38975,
+      "x2": 0.94437,
+      "y2": 0.4061,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_05.L": {
+      "x1": 0.18812,
+      "y1": 0.4061,
+      "x2": 0.56625,
+      "y2": 0.42201,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_05.T": {
+      "x1": 0.56625,
+      "y1": 0.4061,
+      "x2": 0.94437,
+      "y2": 0.42201,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_06.L": {
+      "x1": 0.18812,
+      "y1": 0.42201,
+      "x2": 0.56625,
+      "y2": 0.43836,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_06.T": {
+      "x1": 0.56625,
+      "y1": 0.42201,
+      "x2": 0.94437,
+      "y2": 0.43836,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_07.L": {
+      "x1": 0.18812,
+      "y1": 0.43836,
+      "x2": 0.56625,
+      "y2": 0.45426,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_07.T": {
+      "x1": 0.56625,
+      "y1": 0.43836,
+      "x2": 0.94437,
+      "y2": 0.45426,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_08.L": {
+      "x1": 0.18812,
+      "y1": 0.45426,
+      "x2": 0.56625,
+      "y2": 0.47061,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_08.T": {
+      "x1": 0.56625,
+      "y1": 0.45426,
+      "x2": 0.94437,
+      "y2": 0.47061,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_09.L": {
+      "x1": 0.18812,
+      "y1": 0.47061,
+      "x2": 0.56625,
+      "y2": 0.48696,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_09.T": {
+      "x1": 0.56625,
+      "y1": 0.47061,
+      "x2": 0.94437,
+      "y2": 0.48696,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_10.L": {
+      "x1": 0.18812,
+      "y1": 0.48696,
+      "x2": 0.56625,
+      "y2": 0.50287,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_10.T": {
+      "x1": 0.56625,
+      "y1": 0.48696,
+      "x2": 0.94437,
+      "y2": 0.50287,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_11.L": {
+      "x1": 0.18812,
+      "y1": 0.50287,
+      "x2": 0.56625,
+      "y2": 0.51922,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_11.T": {
+      "x1": 0.56625,
+      "y1": 0.50287,
+      "x2": 0.94437,
+      "y2": 0.51922,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_12.L": {
+      "x1": 0.18812,
+      "y1": 0.51922,
+      "x2": 0.56625,
+      "y2": 0.53513,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "tof.rows.row_12.T": {
+      "x1": 0.56625,
+      "y1": 0.51922,
+      "x2": 0.94437,
+      "y2": 0.53513,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_01.l": {
+      "x1": 0.56625,
+      "y1": 0.08617,
+      "x2": 0.94437,
+      "y2": 0.10252,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_02.l": {
+      "x1": 0.56625,
+      "y1": 0.10252,
+      "x2": 0.94437,
+      "y2": 0.11843,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_03.l": {
+      "x1": 0.56625,
+      "y1": 0.11843,
+      "x2": 0.94437,
+      "y2": 0.13478,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_04.l": {
+      "x1": 0.56625,
+      "y1": 0.13478,
+      "x2": 0.94437,
+      "y2": 0.15068,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_05.l": {
+      "x1": 0.56625,
+      "y1": 0.15068,
+      "x2": 0.94437,
+      "y2": 0.16703,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_06.l": {
+      "x1": 0.56625,
+      "y1": 0.16703,
+      "x2": 0.94437,
+      "y2": 0.18338,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_07.l": {
+      "x1": 0.56625,
+      "y1": 0.18338,
+      "x2": 0.94437,
+      "y2": 0.19929,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_08.l": {
+      "x1": 0.56625,
+      "y1": 0.19929,
+      "x2": 0.94437,
+      "y2": 0.21564,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_09.l": {
+      "x1": 0.56625,
+      "y1": 0.21564,
+      "x2": 0.94437,
+      "y2": 0.23155,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_10.l": {
+      "x1": 0.56625,
+      "y1": 0.23155,
+      "x2": 0.94437,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_11.l": {
+      "x1": 0.56625,
+      "y1": 0.2479,
+      "x2": 0.94437,
+      "y2": 0.26381,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "water_phase.rows.row_12.l": {
+      "x1": 0.56625,
+      "y1": 0.26381,
+      "x2": 0.94437,
+      "y2": 0.28016,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.28016
+    ],
+    [
+      0.05875,
+      0.32523,
+      0.94437,
+      0.53513
+    ],
+    [
+      0.05875,
+      0.56474,
+      0.94437,
+      0.6297
+    ],
+    [
+      0.05875,
+      0.6593,
+      0.94437,
+      0.72382
+    ],
+    [
+      0.05875,
+      0.75342,
+      0.94437,
+      0.81838
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.16794,
+      0.18785,
+      0.31224,
+      0.43664,
+      0.4665,
+      0.56602,
+      0.58094,
+      0.68544,
+      0.69539,
+      0.81481,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.08625,
+      0.10241,
+      0.11856,
+      0.13472,
+      0.15087,
+      0.16702,
+      0.18318,
+      0.19933,
+      0.21549,
+      0.23164,
+      0.24779,
+      0.26395,
+      0.2801,
+      0.32524,
+      0.34139,
+      0.35755,
+      0.3737,
+      0.38986,
+      0.40601,
+      0.42216,
+      0.43832,
+      0.45447,
+      0.47063,
+      0.48678,
+      0.50293,
+      0.51909,
+      0.53524,
+      0.56494,
+      0.58109,
+      0.59725,
+      0.6134,
+      0.62955,
+      0.65925,
+      0.6754,
+      0.69156,
+      0.70771,
+      0.72387,
+      0.75356,
+      0.76972,
+      0.78587,
+      0.80202,
+      0.81818
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "air_resonance",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "temperature_degC",
+        "f_khz"
+      ]
+    },
+    {
+      "method_id": "air_resonance",
+      "section": "rows",
+      "row_count": 12,
+      "columns": [
+        "l"
+      ]
+    },
+    {
+      "method_id": "water_phase",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "f_mhz"
+      ]
+    },
+    {
+      "method_id": "water_phase",
+      "section": "rows",
+      "row_count": 12,
+      "columns": [
+        "l"
+      ]
+    },
+    {
+      "method_id": "tof",
+      "section": "rows",
+      "row_count": 12,
+      "columns": [
+        "L",
+        "T"
+      ]
+    },
+    {
+      "method_id": "light_sine",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "f_mhz"
+      ]
+    },
+    {
+      "method_id": "light_sine",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "T",
+        "dt",
+        "x1",
+        "x2"
+      ]
+    },
+    {
+      "method_id": "light_square",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "f_mhz"
+      ]
+    },
+    {
+      "method_id": "light_square",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "T",
+        "dt",
+        "x1",
+        "x2"
+      ]
+    },
+    {
+      "method_id": "light_lissajous",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "f_mhz"
+      ]
+    },
+    {
+      "method_id": "light_lissajous",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "x1",
+        "x2"
+      ]
+    }
+  ]
+}

@@ -20,7 +20,9 @@
 
 上传后的会话处于 `pending_confirmation`。只有报告下载成功，前端才把本次最终数据提交为 `confirmed` 标签；后续修改并再次生成报告会更新同一会话并递增 revision。字段 ID 由后端实验配置生成，不依赖 DOM 顺序。收集错误由独立接口处理，不会改变 validate、process 或 report 的结果。
 
-本地实现位于 `backend/data_collection/raw` 与 `metadata`，存储边界为 `CollectionStorage` / `LocalCollectionStorage`。可用 `PHYSICSLAB_COLLECTION_ROOT` 改变根目录。Cloud Run 本地文件系统是临时的；正式启用前应替换为持久化存储实现。`scripts/export_ocr_dataset.py` 默认只导出已同意、已确认、字段仍符合当前 schema 且原图存在的会话，输出 `manifest.csv` 与未裁剪原图副本，不执行 OCR、单元格裁剪、分割或训练。传入 `--database` 时仍可执行旧版 SQLite 单元格反馈导出。
+本地实现位于 `backend/data_collection/raw` 与 `metadata`，存储边界为 `CollectionStorage` / `LocalCollectionStorage`。可用 `PHYSICSLAB_COLLECTION_ROOT` 改变根目录。Cloud Run 本地文件系统是临时的；正式启用前应替换为持久化存储实现。
+
+离线数据集构建位于 `backend/ocr_dataset`，只读取已同意且已确认的会话，按最新 revision 导出单值训练裁剪：`python -m backend.ocr_dataset.build --output data/ocr_dataset`。裁切坐标来自本仓库自己渲染的空白记录表（`layouts/<experiment_id>.json`，`fields` + `anchors` + `lattice`），构建前先做模板配准与倒置检测，配准不通过时整个会话进入 `rejected.csv` 而不是猜测字段；标签保留提交时的字符串（`"22.090"` 不会被转成 `22.09`），输出 `labels.csv` / `rejected.csv` / `manifest.json` / `preview/contact_sheet.png`，且从不复制整页原图。每个实验当前只覆盖记录表第 1 页，因为一个会话只保存一张图片。旧的 `scripts/export_ocr_dataset.py` 仍可导出 `manifest.csv` 与未裁剪原图副本，传入 `--database` 时执行旧版 SQLite 单元格反馈导出，与本管线无关。
 
 ## 匿名分析
 

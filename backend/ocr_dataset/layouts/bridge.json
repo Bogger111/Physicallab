@@ -1,0 +1,429 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "bridge",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 0.8947,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "balanced.rows.row_01.rn": {
+      "x1": 0.05875,
+      "y1": 0.15245,
+      "x2": 0.94437,
+      "y2": 0.18206,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "balanced.rows.row_02.rn": {
+      "x1": 0.05875,
+      "y1": 0.18206,
+      "x2": 0.94437,
+      "y2": 0.21167,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "balanced.rows.row_03.rn": {
+      "x1": 0.05875,
+      "y1": 0.21167,
+      "x2": 0.94437,
+      "y2": 0.24127,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "capacitor.rows.row_01.cn": {
+      "x1": 0.05875,
+      "y1": 0.77243,
+      "x2": 0.50125,
+      "y2": 0.80203,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "capacitor.rows.row_01.rn": {
+      "x1": 0.50125,
+      "y1": 0.77243,
+      "x2": 0.94437,
+      "y2": 0.80203,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "capacitor.rows.row_02.cn": {
+      "x1": 0.05875,
+      "y1": 0.80203,
+      "x2": 0.50125,
+      "y2": 0.83164,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "capacitor.rows.row_02.rn": {
+      "x1": 0.50125,
+      "y1": 0.80203,
+      "x2": 0.94437,
+      "y2": 0.83164,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "capacitor.rows.row_03.cn": {
+      "x1": 0.05875,
+      "y1": 0.83164,
+      "x2": 0.50125,
+      "y2": 0.86125,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "capacitor.rows.row_03.rn": {
+      "x1": 0.50125,
+      "y1": 0.83164,
+      "x2": 0.94437,
+      "y2": 0.86125,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_01.temperature": {
+      "x1": 0.05875,
+      "y1": 0.35882,
+      "x2": 0.50125,
+      "y2": 0.38842,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_01.u0": {
+      "x1": 0.50125,
+      "y1": 0.35882,
+      "x2": 0.94437,
+      "y2": 0.38842,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_02.temperature": {
+      "x1": 0.05875,
+      "y1": 0.38842,
+      "x2": 0.50125,
+      "y2": 0.41803,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_02.u0": {
+      "x1": 0.50125,
+      "y1": 0.38842,
+      "x2": 0.94437,
+      "y2": 0.41803,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_03.temperature": {
+      "x1": 0.05875,
+      "y1": 0.41803,
+      "x2": 0.50125,
+      "y2": 0.44764,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_03.u0": {
+      "x1": 0.50125,
+      "y1": 0.41803,
+      "x2": 0.94437,
+      "y2": 0.44764,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_04.temperature": {
+      "x1": 0.05875,
+      "y1": 0.44764,
+      "x2": 0.50125,
+      "y2": 0.47724,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_04.u0": {
+      "x1": 0.50125,
+      "y1": 0.44764,
+      "x2": 0.94437,
+      "y2": 0.47724,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_05.temperature": {
+      "x1": 0.05875,
+      "y1": 0.47724,
+      "x2": 0.50125,
+      "y2": 0.50685,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_05.u0": {
+      "x1": 0.50125,
+      "y1": 0.47724,
+      "x2": 0.94437,
+      "y2": 0.50685,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_06.temperature": {
+      "x1": 0.05875,
+      "y1": 0.50685,
+      "x2": 0.50125,
+      "y2": 0.53646,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_06.u0": {
+      "x1": 0.50125,
+      "y1": 0.50685,
+      "x2": 0.94437,
+      "y2": 0.53646,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_07.temperature": {
+      "x1": 0.05875,
+      "y1": 0.53646,
+      "x2": 0.50125,
+      "y2": 0.56606,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_07.u0": {
+      "x1": 0.50125,
+      "y1": 0.53646,
+      "x2": 0.94437,
+      "y2": 0.56606,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_08.temperature": {
+      "x1": 0.05875,
+      "y1": 0.56606,
+      "x2": 0.50125,
+      "y2": 0.59567,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_08.u0": {
+      "x1": 0.50125,
+      "y1": 0.56606,
+      "x2": 0.94437,
+      "y2": 0.59567,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_09.temperature": {
+      "x1": 0.05875,
+      "y1": 0.59567,
+      "x2": 0.50125,
+      "y2": 0.62528,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_09.u0": {
+      "x1": 0.50125,
+      "y1": 0.59567,
+      "x2": 0.94437,
+      "y2": 0.62528,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_10.temperature": {
+      "x1": 0.05875,
+      "y1": 0.62528,
+      "x2": 0.50125,
+      "y2": 0.65488,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "cu50.rows.row_10.u0": {
+      "x1": 0.50125,
+      "y1": 0.62528,
+      "x2": 0.94437,
+      "y2": 0.65488,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.1224
+    ],
+    [
+      0.05875,
+      0.1224,
+      0.94437,
+      0.24127
+    ],
+    [
+      0.05875,
+      0.27662,
+      0.94437,
+      0.32921
+    ],
+    [
+      0.05875,
+      0.32921,
+      0.94437,
+      0.65488
+    ],
+    [
+      0.05875,
+      0.69023,
+      0.94437,
+      0.74282
+    ],
+    [
+      0.05875,
+      0.74282,
+      0.94437,
+      0.86125
+    ],
+    [
+      0.05875,
+      0.8966,
+      0.94437,
+      0.94918
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.35371,
+      0.50133,
+      0.64895,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09636,
+      0.12262,
+      0.15225,
+      0.18188,
+      0.21151,
+      0.24114,
+      0.27649,
+      0.30276,
+      0.32902,
+      0.35865,
+      0.38828,
+      0.41791,
+      0.44754,
+      0.47717,
+      0.5068,
+      0.53643,
+      0.56606,
+      0.59569,
+      0.62532,
+      0.65495,
+      0.6903,
+      0.71656,
+      0.74282,
+      0.77245,
+      0.80208,
+      0.83171,
+      0.86134,
+      0.89669,
+      0.92296,
+      0.94922
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "balanced",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "ra",
+        "rb"
+      ]
+    },
+    {
+      "method_id": "balanced",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "rn"
+      ]
+    },
+    {
+      "method_id": "cu50",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "us",
+        "r",
+        "rn"
+      ]
+    },
+    {
+      "method_id": "cu50",
+      "section": "rows",
+      "row_count": 10,
+      "columns": [
+        "temperature",
+        "u0"
+      ]
+    },
+    {
+      "method_id": "capacitor",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "ra",
+        "rb",
+        "f"
+      ]
+    },
+    {
+      "method_id": "capacitor",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "cn",
+        "rn"
+      ]
+    },
+    {
+      "method_id": "inductor",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "ra",
+        "rb",
+        "f"
+      ]
+    },
+    {
+      "method_id": "inductor",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "cn",
+        "rn"
+      ]
+    },
+    {
+      "method_id": "thermistor",
+      "section": "rows",
+      "row_count": 10,
+      "columns": [
+        "temperature",
+        "resistance"
+      ]
+    }
+  ]
+}

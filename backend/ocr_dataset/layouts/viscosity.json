@@ -1,0 +1,485 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "viscosity",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 0.8462,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "diameter.rows.row_01.x1": {
+      "x1": 0.05875,
+      "y1": 0.09987,
+      "x2": 0.50125,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter.rows.row_01.x2": {
+      "x1": 0.50125,
+      "y1": 0.09987,
+      "x2": 0.94437,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter.rows.row_02.x1": {
+      "x1": 0.05875,
+      "y1": 0.12947,
+      "x2": 0.50125,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter.rows.row_02.x2": {
+      "x1": 0.50125,
+      "y1": 0.12947,
+      "x2": 0.94437,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter.rows.row_03.x1": {
+      "x1": 0.05875,
+      "y1": 0.15908,
+      "x2": 0.50125,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter.rows.row_03.x2": {
+      "x1": 0.50125,
+      "y1": 0.15908,
+      "x2": 0.94437,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_01.diameter": {
+      "x1": 0.05875,
+      "y1": 0.57181,
+      "x2": 0.23563,
+      "y2": 0.60141,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_01.t1": {
+      "x1": 0.23563,
+      "y1": 0.57181,
+      "x2": 0.4125,
+      "y2": 0.60141,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_01.t2": {
+      "x1": 0.4125,
+      "y1": 0.57181,
+      "x2": 0.59,
+      "y2": 0.60141,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_01.t3": {
+      "x1": 0.59,
+      "y1": 0.57181,
+      "x2": 0.76687,
+      "y2": 0.60141,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_01.t4": {
+      "x1": 0.76687,
+      "y1": 0.57181,
+      "x2": 0.94437,
+      "y2": 0.60141,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_02.diameter": {
+      "x1": 0.05875,
+      "y1": 0.60141,
+      "x2": 0.23563,
+      "y2": 0.63102,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_02.t1": {
+      "x1": 0.23563,
+      "y1": 0.60141,
+      "x2": 0.4125,
+      "y2": 0.63102,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_02.t2": {
+      "x1": 0.4125,
+      "y1": 0.60141,
+      "x2": 0.59,
+      "y2": 0.63102,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_02.t3": {
+      "x1": 0.59,
+      "y1": 0.60141,
+      "x2": 0.76687,
+      "y2": 0.63102,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_02.t4": {
+      "x1": 0.76687,
+      "y1": 0.60141,
+      "x2": 0.94437,
+      "y2": 0.63102,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_03.diameter": {
+      "x1": 0.05875,
+      "y1": 0.63102,
+      "x2": 0.23563,
+      "y2": 0.66063,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_03.t1": {
+      "x1": 0.23563,
+      "y1": 0.63102,
+      "x2": 0.4125,
+      "y2": 0.66063,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_03.t2": {
+      "x1": 0.4125,
+      "y1": 0.63102,
+      "x2": 0.59,
+      "y2": 0.66063,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_03.t3": {
+      "x1": 0.59,
+      "y1": 0.63102,
+      "x2": 0.76687,
+      "y2": 0.66063,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "diameter_effect.rows.row_03.t4": {
+      "x1": 0.76687,
+      "y1": 0.63102,
+      "x2": 0.94437,
+      "y2": 0.66063,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_01.t1": {
+      "x1": 0.23563,
+      "y1": 0.30623,
+      "x2": 0.4125,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_01.t2": {
+      "x1": 0.4125,
+      "y1": 0.30623,
+      "x2": 0.59,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_01.t3": {
+      "x1": 0.59,
+      "y1": 0.30623,
+      "x2": 0.76687,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_01.t4": {
+      "x1": 0.76687,
+      "y1": 0.30623,
+      "x2": 0.94437,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_02.t1": {
+      "x1": 0.23563,
+      "y1": 0.33584,
+      "x2": 0.4125,
+      "y2": 0.36544,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_02.t2": {
+      "x1": 0.4125,
+      "y1": 0.33584,
+      "x2": 0.59,
+      "y2": 0.36544,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_02.t3": {
+      "x1": 0.59,
+      "y1": 0.33584,
+      "x2": 0.76687,
+      "y2": 0.36544,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_02.t4": {
+      "x1": 0.76687,
+      "y1": 0.33584,
+      "x2": 0.94437,
+      "y2": 0.36544,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_03.t1": {
+      "x1": 0.23563,
+      "y1": 0.36544,
+      "x2": 0.4125,
+      "y2": 0.39505,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_03.t2": {
+      "x1": 0.4125,
+      "y1": 0.36544,
+      "x2": 0.59,
+      "y2": 0.39505,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_03.t3": {
+      "x1": 0.59,
+      "y1": 0.36544,
+      "x2": 0.76687,
+      "y2": 0.39505,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_03.t4": {
+      "x1": 0.76687,
+      "y1": 0.36544,
+      "x2": 0.94437,
+      "y2": 0.39505,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_04.t1": {
+      "x1": 0.23563,
+      "y1": 0.39505,
+      "x2": 0.4125,
+      "y2": 0.42466,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_04.t2": {
+      "x1": 0.4125,
+      "y1": 0.39505,
+      "x2": 0.59,
+      "y2": 0.42466,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_04.t3": {
+      "x1": 0.59,
+      "y1": 0.39505,
+      "x2": 0.76687,
+      "y2": 0.42466,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_04.t4": {
+      "x1": 0.76687,
+      "y1": 0.39505,
+      "x2": 0.94437,
+      "y2": 0.42466,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_05.t1": {
+      "x1": 0.23563,
+      "y1": 0.42466,
+      "x2": 0.4125,
+      "y2": 0.45426,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_05.t2": {
+      "x1": 0.4125,
+      "y1": 0.42466,
+      "x2": 0.59,
+      "y2": 0.45426,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_05.t3": {
+      "x1": 0.59,
+      "y1": 0.42466,
+      "x2": 0.76687,
+      "y2": 0.45426,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "viscosity.rows.row_05.t4": {
+      "x1": 0.76687,
+      "y1": 0.42466,
+      "x2": 0.94437,
+      "y2": 0.45426,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.18869
+    ],
+    [
+      0.05875,
+      0.22404,
+      0.94437,
+      0.27662
+    ],
+    [
+      0.05875,
+      0.27662,
+      0.94437,
+      0.45426
+    ],
+    [
+      0.05875,
+      0.48962,
+      0.94437,
+      0.5422
+    ],
+    [
+      0.05875,
+      0.5422,
+      0.94437,
+      0.66063
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.20609,
+      0.23562,
+      0.35371,
+      0.41276,
+      0.50133,
+      0.5899,
+      0.64895,
+      0.76704,
+      0.79657,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09973,
+      0.12936,
+      0.15899,
+      0.18862,
+      0.22397,
+      0.25023,
+      0.27649,
+      0.30612,
+      0.33575,
+      0.36538,
+      0.39501,
+      0.42464,
+      0.45427,
+      0.48962,
+      0.51589,
+      0.54215,
+      0.57178,
+      0.60141,
+      0.63104,
+      0.66067
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "diameter",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "x1",
+        "x2"
+      ]
+    },
+    {
+      "method_id": "viscosity",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "distance",
+        "diameter",
+        "rho_ball",
+        "rho_oil",
+        "tube_diameter",
+        "g"
+      ]
+    },
+    {
+      "method_id": "viscosity",
+      "section": "rows",
+      "row_count": 5,
+      "columns": [
+        "temperature",
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ]
+    },
+    {
+      "method_id": "diameter_effect",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "distance",
+        "temperature",
+        "rho_ball",
+        "rho_oil",
+        "tube_diameter",
+        "g"
+      ]
+    },
+    {
+      "method_id": "diameter_effect",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "diameter",
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ]
+    }
+  ]
+}

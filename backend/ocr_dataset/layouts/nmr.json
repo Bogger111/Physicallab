@@ -1,0 +1,333 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "nmr",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 0.9487,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "fluorine.rows.row_01.field": {
+      "x1": 0.50125,
+      "y1": 0.58506,
+      "x2": 0.94437,
+      "y2": 0.61467,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_02.field": {
+      "x1": 0.50125,
+      "y1": 0.61467,
+      "x2": 0.94437,
+      "y2": 0.64472,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_03.field": {
+      "x1": 0.50125,
+      "y1": 0.64472,
+      "x2": 0.94437,
+      "y2": 0.67433,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_04.field": {
+      "x1": 0.50125,
+      "y1": 0.67433,
+      "x2": 0.94437,
+      "y2": 0.70393,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_05.field": {
+      "x1": 0.50125,
+      "y1": 0.70393,
+      "x2": 0.94437,
+      "y2": 0.73354,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_06.field": {
+      "x1": 0.50125,
+      "y1": 0.73354,
+      "x2": 0.94437,
+      "y2": 0.76315,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_07.field": {
+      "x1": 0.50125,
+      "y1": 0.76315,
+      "x2": 0.94437,
+      "y2": 0.79275,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_08.field": {
+      "x1": 0.50125,
+      "y1": 0.79275,
+      "x2": 0.94437,
+      "y2": 0.82236,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_09.field": {
+      "x1": 0.50125,
+      "y1": 0.82236,
+      "x2": 0.94437,
+      "y2": 0.85197,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "fluorine.rows.row_10.field": {
+      "x1": 0.50125,
+      "y1": 0.85197,
+      "x2": 0.94437,
+      "y2": 0.88157,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_01.field": {
+      "x1": 0.50125,
+      "y1": 0.22404,
+      "x2": 0.94437,
+      "y2": 0.25365,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_02.field": {
+      "x1": 0.50125,
+      "y1": 0.25365,
+      "x2": 0.94437,
+      "y2": 0.28325,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_03.field": {
+      "x1": 0.50125,
+      "y1": 0.28325,
+      "x2": 0.94437,
+      "y2": 0.31286,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_04.field": {
+      "x1": 0.50125,
+      "y1": 0.31286,
+      "x2": 0.94437,
+      "y2": 0.34247,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_05.field": {
+      "x1": 0.50125,
+      "y1": 0.34247,
+      "x2": 0.94437,
+      "y2": 0.37207,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_06.field": {
+      "x1": 0.50125,
+      "y1": 0.37207,
+      "x2": 0.94437,
+      "y2": 0.40168,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_07.field": {
+      "x1": 0.50125,
+      "y1": 0.40168,
+      "x2": 0.94437,
+      "y2": 0.43129,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_08.field": {
+      "x1": 0.50125,
+      "y1": 0.43129,
+      "x2": 0.94437,
+      "y2": 0.46089,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_09.field": {
+      "x1": 0.50125,
+      "y1": 0.46089,
+      "x2": 0.94437,
+      "y2": 0.4905,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "hydrogen.rows.row_10.field": {
+      "x1": 0.50125,
+      "y1": 0.4905,
+      "x2": 0.94437,
+      "y2": 0.52011,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "waveform.rows.row_01.t1": {
+      "x1": 0.50125,
+      "y1": 0.09987,
+      "x2": 0.7225,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "waveform.rows.row_01.t2": {
+      "x1": 0.7225,
+      "y1": 0.09987,
+      "x2": 0.94437,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "waveform.rows.row_01.tail_count": {
+      "x1": 0.28,
+      "y1": 0.09987,
+      "x2": 0.50125,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "waveform.rows.row_02.t1": {
+      "x1": 0.50125,
+      "y1": 0.12947,
+      "x2": 0.7225,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "waveform.rows.row_02.t2": {
+      "x1": 0.7225,
+      "y1": 0.12947,
+      "x2": 0.94437,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "waveform.rows.row_02.tail_count": {
+      "x1": 0.28,
+      "y1": 0.12947,
+      "x2": 0.50125,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.15908
+    ],
+    [
+      0.05875,
+      0.19443,
+      0.94437,
+      0.52011
+    ],
+    [
+      0.05875,
+      0.55546,
+      0.94437,
+      0.88157
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.2799,
+      0.50133,
+      0.72276,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09973,
+      0.12936,
+      0.15899,
+      0.19434,
+      0.22397,
+      0.2536,
+      0.28323,
+      0.31286,
+      0.34249,
+      0.37212,
+      0.40175,
+      0.43138,
+      0.46101,
+      0.49064,
+      0.52027,
+      0.55562,
+      0.58525,
+      0.61488,
+      0.64451,
+      0.67414,
+      0.70377,
+      0.7334,
+      0.76302,
+      0.79265,
+      0.82228,
+      0.85191,
+      0.88154
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "waveform",
+      "section": "rows",
+      "row_count": 2,
+      "columns": [
+        "sample_code",
+        "tail_count",
+        "t1",
+        "t2"
+      ]
+    },
+    {
+      "method_id": "hydrogen",
+      "section": "rows",
+      "row_count": 10,
+      "columns": [
+        "frequency",
+        "field"
+      ]
+    },
+    {
+      "method_id": "fluorine",
+      "section": "rows",
+      "row_count": 10,
+      "columns": [
+        "frequency",
+        "field"
+      ]
+    },
+    {
+      "method_id": "pure_water",
+      "section": "rows",
+      "row_count": 10,
+      "columns": [
+        "frequency",
+        "field"
+      ]
+    }
+  ]
+}

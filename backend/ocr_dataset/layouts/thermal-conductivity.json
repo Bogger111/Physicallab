@@ -1,0 +1,657 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "thermal-conductivity",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 0.9111,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "geometry.rows.row_01.db": {
+      "x1": 0.50125,
+      "y1": 0.09987,
+      "x2": 0.7225,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_01.dc": {
+      "x1": 0.05875,
+      "y1": 0.09987,
+      "x2": 0.28,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_01.hb": {
+      "x1": 0.7225,
+      "y1": 0.09987,
+      "x2": 0.94437,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_01.hc": {
+      "x1": 0.28,
+      "y1": 0.09987,
+      "x2": 0.50125,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_02.db": {
+      "x1": 0.50125,
+      "y1": 0.12947,
+      "x2": 0.7225,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_02.dc": {
+      "x1": 0.05875,
+      "y1": 0.12947,
+      "x2": 0.28,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_02.hb": {
+      "x1": 0.7225,
+      "y1": 0.12947,
+      "x2": 0.94437,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_02.hc": {
+      "x1": 0.28,
+      "y1": 0.12947,
+      "x2": 0.50125,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_03.db": {
+      "x1": 0.50125,
+      "y1": 0.15908,
+      "x2": 0.7225,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_03.dc": {
+      "x1": 0.05875,
+      "y1": 0.15908,
+      "x2": 0.28,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_03.hb": {
+      "x1": 0.7225,
+      "y1": 0.15908,
+      "x2": 0.94437,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_03.hc": {
+      "x1": 0.28,
+      "y1": 0.15908,
+      "x2": 0.50125,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_04.db": {
+      "x1": 0.50125,
+      "y1": 0.18869,
+      "x2": 0.7225,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_04.dc": {
+      "x1": 0.05875,
+      "y1": 0.18869,
+      "x2": 0.28,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_04.hb": {
+      "x1": 0.7225,
+      "y1": 0.18869,
+      "x2": 0.94437,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_04.hc": {
+      "x1": 0.28,
+      "y1": 0.18869,
+      "x2": 0.50125,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_05.db": {
+      "x1": 0.50125,
+      "y1": 0.21829,
+      "x2": 0.7225,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_05.dc": {
+      "x1": 0.05875,
+      "y1": 0.21829,
+      "x2": 0.28,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_05.hb": {
+      "x1": 0.7225,
+      "y1": 0.21829,
+      "x2": 0.94437,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "geometry.rows.row_05.hc": {
+      "x1": 0.28,
+      "y1": 0.21829,
+      "x2": 0.50125,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_01.ta": {
+      "x1": 0.35375,
+      "y1": 0.30932,
+      "x2": 0.64875,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_01.tc": {
+      "x1": 0.64875,
+      "y1": 0.30932,
+      "x2": 0.94437,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_01.time": {
+      "x1": 0.05875,
+      "y1": 0.30932,
+      "x2": 0.35375,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_02.ta": {
+      "x1": 0.35375,
+      "y1": 0.33584,
+      "x2": 0.64875,
+      "y2": 0.36191,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_02.tc": {
+      "x1": 0.64875,
+      "y1": 0.33584,
+      "x2": 0.94437,
+      "y2": 0.36191,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_02.time": {
+      "x1": 0.05875,
+      "y1": 0.33584,
+      "x2": 0.35375,
+      "y2": 0.36191,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_03.ta": {
+      "x1": 0.35375,
+      "y1": 0.36191,
+      "x2": 0.64875,
+      "y2": 0.38842,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_03.tc": {
+      "x1": 0.64875,
+      "y1": 0.36191,
+      "x2": 0.94437,
+      "y2": 0.38842,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_03.time": {
+      "x1": 0.05875,
+      "y1": 0.36191,
+      "x2": 0.35375,
+      "y2": 0.38842,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_04.ta": {
+      "x1": 0.35375,
+      "y1": 0.38842,
+      "x2": 0.64875,
+      "y2": 0.41449,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_04.tc": {
+      "x1": 0.64875,
+      "y1": 0.38842,
+      "x2": 0.94437,
+      "y2": 0.41449,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_04.time": {
+      "x1": 0.05875,
+      "y1": 0.38842,
+      "x2": 0.35375,
+      "y2": 0.41449,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_05.ta": {
+      "x1": 0.35375,
+      "y1": 0.41449,
+      "x2": 0.64875,
+      "y2": 0.44101,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_05.tc": {
+      "x1": 0.64875,
+      "y1": 0.41449,
+      "x2": 0.94437,
+      "y2": 0.44101,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_05.time": {
+      "x1": 0.05875,
+      "y1": 0.41449,
+      "x2": 0.35375,
+      "y2": 0.44101,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_06.ta": {
+      "x1": 0.35375,
+      "y1": 0.44101,
+      "x2": 0.64875,
+      "y2": 0.46708,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_06.tc": {
+      "x1": 0.64875,
+      "y1": 0.44101,
+      "x2": 0.94437,
+      "y2": 0.46708,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_06.time": {
+      "x1": 0.05875,
+      "y1": 0.44101,
+      "x2": 0.35375,
+      "y2": 0.46708,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_07.ta": {
+      "x1": 0.35375,
+      "y1": 0.46708,
+      "x2": 0.64875,
+      "y2": 0.49315,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_07.tc": {
+      "x1": 0.64875,
+      "y1": 0.46708,
+      "x2": 0.94437,
+      "y2": 0.49315,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_07.time": {
+      "x1": 0.05875,
+      "y1": 0.46708,
+      "x2": 0.35375,
+      "y2": 0.49315,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_08.ta": {
+      "x1": 0.35375,
+      "y1": 0.49315,
+      "x2": 0.64875,
+      "y2": 0.51966,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_08.tc": {
+      "x1": 0.64875,
+      "y1": 0.49315,
+      "x2": 0.94437,
+      "y2": 0.51966,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_08.time": {
+      "x1": 0.05875,
+      "y1": 0.49315,
+      "x2": 0.35375,
+      "y2": 0.51966,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_09.ta": {
+      "x1": 0.35375,
+      "y1": 0.51966,
+      "x2": 0.64875,
+      "y2": 0.54574,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_09.tc": {
+      "x1": 0.64875,
+      "y1": 0.51966,
+      "x2": 0.94437,
+      "y2": 0.54574,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_09.time": {
+      "x1": 0.05875,
+      "y1": 0.51966,
+      "x2": 0.35375,
+      "y2": 0.54574,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_10.ta": {
+      "x1": 0.35375,
+      "y1": 0.54574,
+      "x2": 0.64875,
+      "y2": 0.57225,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_10.tc": {
+      "x1": 0.64875,
+      "y1": 0.54574,
+      "x2": 0.94437,
+      "y2": 0.57225,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_10.time": {
+      "x1": 0.05875,
+      "y1": 0.54574,
+      "x2": 0.35375,
+      "y2": 0.57225,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_11.ta": {
+      "x1": 0.35375,
+      "y1": 0.57225,
+      "x2": 0.64875,
+      "y2": 0.59832,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_11.tc": {
+      "x1": 0.64875,
+      "y1": 0.57225,
+      "x2": 0.94437,
+      "y2": 0.59832,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_11.time": {
+      "x1": 0.05875,
+      "y1": 0.57225,
+      "x2": 0.35375,
+      "y2": 0.59832,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_12.ta": {
+      "x1": 0.35375,
+      "y1": 0.59832,
+      "x2": 0.64875,
+      "y2": 0.62483,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_12.tc": {
+      "x1": 0.64875,
+      "y1": 0.59832,
+      "x2": 0.94437,
+      "y2": 0.62483,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_12.time": {
+      "x1": 0.05875,
+      "y1": 0.59832,
+      "x2": 0.35375,
+      "y2": 0.62483,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_13.ta": {
+      "x1": 0.35375,
+      "y1": 0.62483,
+      "x2": 0.64875,
+      "y2": 0.65091,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_13.tc": {
+      "x1": 0.64875,
+      "y1": 0.62483,
+      "x2": 0.94437,
+      "y2": 0.65091,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_13.time": {
+      "x1": 0.05875,
+      "y1": 0.62483,
+      "x2": 0.35375,
+      "y2": 0.65091,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_14.ta": {
+      "x1": 0.35375,
+      "y1": 0.65091,
+      "x2": 0.64875,
+      "y2": 0.67698,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_14.tc": {
+      "x1": 0.64875,
+      "y1": 0.65091,
+      "x2": 0.94437,
+      "y2": 0.67698,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_14.time": {
+      "x1": 0.05875,
+      "y1": 0.65091,
+      "x2": 0.35375,
+      "y2": 0.67698,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_15.ta": {
+      "x1": 0.35375,
+      "y1": 0.67698,
+      "x2": 0.64875,
+      "y2": 0.70349,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_15.tc": {
+      "x1": 0.64875,
+      "y1": 0.67698,
+      "x2": 0.94437,
+      "y2": 0.70349,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "heating.rows.row_15.time": {
+      "x1": 0.05875,
+      "y1": 0.67698,
+      "x2": 0.35375,
+      "y2": 0.70349,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.2479
+    ],
+    [
+      0.05875,
+      0.28325,
+      0.94437,
+      0.70349
+    ],
+    [
+      0.05875,
+      0.73884,
+      0.94437,
+      0.79143
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.16919,
+      0.2799,
+      0.35371,
+      0.39062,
+      0.50133,
+      0.61204,
+      0.64895,
+      0.72276,
+      0.83347,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09973,
+      0.12936,
+      0.15899,
+      0.18862,
+      0.21825,
+      0.24788,
+      0.28323,
+      0.30949,
+      0.33575,
+      0.36202,
+      0.38828,
+      0.41454,
+      0.4408,
+      0.46707,
+      0.49333,
+      0.51959,
+      0.54585,
+      0.57212,
+      0.59838,
+      0.62464,
+      0.65091,
+      0.67717,
+      0.70343,
+      0.73878,
+      0.76504,
+      0.79131
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "geometry",
+      "section": "rows",
+      "row_count": 5,
+      "columns": [
+        "dc",
+        "hc",
+        "db",
+        "hb"
+      ]
+    },
+    {
+      "method_id": "heating",
+      "section": "rows",
+      "row_count": 15,
+      "columns": [
+        "time",
+        "ta",
+        "tc"
+      ]
+    },
+    {
+      "method_id": "cooling",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "mass",
+        "specific_heat",
+        "t1",
+        "t2",
+        "dc",
+        "hc",
+        "db",
+        "hb"
+      ]
+    },
+    {
+      "method_id": "cooling",
+      "section": "rows",
+      "row_count": 16,
+      "columns": [
+        "time",
+        "temperature"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "multimeter",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 1.0,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "current.rows.row_01.measured": {
+      "x1": 0.50125,
+      "y1": 0.4905,
+      "x2": 0.94437,
+      "y2": 0.52011,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_02.measured": {
+      "x1": 0.50125,
+      "y1": 0.52011,
+      "x2": 0.94437,
+      "y2": 0.54971,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_03.measured": {
+      "x1": 0.50125,
+      "y1": 0.54971,
+      "x2": 0.94437,
+      "y2": 0.57932,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_04.measured": {
+      "x1": 0.50125,
+      "y1": 0.57932,
+      "x2": 0.94437,
+      "y2": 0.60937,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_05.measured": {
+      "x1": 0.50125,
+      "y1": 0.60937,
+      "x2": 0.94437,
+      "y2": 0.63897,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_06.measured": {
+      "x1": 0.50125,
+      "y1": 0.63897,
+      "x2": 0.94437,
+      "y2": 0.66858,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_07.measured": {
+      "x1": 0.50125,
+      "y1": 0.66858,
+      "x2": 0.94437,
+      "y2": 0.69819,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_08.measured": {
+      "x1": 0.50125,
+      "y1": 0.69819,
+      "x2": 0.94437,
+      "y2": 0.72779,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_09.measured": {
+      "x1": 0.50125,
+      "y1": 0.72779,
+      "x2": 0.94437,
+      "y2": 0.7574,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_10.measured": {
+      "x1": 0.50125,
+      "y1": 0.7574,
+      "x2": 0.94437,
+      "y2": 0.78701,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "current.rows.row_11.measured": {
+      "x1": 0.50125,
+      "y1": 0.78701,
+      "x2": 0.94437,
+      "y2": 0.81662,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_01.measured": {
+      "x1": 0.50125,
+      "y1": 0.09987,
+      "x2": 0.94437,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_02.measured": {
+      "x1": 0.50125,
+      "y1": 0.12947,
+      "x2": 0.94437,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_03.measured": {
+      "x1": 0.50125,
+      "y1": 0.15908,
+      "x2": 0.94437,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_04.measured": {
+      "x1": 0.50125,
+      "y1": 0.18869,
+      "x2": 0.94437,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_05.measured": {
+      "x1": 0.50125,
+      "y1": 0.21829,
+      "x2": 0.94437,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_06.measured": {
+      "x1": 0.50125,
+      "y1": 0.2479,
+      "x2": 0.94437,
+      "y2": 0.27751,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_07.measured": {
+      "x1": 0.50125,
+      "y1": 0.27751,
+      "x2": 0.94437,
+      "y2": 0.30711,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_08.measured": {
+      "x1": 0.50125,
+      "y1": 0.30711,
+      "x2": 0.94437,
+      "y2": 0.33672,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_09.measured": {
+      "x1": 0.50125,
+      "y1": 0.33672,
+      "x2": 0.94437,
+      "y2": 0.36633,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_10.measured": {
+      "x1": 0.50125,
+      "y1": 0.36633,
+      "x2": 0.94437,
+      "y2": 0.39593,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "voltage.rows.row_11.measured": {
+      "x1": 0.50125,
+      "y1": 0.39593,
+      "x2": 0.94437,
+      "y2": 0.42554,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.42554
+    ],
+    [
+      0.05875,
+      0.46089,
+      0.94437,
+      0.81662
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.50133,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09973,
+      0.12936,
+      0.15899,
+      0.18862,
+      0.21825,
+      0.24788,
+      0.27751,
+      0.30714,
+      0.33677,
+      0.3664,
+      0.39603,
+      0.42565,
+      0.46101,
+      0.49064,
+      0.52027,
+      0.5499,
+      0.57952,
+      0.60915,
+      0.63878,
+      0.66841,
+      0.69804,
+      0.72767,
+      0.7573,
+      0.78693,
+      0.81656
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "voltage",
+      "section": "rows",
+      "row_count": 11,
+      "columns": [
+        "set",
+        "measured"
+      ]
+    },
+    {
+      "method_id": "current",
+      "section": "rows",
+      "row_count": 11,
+      "columns": [
+        "set",
+        "measured"
+      ]
+    },
+    {
+      "method_id": "resistance",
+      "section": "rows",
+      "row_count": 11,
+      "columns": [
+        "set",
+        "measured"
+      ]
+    },
+    {
+      "method_id": "unknown",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "reference",
+        "measured"
+      ]
+    },
+    {
+      "method_id": "ac_voltage",
+      "section": "rows",
+      "row_count": 11,
+      "columns": [
+        "set",
+        "measured"
+      ]
+    },
+    {
+      "method_id": "ac_current",
+      "section": "rows",
+      "row_count": 11,
+      "columns": [
+        "set",
+        "measured"
+      ]
+    }
+  ]
+}

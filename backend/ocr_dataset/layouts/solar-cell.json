@@ -1,0 +1,347 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "solar-cell",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 1.0,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "iv.rows.row_01.current": {
+      "x1": 0.50125,
+      "y1": 0.14892,
+      "x2": 0.94437,
+      "y2": 0.17499,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_02.current": {
+      "x1": 0.50125,
+      "y1": 0.17499,
+      "x2": 0.94437,
+      "y2": 0.2015,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_03.current": {
+      "x1": 0.50125,
+      "y1": 0.2015,
+      "x2": 0.94437,
+      "y2": 0.22757,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_04.current": {
+      "x1": 0.50125,
+      "y1": 0.22757,
+      "x2": 0.94437,
+      "y2": 0.25409,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_05.current": {
+      "x1": 0.50125,
+      "y1": 0.25409,
+      "x2": 0.94437,
+      "y2": 0.28016,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_06.current": {
+      "x1": 0.50125,
+      "y1": 0.28016,
+      "x2": 0.94437,
+      "y2": 0.30667,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_07.current": {
+      "x1": 0.50125,
+      "y1": 0.30667,
+      "x2": 0.94437,
+      "y2": 0.33274,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_08.current": {
+      "x1": 0.50125,
+      "y1": 0.33274,
+      "x2": 0.94437,
+      "y2": 0.35882,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_09.current": {
+      "x1": 0.50125,
+      "y1": 0.35882,
+      "x2": 0.94437,
+      "y2": 0.38533,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_10.current": {
+      "x1": 0.50125,
+      "y1": 0.38533,
+      "x2": 0.94437,
+      "y2": 0.4114,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_11.current": {
+      "x1": 0.50125,
+      "y1": 0.4114,
+      "x2": 0.94437,
+      "y2": 0.43791,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_12.current": {
+      "x1": 0.50125,
+      "y1": 0.43791,
+      "x2": 0.94437,
+      "y2": 0.46399,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_13.current": {
+      "x1": 0.50125,
+      "y1": 0.46399,
+      "x2": 0.94437,
+      "y2": 0.4905,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_14.current": {
+      "x1": 0.50125,
+      "y1": 0.4905,
+      "x2": 0.94437,
+      "y2": 0.51657,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_15.current": {
+      "x1": 0.50125,
+      "y1": 0.51657,
+      "x2": 0.94437,
+      "y2": 0.54264,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv.rows.row_16.current": {
+      "x1": 0.50125,
+      "y1": 0.54264,
+      "x2": 0.94437,
+      "y2": 0.56916,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "shading.rows.row_01.isc": {
+      "x1": 0.50125,
+      "y1": 0.63411,
+      "x2": 0.94437,
+      "y2": 0.66372,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "shading.rows.row_02.isc": {
+      "x1": 0.50125,
+      "y1": 0.66372,
+      "x2": 0.94437,
+      "y2": 0.69333,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "shading.rows.row_03.isc": {
+      "x1": 0.50125,
+      "y1": 0.69333,
+      "x2": 0.94437,
+      "y2": 0.72293,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "shading.rows.row_04.isc": {
+      "x1": 0.50125,
+      "y1": 0.72293,
+      "x2": 0.94437,
+      "y2": 0.75254,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "shading.rows.row_05.isc": {
+      "x1": 0.50125,
+      "y1": 0.75254,
+      "x2": 0.94437,
+      "y2": 0.78215,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "shading.rows.row_06.isc": {
+      "x1": 0.50125,
+      "y1": 0.78215,
+      "x2": 0.94437,
+      "y2": 0.81175,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "shading.rows.row_07.isc": {
+      "x1": 0.50125,
+      "y1": 0.81175,
+      "x2": 0.94437,
+      "y2": 0.84136,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.1224
+    ],
+    [
+      0.05875,
+      0.1224,
+      0.94437,
+      0.56916
+    ],
+    [
+      0.05875,
+      0.60451,
+      0.94437,
+      0.84136
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.50133,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09636,
+      0.12262,
+      0.14889,
+      0.17515,
+      0.20141,
+      0.22767,
+      0.25394,
+      0.2802,
+      0.30646,
+      0.33273,
+      0.35899,
+      0.38525,
+      0.41151,
+      0.43778,
+      0.46404,
+      0.4903,
+      0.51656,
+      0.54283,
+      0.56909,
+      0.60444,
+      0.63407,
+      0.6637,
+      0.69333,
+      0.72296,
+      0.75259,
+      0.78222,
+      0.81185,
+      0.84148
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "iv",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "isc",
+        "uoc"
+      ]
+    },
+    {
+      "method_id": "iv",
+      "section": "rows",
+      "row_count": 16,
+      "columns": [
+        "voltage",
+        "current"
+      ]
+    },
+    {
+      "method_id": "shading",
+      "section": "rows",
+      "row_count": 7,
+      "columns": [
+        "condition",
+        "isc"
+      ]
+    },
+    {
+      "method_id": "charge_direct",
+      "section": "rows",
+      "row_count": 12,
+      "columns": [
+        "time",
+        "voltage",
+        "current"
+      ]
+    },
+    {
+      "method_id": "charge_dcdc",
+      "section": "rows",
+      "row_count": 12,
+      "columns": [
+        "time",
+        "voltage",
+        "current"
+      ]
+    },
+    {
+      "method_id": "fan",
+      "section": "rows",
+      "row_count": 2,
+      "columns": [
+        "voltage",
+        "current"
+      ]
+    },
+    {
+      "method_id": "load_dcdc",
+      "section": "rows",
+      "row_count": 1,
+      "columns": [
+        "voltage_before",
+        "current_before",
+        "voltage_after",
+        "current_after"
+      ]
+    },
+    {
+      "method_id": "inverter",
+      "section": "rows",
+      "row_count": 1,
+      "columns": [
+        "input_voltage",
+        "input_current",
+        "lit_code"
+      ]
+    }
+  ]
+}

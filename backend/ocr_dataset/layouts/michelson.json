@@ -1,0 +1,258 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "michelson",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 0.9333,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "observations.rows.row_01.localized_code": {
+      "x1": 0.7225,
+      "y1": 0.51348,
+      "x2": 0.94437,
+      "y2": 0.54308,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_01.motion_code": {
+      "x1": 0.50125,
+      "y1": 0.51348,
+      "x2": 0.7225,
+      "y2": 0.54308,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_01.pattern_code": {
+      "x1": 0.28,
+      "y1": 0.51348,
+      "x2": 0.50125,
+      "y2": 0.54308,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_02.localized_code": {
+      "x1": 0.7225,
+      "y1": 0.54308,
+      "x2": 0.94437,
+      "y2": 0.57269,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_02.motion_code": {
+      "x1": 0.50125,
+      "y1": 0.54308,
+      "x2": 0.7225,
+      "y2": 0.57269,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_02.pattern_code": {
+      "x1": 0.28,
+      "y1": 0.54308,
+      "x2": 0.50125,
+      "y2": 0.57269,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_03.localized_code": {
+      "x1": 0.7225,
+      "y1": 0.57269,
+      "x2": 0.94437,
+      "y2": 0.6023,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_03.motion_code": {
+      "x1": 0.50125,
+      "y1": 0.57269,
+      "x2": 0.7225,
+      "y2": 0.6023,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "observations.rows.row_03.pattern_code": {
+      "x1": 0.28,
+      "y1": 0.57269,
+      "x2": 0.50125,
+      "y2": 0.6023,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_01.position": {
+      "x1": 0.50125,
+      "y1": 0.15245,
+      "x2": 0.94437,
+      "y2": 0.18206,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_02.position": {
+      "x1": 0.50125,
+      "y1": 0.18206,
+      "x2": 0.94437,
+      "y2": 0.21167,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_03.position": {
+      "x1": 0.50125,
+      "y1": 0.21167,
+      "x2": 0.94437,
+      "y2": 0.24127,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_04.position": {
+      "x1": 0.50125,
+      "y1": 0.24127,
+      "x2": 0.94437,
+      "y2": 0.27088,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_05.position": {
+      "x1": 0.50125,
+      "y1": 0.27088,
+      "x2": 0.94437,
+      "y2": 0.30049,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_06.position": {
+      "x1": 0.50125,
+      "y1": 0.30049,
+      "x2": 0.94437,
+      "y2": 0.33009,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_07.position": {
+      "x1": 0.50125,
+      "y1": 0.33009,
+      "x2": 0.94437,
+      "y2": 0.3597,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_08.position": {
+      "x1": 0.50125,
+      "y1": 0.3597,
+      "x2": 0.94437,
+      "y2": 0.38931,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_09.position": {
+      "x1": 0.50125,
+      "y1": 0.38931,
+      "x2": 0.94437,
+      "y2": 0.41891,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "wavelength.rows.row_10.position": {
+      "x1": 0.50125,
+      "y1": 0.41891,
+      "x2": 0.94437,
+      "y2": 0.44852,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.1224
+    ],
+    [
+      0.05875,
+      0.1224,
+      0.94437,
+      0.44852
+    ],
+    [
+      0.05875,
+      0.48387,
+      0.94437,
+      0.6023
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.2799,
+      0.50133,
+      0.72276,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09636,
+      0.12262,
+      0.15225,
+      0.18188,
+      0.21151,
+      0.24114,
+      0.27077,
+      0.3004,
+      0.33003,
+      0.35966,
+      0.38929,
+      0.41892,
+      0.44855,
+      0.4839,
+      0.51353,
+      0.54316,
+      0.57279,
+      0.60242
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "wavelength",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "fringes_per_step"
+      ]
+    },
+    {
+      "method_id": "wavelength",
+      "section": "rows",
+      "row_count": 10,
+      "columns": [
+        "fringe_count",
+        "position"
+      ]
+    },
+    {
+      "method_id": "observations",
+      "section": "rows",
+      "row_count": 3,
+      "columns": [
+        "setup_code",
+        "pattern_code",
+        "motion_code",
+        "localized_code"
+      ]
+    }
+  ]
+}

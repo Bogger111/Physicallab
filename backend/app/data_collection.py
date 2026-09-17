@@ -93,10 +93,15 @@ def sanitize_record_image(content: bytes) -> bytes:
     return output.getvalue()
 
 
-def _numeric(value: Any) -> int | float | None:
+_NUMERIC_TEXT = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
+
+
+def _numeric(value: Any) -> int | float | str | None:
     if value in (None, ""):
         return None
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        raise CollectionValidationError("确认数据必须是有限数字")
+    if isinstance(value, str) and not _NUMERIC_TEXT.fullmatch(value):
         raise CollectionValidationError("确认数据必须是有限数字")
     number = float(value)
     if not math.isfinite(number):
@@ -155,18 +160,18 @@ def _method_specs(experiment_id: str) -> tuple[dict[str, dict[str, set[str]]], s
     return specs, set()
 
 
-def _store_value(fields: dict[str, int | float], field_id: str, value: Any) -> None:
+def _store_value(fields: dict[str, int | float | str], field_id: str, value: Any) -> None:
     number = _numeric(value)
     if number is not None:
         fields[field_id] = number
 
 
-def normalize_confirmed_fields(experiment_id: str, data: dict[str, Any]) -> dict[str, int | float]:
+def normalize_confirmed_fields(experiment_id: str, data: dict[str, Any]) -> dict[str, int | float | str]:
     """Flatten report data to semantic field IDs independent of DOM ordering."""
     if not isinstance(data, dict):
         raise CollectionValidationError("确认数据必须是对象")
     specs, setup_fields = _method_specs(experiment_id)
-    fields: dict[str, int | float] = {}
+    fields: dict[str, int | float | str] = {}
 
     for key, value in data.items():
         if key in setup_fields:
@@ -246,7 +251,7 @@ class CollectionStorage(ABC):
 
     @abstractmethod
     def commit_session(self, *, session_id: str, experiment_id: str,
-                       template_version: str, fields: dict[str, int | float]) -> dict[str, Any]:
+                       template_version: str, fields: dict[str, int | float | str]) -> dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod
@@ -304,7 +309,7 @@ class LocalCollectionStorage(CollectionStorage):
         return metadata
 
     def commit_session(self, *, session_id: str, experiment_id: str,
-                       template_version: str, fields: dict[str, int | float]) -> dict[str, Any]:
+                       template_version: str, fields: dict[str, int | float | str]) -> dict[str, Any]:
         if not fields:
             raise CollectionValidationError("没有可保存的最终确认数值")
         path = self._metadata_path(session_id)

@@ -1,0 +1,644 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "photoelectric-franck-hertz",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 1.0,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "iv_436.rows.row_01.current": {
+      "x1": 0.28,
+      "y1": 0.30932,
+      "x2": 0.50125,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_02.current": {
+      "x1": 0.28,
+      "y1": 0.33584,
+      "x2": 0.50125,
+      "y2": 0.36191,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_03.current": {
+      "x1": 0.28,
+      "y1": 0.36191,
+      "x2": 0.50125,
+      "y2": 0.38842,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_04.current": {
+      "x1": 0.28,
+      "y1": 0.38842,
+      "x2": 0.50125,
+      "y2": 0.41449,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_05.current": {
+      "x1": 0.28,
+      "y1": 0.41449,
+      "x2": 0.50125,
+      "y2": 0.44101,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_06.current": {
+      "x1": 0.28,
+      "y1": 0.44101,
+      "x2": 0.50125,
+      "y2": 0.46708,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_07.current": {
+      "x1": 0.28,
+      "y1": 0.46708,
+      "x2": 0.50125,
+      "y2": 0.49315,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_08.current": {
+      "x1": 0.28,
+      "y1": 0.49315,
+      "x2": 0.50125,
+      "y2": 0.51966,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_09.current": {
+      "x1": 0.28,
+      "y1": 0.51966,
+      "x2": 0.50125,
+      "y2": 0.54574,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_10.current": {
+      "x1": 0.28,
+      "y1": 0.54574,
+      "x2": 0.50125,
+      "y2": 0.57225,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_11.current": {
+      "x1": 0.28,
+      "y1": 0.57225,
+      "x2": 0.50125,
+      "y2": 0.59832,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_12.current": {
+      "x1": 0.28,
+      "y1": 0.59832,
+      "x2": 0.50125,
+      "y2": 0.62483,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_13.current": {
+      "x1": 0.28,
+      "y1": 0.62483,
+      "x2": 0.50125,
+      "y2": 0.65091,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_14.current": {
+      "x1": 0.28,
+      "y1": 0.65091,
+      "x2": 0.50125,
+      "y2": 0.67698,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_15.current": {
+      "x1": 0.28,
+      "y1": 0.67698,
+      "x2": 0.50125,
+      "y2": 0.70349,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_16.current": {
+      "x1": 0.28,
+      "y1": 0.70349,
+      "x2": 0.50125,
+      "y2": 0.72956,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_17.current": {
+      "x1": 0.28,
+      "y1": 0.72956,
+      "x2": 0.50125,
+      "y2": 0.75608,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_18.current": {
+      "x1": 0.7225,
+      "y1": 0.30932,
+      "x2": 0.94437,
+      "y2": 0.33584,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_19.current": {
+      "x1": 0.7225,
+      "y1": 0.33584,
+      "x2": 0.94437,
+      "y2": 0.36191,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_20.current": {
+      "x1": 0.7225,
+      "y1": 0.36191,
+      "x2": 0.94437,
+      "y2": 0.38842,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_21.current": {
+      "x1": 0.7225,
+      "y1": 0.38842,
+      "x2": 0.94437,
+      "y2": 0.41449,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_22.current": {
+      "x1": 0.7225,
+      "y1": 0.41449,
+      "x2": 0.94437,
+      "y2": 0.44101,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_23.current": {
+      "x1": 0.7225,
+      "y1": 0.44101,
+      "x2": 0.94437,
+      "y2": 0.46708,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_24.current": {
+      "x1": 0.7225,
+      "y1": 0.46708,
+      "x2": 0.94437,
+      "y2": 0.49315,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_25.current": {
+      "x1": 0.7225,
+      "y1": 0.49315,
+      "x2": 0.94437,
+      "y2": 0.51966,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_26.current": {
+      "x1": 0.7225,
+      "y1": 0.51966,
+      "x2": 0.94437,
+      "y2": 0.54574,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_27.current": {
+      "x1": 0.7225,
+      "y1": 0.54574,
+      "x2": 0.94437,
+      "y2": 0.57225,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_28.current": {
+      "x1": 0.7225,
+      "y1": 0.57225,
+      "x2": 0.94437,
+      "y2": 0.59832,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_29.current": {
+      "x1": 0.7225,
+      "y1": 0.59832,
+      "x2": 0.94437,
+      "y2": 0.62483,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_30.current": {
+      "x1": 0.7225,
+      "y1": 0.62483,
+      "x2": 0.94437,
+      "y2": 0.65091,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_31.current": {
+      "x1": 0.7225,
+      "y1": 0.65091,
+      "x2": 0.94437,
+      "y2": 0.67698,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_32.current": {
+      "x1": 0.7225,
+      "y1": 0.67698,
+      "x2": 0.94437,
+      "y2": 0.70349,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_33.current": {
+      "x1": 0.7225,
+      "y1": 0.70349,
+      "x2": 0.94437,
+      "y2": 0.72956,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "iv_436.rows.row_34.current": {
+      "x1": 0.7225,
+      "y1": 0.72956,
+      "x2": 0.94437,
+      "y2": 0.75608,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_01.us1": {
+      "x1": 0.23563,
+      "y1": 0.09987,
+      "x2": 0.4125,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_01.us2": {
+      "x1": 0.4125,
+      "y1": 0.09987,
+      "x2": 0.59,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_01.us3": {
+      "x1": 0.59,
+      "y1": 0.09987,
+      "x2": 0.76687,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_01.us4": {
+      "x1": 0.76687,
+      "y1": 0.09987,
+      "x2": 0.94437,
+      "y2": 0.12947,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_02.us1": {
+      "x1": 0.23563,
+      "y1": 0.12947,
+      "x2": 0.4125,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_02.us2": {
+      "x1": 0.4125,
+      "y1": 0.12947,
+      "x2": 0.59,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_02.us3": {
+      "x1": 0.59,
+      "y1": 0.12947,
+      "x2": 0.76687,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_02.us4": {
+      "x1": 0.76687,
+      "y1": 0.12947,
+      "x2": 0.94437,
+      "y2": 0.15908,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_03.us1": {
+      "x1": 0.23563,
+      "y1": 0.15908,
+      "x2": 0.4125,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_03.us2": {
+      "x1": 0.4125,
+      "y1": 0.15908,
+      "x2": 0.59,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_03.us3": {
+      "x1": 0.59,
+      "y1": 0.15908,
+      "x2": 0.76687,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_03.us4": {
+      "x1": 0.76687,
+      "y1": 0.15908,
+      "x2": 0.94437,
+      "y2": 0.18869,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_04.us1": {
+      "x1": 0.23563,
+      "y1": 0.18869,
+      "x2": 0.4125,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_04.us2": {
+      "x1": 0.4125,
+      "y1": 0.18869,
+      "x2": 0.59,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_04.us3": {
+      "x1": 0.59,
+      "y1": 0.18869,
+      "x2": 0.76687,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_04.us4": {
+      "x1": 0.76687,
+      "y1": 0.18869,
+      "x2": 0.94437,
+      "y2": 0.21829,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_05.us1": {
+      "x1": 0.23563,
+      "y1": 0.21829,
+      "x2": 0.4125,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_05.us2": {
+      "x1": 0.4125,
+      "y1": 0.21829,
+      "x2": 0.59,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_05.us3": {
+      "x1": 0.59,
+      "y1": 0.21829,
+      "x2": 0.76687,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "planck.rows.row_05.us4": {
+      "x1": 0.76687,
+      "y1": 0.21829,
+      "x2": 0.94437,
+      "y2": 0.2479,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.2479
+    ],
+    [
+      0.05875,
+      0.28325,
+      0.94437,
+      0.75608
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.23562,
+      0.2799,
+      0.41276,
+      0.50133,
+      0.5899,
+      0.72276,
+      0.76704,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09973,
+      0.12936,
+      0.15899,
+      0.18862,
+      0.21825,
+      0.24788,
+      0.28323,
+      0.30949,
+      0.33575,
+      0.36202,
+      0.38828,
+      0.41454,
+      0.4408,
+      0.46707,
+      0.49333,
+      0.51959,
+      0.54585,
+      0.57212,
+      0.59838,
+      0.62464,
+      0.65091,
+      0.67717,
+      0.70343,
+      0.72969,
+      0.75596
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "planck",
+      "section": "rows",
+      "row_count": 5,
+      "columns": [
+        "wavelength",
+        "us1",
+        "us2",
+        "us3",
+        "us4"
+      ]
+    },
+    {
+      "method_id": "iv_436",
+      "section": "rows",
+      "row_count": 34,
+      "columns": [
+        "voltage",
+        "current"
+      ]
+    },
+    {
+      "method_id": "iv_546",
+      "section": "rows",
+      "row_count": 34,
+      "columns": [
+        "voltage",
+        "current"
+      ]
+    },
+    {
+      "method_id": "saturation",
+      "section": "rows",
+      "row_count": 6,
+      "columns": [
+        "wavelength",
+        "diameter",
+        "i1",
+        "i2",
+        "i3"
+      ]
+    },
+    {
+      "method_id": "compensation",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "aperture"
+      ]
+    },
+    {
+      "method_id": "compensation",
+      "section": "rows",
+      "row_count": 5,
+      "columns": [
+        "wavelength",
+        "us1",
+        "us2",
+        "us3"
+      ]
+    },
+    {
+      "method_id": "curve",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "temperature",
+        "vf",
+        "vg1k",
+        "vg2p"
+      ]
+    },
+    {
+      "method_id": "curve",
+      "section": "rows",
+      "row_count": 117,
+      "columns": [
+        "voltage",
+        "current"
+      ]
+    },
+    {
+      "method_id": "peaks",
+      "section": "rows",
+      "row_count": 6,
+      "columns": [
+        "peak_voltage"
+      ]
+    },
+    {
+      "method_id": "parameter_curve",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "temperature",
+        "vf",
+        "vg1k",
+        "vg2p"
+      ]
+    },
+    {
+      "method_id": "parameter_curve",
+      "section": "rows",
+      "row_count": 30,
+      "columns": [
+        "voltage",
+        "current_reference",
+        "current_variant"
+      ]
+    },
+    {
+      "method_id": "higher_curve",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "temperature",
+        "vf",
+        "vg2p"
+      ]
+    },
+    {
+      "method_id": "higher_curve",
+      "section": "rows",
+      "row_count": 30,
+      "columns": [
+        "voltage",
+        "current"
+      ]
+    }
+  ]
+}

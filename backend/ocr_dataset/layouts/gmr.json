@@ -1,0 +1,455 @@
+{
+  "schema_version": "2.0",
+  "experiment_id": "gmr",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "capture_scope": "calibrated_page_1",
+  "source": {
+    "kind": "record_sheet_pdf",
+    "page": 1,
+    "page_size_pt": [
+      595.28,
+      841.89
+    ],
+    "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
+    "raster_match_ratio": 1.0,
+    "raster_offset_px": [
+      -14.0,
+      0.0
+    ]
+  },
+  "fields": {
+    "transfer.rows.row_01.output": {
+      "x1": 0.20625,
+      "y1": 0.09633,
+      "x2": 0.35375,
+      "y2": 0.1224,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_02.output": {
+      "x1": 0.20625,
+      "y1": 0.1224,
+      "x2": 0.35375,
+      "y2": 0.14892,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_03.output": {
+      "x1": 0.20625,
+      "y1": 0.14892,
+      "x2": 0.35375,
+      "y2": 0.17499,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_04.output": {
+      "x1": 0.20625,
+      "y1": 0.17499,
+      "x2": 0.35375,
+      "y2": 0.2015,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_05.output": {
+      "x1": 0.20625,
+      "y1": 0.2015,
+      "x2": 0.35375,
+      "y2": 0.22757,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_06.output": {
+      "x1": 0.20625,
+      "y1": 0.22757,
+      "x2": 0.35375,
+      "y2": 0.25409,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_07.output": {
+      "x1": 0.20625,
+      "y1": 0.25409,
+      "x2": 0.35375,
+      "y2": 0.28016,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_08.output": {
+      "x1": 0.20625,
+      "y1": 0.28016,
+      "x2": 0.35375,
+      "y2": 0.30667,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_09.output": {
+      "x1": 0.20625,
+      "y1": 0.30667,
+      "x2": 0.35375,
+      "y2": 0.33274,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_10.output": {
+      "x1": 0.20625,
+      "y1": 0.33274,
+      "x2": 0.35375,
+      "y2": 0.35882,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_11.output": {
+      "x1": 0.20625,
+      "y1": 0.35882,
+      "x2": 0.35375,
+      "y2": 0.38533,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_12.output": {
+      "x1": 0.20625,
+      "y1": 0.38533,
+      "x2": 0.35375,
+      "y2": 0.4114,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_13.output": {
+      "x1": 0.20625,
+      "y1": 0.4114,
+      "x2": 0.35375,
+      "y2": 0.43791,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_14.output": {
+      "x1": 0.20625,
+      "y1": 0.43791,
+      "x2": 0.35375,
+      "y2": 0.46399,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_15.output": {
+      "x1": 0.20625,
+      "y1": 0.46399,
+      "x2": 0.35375,
+      "y2": 0.4905,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_16.output": {
+      "x1": 0.20625,
+      "y1": 0.4905,
+      "x2": 0.35375,
+      "y2": 0.51657,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_17.output": {
+      "x1": 0.20625,
+      "y1": 0.51657,
+      "x2": 0.35375,
+      "y2": 0.54264,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_18.output": {
+      "x1": 0.20625,
+      "y1": 0.54264,
+      "x2": 0.35375,
+      "y2": 0.56916,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_19.output": {
+      "x1": 0.20625,
+      "y1": 0.56916,
+      "x2": 0.35375,
+      "y2": 0.59523,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_20.output": {
+      "x1": 0.20625,
+      "y1": 0.59523,
+      "x2": 0.35375,
+      "y2": 0.62174,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_21.output": {
+      "x1": 0.20625,
+      "y1": 0.62174,
+      "x2": 0.35375,
+      "y2": 0.64781,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_22.output": {
+      "x1": 0.64875,
+      "y1": 0.09633,
+      "x2": 0.79688,
+      "y2": 0.1224,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_23.output": {
+      "x1": 0.64875,
+      "y1": 0.1224,
+      "x2": 0.79688,
+      "y2": 0.14892,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_24.output": {
+      "x1": 0.64875,
+      "y1": 0.14892,
+      "x2": 0.79688,
+      "y2": 0.17499,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_25.output": {
+      "x1": 0.64875,
+      "y1": 0.17499,
+      "x2": 0.79688,
+      "y2": 0.2015,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_26.output": {
+      "x1": 0.64875,
+      "y1": 0.2015,
+      "x2": 0.79688,
+      "y2": 0.22757,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_27.output": {
+      "x1": 0.64875,
+      "y1": 0.22757,
+      "x2": 0.79688,
+      "y2": 0.25409,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_28.output": {
+      "x1": 0.64875,
+      "y1": 0.25409,
+      "x2": 0.79688,
+      "y2": 0.28016,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_29.output": {
+      "x1": 0.64875,
+      "y1": 0.28016,
+      "x2": 0.79688,
+      "y2": 0.30667,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_30.output": {
+      "x1": 0.64875,
+      "y1": 0.30667,
+      "x2": 0.79688,
+      "y2": 0.33274,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_31.output": {
+      "x1": 0.64875,
+      "y1": 0.33274,
+      "x2": 0.79688,
+      "y2": 0.35882,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_32.output": {
+      "x1": 0.64875,
+      "y1": 0.35882,
+      "x2": 0.79688,
+      "y2": 0.38533,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_33.output": {
+      "x1": 0.64875,
+      "y1": 0.38533,
+      "x2": 0.79688,
+      "y2": 0.4114,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_34.output": {
+      "x1": 0.64875,
+      "y1": 0.4114,
+      "x2": 0.79688,
+      "y2": 0.43791,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_35.output": {
+      "x1": 0.64875,
+      "y1": 0.43791,
+      "x2": 0.79688,
+      "y2": 0.46399,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_36.output": {
+      "x1": 0.64875,
+      "y1": 0.46399,
+      "x2": 0.79688,
+      "y2": 0.4905,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_37.output": {
+      "x1": 0.64875,
+      "y1": 0.4905,
+      "x2": 0.79688,
+      "y2": 0.51657,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_38.output": {
+      "x1": 0.64875,
+      "y1": 0.51657,
+      "x2": 0.79688,
+      "y2": 0.54264,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_39.output": {
+      "x1": 0.64875,
+      "y1": 0.54264,
+      "x2": 0.79688,
+      "y2": 0.56916,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_40.output": {
+      "x1": 0.64875,
+      "y1": 0.56916,
+      "x2": 0.79688,
+      "y2": 0.59523,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_41.output": {
+      "x1": 0.64875,
+      "y1": 0.59523,
+      "x2": 0.79688,
+      "y2": 0.62174,
+      "page": 1,
+      "confidence": 0.9
+    },
+    "transfer.rows.row_42.output": {
+      "x1": 0.64875,
+      "y1": 0.62174,
+      "x2": 0.79688,
+      "y2": 0.64781,
+      "page": 1,
+      "confidence": 0.9
+    }
+  },
+  "anchors": [
+    [
+      0.05875,
+      0.07026,
+      0.94437,
+      0.64781
+    ],
+    [
+      0.05875,
+      0.68316,
+      0.94437,
+      0.73575
+    ]
+  ],
+  "lattice": {
+    "x": [
+      0.05847,
+      0.20609,
+      0.35371,
+      0.50133,
+      0.64895,
+      0.79657,
+      0.94419
+    ],
+    "y": [
+      0.0701,
+      0.09636,
+      0.12262,
+      0.14889,
+      0.17515,
+      0.20141,
+      0.22767,
+      0.25394,
+      0.2802,
+      0.30646,
+      0.33273,
+      0.35899,
+      0.38525,
+      0.41151,
+      0.43778,
+      0.46404,
+      0.4903,
+      0.51656,
+      0.54283,
+      0.56909,
+      0.59535,
+      0.62161,
+      0.64788,
+      0.68323,
+      0.70949,
+      0.73575
+    ]
+  },
+  "tables": [
+    {
+      "method_id": "transfer",
+      "section": "rows",
+      "row_count": 42,
+      "columns": [
+        "excitation",
+        "output",
+        "direction"
+      ]
+    },
+    {
+      "method_id": "resistance",
+      "section": "params",
+      "row_count": 1,
+      "columns": [
+        "supply"
+      ]
+    },
+    {
+      "method_id": "resistance",
+      "section": "rows",
+      "row_count": 42,
+      "columns": [
+        "excitation",
+        "ir_a",
+        "ir_b"
+      ]
+    },
+    {
+      "method_id": "current_sensor",
+      "section": "rows",
+      "row_count": 11,
+      "columns": [
+        "current",
+        "output25",
+        "output100"
+      ]
+    }
+  ]
+}
