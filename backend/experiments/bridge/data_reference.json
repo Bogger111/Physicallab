@@ -1,0 +1,59 @@
+{
+  "experiment_id": "bridge",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "平衡电阻 Rn",
+      "field": "balanced.rows.*.rn",
+      "example": [
+        "250 Ω",
+        "250 Ω",
+        "250 Ω"
+      ],
+      "pattern": [
+        "三行重复测量应基本一致",
+        "量级由 Ra/Rb 比值决定（几十~几百 Ω）"
+      ]
+    },
+    {
+      "name": "温度 t 与输出 U0（Cu50）",
+      "field": "cu50.rows.*.u0",
+      "example": [
+        "20 °C → 3.203 mV",
+        "32 °C → 5.118 mV",
+        "47 °C → 7.506 mV"
+      ],
+      "pattern": [
+        "温度每 3 °C 一档，共 10 点",
+        "U0 单调递增，每档约 0.48 mV",
+        "U0 远小于电源电压 Us"
+      ]
+    },
+    {
+      "name": "交流电桥平衡参数（电容组 / 电感组）",
+      "field": "capacitor.rows.*.cn",
+      "example": [
+        "电容组：Cn 0.833 μF / Rn 10 Ω",
+        "电感组：Cn 0.500 μF / Rn 8 Ω",
+        "重复三行：0.833 μF / 10 Ω"
+      ],
+      "pattern": [
+        "三行重复同一个平衡点",
+        "Cn 为 μF 量级、Rn 为 Ω 量级整数"
+      ]
+    },
+    {
+      "name": "热敏电阻阻值 R",
+      "field": "thermistor.rows.*.resistance",
+      "example": [
+        "20 °C → 1221.7 Ω",
+        "32 °C → 763.9 Ω",
+        "47 °C → 446.3 Ω"
+      ],
+      "pattern": [
+        "随温度单调下降",
+        "低温段降幅大、高温段变小（ln R 与 1/T 成直线）"
+      ]
+    }
+  ]
+}

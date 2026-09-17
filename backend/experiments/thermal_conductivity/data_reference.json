@@ -1,0 +1,60 @@
+{
+  "experiment_id": "thermal-conductivity",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "几何尺寸 DC/hC/DB/hB",
+      "field": "geometry.rows.*.dc",
+      "example": [
+        "DC = 100.0 mm",
+        "hC = 10.0 mm",
+        "DB = 100.0 mm",
+        "hB = 8.0 mm"
+      ],
+      "pattern": [
+        "5 次重复读数取均值",
+        "单位是 mm，量级 10~100"
+      ]
+    },
+    {
+      "name": "升温温度 TA / TC",
+      "field": "heating.rows.*.ta",
+      "example": [
+        "t=0 min：TA 49.8 °C / TC 34.8 °C",
+        "t=5 min：TA 49.9 °C / TC 34.9 °C",
+        "t=10 min：TA 50.0 °C / TC 35.0 °C"
+      ],
+      "pattern": [
+        "单调上升，前段陡后段平",
+        "TA − TC 保持恒定（约 15 °C）",
+        "末五点漂移应在 0.01 °C 量级"
+      ]
+    },
+    {
+      "name": "冷却温度 TC",
+      "field": "cooling.rows.*.temperature",
+      "example": [
+        "t=0 s：40.0 °C",
+        "t=240 s：37.6 °C",
+        "t=450 s：35.5 °C"
+      ],
+      "pattern": [
+        "单调下降，每 30 s 约降 0.3 °C",
+        "在稳态温度附近取 10 点算 dT/dt"
+      ]
+    },
+    {
+      "name": "冷却参数与结果",
+      "field": null,
+      "example": [
+        "m = 500 g",
+        "c = 394 J/(kg·K)",
+        "λ ≈ 0.123 W/(m·K)"
+      ],
+      "pattern": [
+        "λ 是 0.1 W/(m·K) 量级的“不良导体”",
+        "λ 为负说明 T1、T2 填反；偏 10³ 倍多是 mm 与 m 混用"
+      ]
+    }
+  ]
+}

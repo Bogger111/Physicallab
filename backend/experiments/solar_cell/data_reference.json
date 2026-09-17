@@ -1,0 +1,76 @@
+{
+  "experiment_id": "solar-cell",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "电压 U 与电流 I（伏安曲线）",
+      "field": "iv.rows.*.current",
+      "example": [
+        "1.0 V → 80.0 mA",
+        "8.0 V → 76.9 mA",
+        "10.0 V → 61.4 mA",
+        "12.0 V → 0 mA"
+      ],
+      "pattern": [
+        "0~8 V 近似恒流平台",
+        "8 V 之后电流陡降，开路电压处电流为 0",
+        "峰值功率在 0.7~0.85 倍开路电压附近"
+      ]
+    },
+    {
+      "name": "工况编号与短路电流 Isc",
+      "field": "shading.rows.*.isc",
+      "example": [
+        "工况 0 → 80 mA",
+        "工况 3 → 56 mA",
+        "工况 6 → 32 mA"
+      ],
+      "pattern": [
+        "每档下降 8 mA（−10%）",
+        "随工况编号单调递减，最重遮挡保留约 40%"
+      ]
+    },
+    {
+      "name": "充电时间 t / 电压 U / 电流 I（直接充电）",
+      "field": "charge_direct.rows.*.voltage",
+      "example": [
+        "0 min → 0 V / 60.0 mA",
+        "6 min → 6.0 V / 45.3 mA",
+        "11 min → 11.0 V / 33.0 mA"
+      ],
+      "pattern": [
+        "电压随时间线性上升（约 1.0 V/min）",
+        "电流随电压升高而衰减",
+        "末压控制在 11 V 以内，避免超压"
+      ]
+    },
+    {
+      "name": "充电时间 t / 电压 U / 电流 I（DC-DC）",
+      "field": "charge_dcdc.rows.*.current",
+      "example": [
+        "0 min → 0 V / 50.0 mA",
+        "6 min → 6.0 V / 50.0 mA",
+        "11 min → 11.0 V / 50.0 mA"
+      ],
+      "pattern": [
+        "恒流充电：电流保持 50 mA 不变",
+        "同样时长输入能量大于直接充电",
+        "末压同样不超过 11 V"
+      ]
+    },
+    {
+      "name": "负载电压与电流（风扇 / DC-DC / 逆变）",
+      "field": "fan.rows.*.current",
+      "example": [
+        "8 V → 70 mA",
+        "10 V → 80 mA",
+        "3 V → 20 mA 与 9 V → 30 mA",
+        "11 V → 400 mA"
+      ],
+      "pattern": [
+        "接入前后成对记录，接入后功率更高",
+        "逆变段直流侧电流达百 mA 级"
+      ]
+    }
+  ]
+}

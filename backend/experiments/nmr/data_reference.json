@@ -1,0 +1,60 @@
+{
+  "experiment_id": "nmr",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "射频频率 ν",
+      "field": "hydrogen.rows.*.frequency",
+      "example": [
+        "10.006 MHz",
+        "10.219 MHz",
+        "11.922 MHz",
+        "¹⁹F：10.017 MHz 起"
+      ],
+      "pattern": [
+        "¹H/纯水：235.0→280.0 mT，每点约 +0.213 MHz",
+        "¹⁹F：250.0→300.0 mT，每点约 +0.223 MHz"
+      ]
+    },
+    {
+      "name": "共振磁场 B0",
+      "field": "hydrogen.rows.*.field",
+      "example": [
+        "235.0 mT",
+        "240.0 mT",
+        "280.0 mT",
+        "¹⁹F：250.0 mT"
+      ],
+      "pattern": [
+        "¹H/纯水步长 5.0 mT，共 10 点",
+        "¹⁹F 步长约 5.56 mT"
+      ]
+    },
+    {
+      "name": "尾波振荡次数",
+      "field": "waveform.rows.*.tail_count",
+      "example": [
+        "水：8 次尾波",
+        "聚四氟乙烯：1 次尾波",
+        "重复测水：仍为 8 次"
+      ],
+      "pattern": [
+        "液体样品尾波多、固体样品尾波少",
+        "尾波次数是判别样品码是否填反的直接依据"
+      ]
+    },
+    {
+      "name": "T1 与 T2",
+      "field": "waveform.rows.*.t1",
+      "example": [
+        "T1 = 5.0 ms",
+        "T2 = 5.1 ms",
+        "|T1−T2| = 0.1 ms"
+      ],
+      "pattern": [
+        "同一样品的 T1、T2 应尽量接近",
+        "差值越小说明共振越对称"
+      ]
+    }
+  ]
+}

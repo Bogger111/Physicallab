@@ -1,0 +1,48 @@
+{
+  "experiment_id": "multimeter",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "设定值 U设 / I设 / R设",
+      "field": "voltage.rows.*.set",
+      "example": [
+        "0 mV",
+        "20 mV",
+        "40 mV",
+        "60 mV",
+        "80 mV"
+      ],
+      "pattern": [
+        "等间隔递增：电压每 20 mV、电流每 2 mA、电阻每 0.2 kΩ",
+        "由低到高 11 档，单向排列"
+      ]
+    },
+    {
+      "name": "被检表读数 U测 / I测 / R测",
+      "field": "voltage.rows.*.measured",
+      "example": [
+        "20.04 mV",
+        "40.06 mV",
+        "60.08 mV",
+        "80.10 mV"
+      ],
+      "pattern": [
+        "与设定值近似相等（斜率约 1.000）",
+        "单点偏差 <0.5% 满量程，拟合 R²>0.999"
+      ]
+    },
+    {
+      "name": "未知电阻两组读数",
+      "field": "unknown.rows.*.measured",
+      "example": [
+        "标准表 1.2 kΩ",
+        "组装表 1.202 kΩ",
+        "万用表直读 1.198 kΩ"
+      ],
+      "pattern": [
+        "两组重复测量基本重合",
+        "相对误差 <1%"
+      ]
+    }
+  ]
+}

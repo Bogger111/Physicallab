@@ -1,0 +1,48 @@
+{
+  "experiment_id": "gmr",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "励磁电流与输出电压（磁电转换）",
+      "field": "transfer.rows.*.output",
+      "example": [
+        "−200 mA → 12.4 mV",
+        "0 mA → 25.0 mV",
+        "200 mA → 37.6 mV",
+        "减磁 0 mA → 51.4 mV"
+      ],
+      "pattern": [
+        "20 mA 步进，增磁/减磁各 21 点",
+        "两支近似平行、零场输出相差约 26 mV（迟滞）",
+        "单支灵敏度约 0.2 mV/Gs"
+      ]
+    },
+    {
+      "name": "励磁电流与回路电流（内部磁阻）",
+      "field": "resistance.rows.*.ir_a",
+      "example": [
+        "−200 mA → 9.99 mA / 10.00 mA",
+        "0 mA → 9.26 mA / 9.90 mA",
+        "200 mA → 9.99 mA / 10.00 mA"
+      ],
+      "pattern": [
+        "状态 A、B 两列成对记录",
+        "0 mA 附近回路电阻最大、电流最小"
+      ]
+    },
+    {
+      "name": "导线电流与偏置输出（无接触电流测量）",
+      "field": "current_sensor.rows.*.output25",
+      "example": [
+        "0 mA → 25.0 mV / 100.0 mV",
+        "1000 mA → 55.0 mV / 150.0 mV",
+        "−1000 mA → −5.0 mV / 50.0 mV"
+      ],
+      "pattern": [
+        "11 点、步长 200 mA，两档各自线性",
+        "截距等于 25 mV 与 100 mV 偏置",
+        "灵敏度约 30 mV/A 与 50 mV/A"
+      ]
+    }
+  ]
+}

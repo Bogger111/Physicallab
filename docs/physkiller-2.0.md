@@ -28,6 +28,15 @@
 
 `/api/analytics/events` 接受白名单事件和匿名 session ID，过滤 rows、data、image、raw_text 等内容。SQLite 写入失败会静默降级，不影响计算和报告。`/api/analytics/summary` 提供事件计数、实验打开排行、OCR confirmed/corrected 与 correction rate。
 
+## 数据特征参考
+
+每个公开实验在 `backend/experiments/<experiment>/data_reference.json` 中维护一份典型数据参考（`name` / `field` / `example` / `pattern`）。前端实验详情页在「下载记录表」区域下方渲染成一张卡片，用来说明各测量量的量级、相邻点间距与正常趋势。
+
+- 数据是**信息性**的：卡片没有输入控件、不调用计算链、也不会预填记录表。
+- 数值由实验自身的公式与标准值反推，并保持手写精度（≤4 位小数、无科学计数法）：例如表面张力由 σ = 0.07275 N/m 反解出 ΔU ≈ 15.6 mV 与 h ≈ 37.1 mm。
+- `backend/tests/test_data_reference.py` 会重新推导这些数值（马吕斯定律、声速、光速、Cu50 斜率、太阳能电池填充因子与充电截止电压、GMR 单支灵敏度、核磁旋磁比、粘滞系数、表面张力、迈克尔逊波长、普朗克常量、弗兰克-赫兹峰间距），公式不符即测试失败。
+- `field` 指向采集层的稳定字段 ID（`method.rows.*.key`），与 `valid_stable_field_id` 校验一致；派生量填 `null`。
+
 ## 验证边界
 
 自动化测试验证 schema 合法性、数值校验、OCR 反馈同意门槛、指标计算、API 合约和原有实验回归。合成 fixture 不能证明真实实验结果或真实手写识别准确率；正式 benchmark 需要按书写者隔离的真实标注单元格数据，并重点报告 Cell Exact Match Accuracy。

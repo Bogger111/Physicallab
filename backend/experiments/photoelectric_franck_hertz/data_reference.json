@@ -1,0 +1,94 @@
+{
+  "experiment_id": "photoelectric-franck-hertz",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "零电流法：波长与截止电压 US",
+      "field": "planck.rows.*.us1",
+      "example": [
+        "365 nm → 1.397 V",
+        "436 nm → 0.844 V",
+        "546 nm → 0.271 V",
+        "577 nm → 0.149 V"
+      ],
+      "pattern": [
+        "波长越大截止电压越小",
+        "每个波长 4 次读数只差 0.002 V 左右",
+        "US 与 ν 线性，h 应落在 6.6×10⁻³⁴ J·s"
+      ]
+    },
+    {
+      "name": "436 nm 光电流 I",
+      "field": "iv_436.rows.*.current",
+      "example": [
+        "UAK = −4 V → 0.0",
+        "UAK = 0 V → 55.1",
+        "UAK = 10 V → 93.9",
+        "UAK = 30 V → 99.9"
+      ],
+      "pattern": [
+        "单位 10⁻¹³ A，数值量级 0~100",
+        "负偏压迅速归零、正偏压趋于饱和"
+      ]
+    },
+    {
+      "name": "546 nm 光电流 I",
+      "field": "iv_546.rows.*.current",
+      "example": [
+        "UAK = −2 V → 19.8",
+        "UAK = 0 V → 34.1",
+        "UAK = 10 V → 63.2",
+        "UAK = 30 V → 69.8"
+      ],
+      "pattern": [
+        "单位同为 10⁻¹³ A",
+        "饱和值 71 低于 436 nm 的 101（光阑不同）"
+      ]
+    },
+    {
+      "name": "饱和光电流 Im 与光阑 Φ",
+      "field": "saturation.rows.*.i1",
+      "example": [
+        "Φ = 2 mm → 3.2",
+        "Φ = 4 mm → 12.8",
+        "Φ = 8 mm → 51.2"
+      ],
+      "pattern": [
+        "单位 10⁻¹⁰ A（与伏安表不同档！）",
+        "Im 与 Φ² 成正比（4、16、64 mm²）",
+        "同一光阑三次重复读数应一致"
+      ]
+    },
+    {
+      "name": "VG2K-IP 曲线（弗兰克-赫兹）",
+      "field": "curve.rows.*.current",
+      "example": [
+        "0 V → 20.0 nA",
+        "30 V → 60.4 nA",
+        "60 V → 110.0 nA"
+      ],
+      "pattern": [
+        "单位 nA，电流随电压整体上升",
+        "叠加约每 4.9 V 一个起伏",
+        "同一根曲线必须保持同一量级"
+      ]
+    },
+    {
+      "name": "峰值电压 Up 与第一激发电位",
+      "field": "peaks.rows.*.peak_voltage",
+      "example": [
+        "5.6 V",
+        "10.5 V",
+        "15.4 V",
+        "20.3 V",
+        "25.2 V",
+        "30.1 V"
+      ],
+      "pattern": [
+        "6 个峰单调递增，间隔 4.9 V",
+        "V0 = ΔU 平均，应接近 4.90 V",
+        "至少 3 个峰才能计算"
+      ]
+    }
+  ]
+}

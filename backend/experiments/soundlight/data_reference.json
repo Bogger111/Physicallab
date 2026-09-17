@@ -1,0 +1,76 @@
+{
+  "experiment_id": "sound-light",
+  "note": "示例仅用于量级与形态参考，不是标准答案",
+  "data_reference": [
+    {
+      "name": "共振位置 l（空气中共振法）",
+      "field": "air_resonance.rows.*.l",
+      "example": [
+        "10.0 mm",
+        "14.5 mm",
+        "19.0 mm",
+        "23.5 mm",
+        "28.0 mm"
+      ],
+      "pattern": [
+        "相邻差约 4.5 mm（λ/2）",
+        "12 点严格等间隔递增，跨度约 50 mm"
+      ]
+    },
+    {
+      "name": "同相位位置 l（水中相位法）",
+      "field": "water_phase.rows.*.l",
+      "example": [
+        "20.00 mm",
+        "20.75 mm",
+        "21.50 mm",
+        "22.25 mm"
+      ],
+      "pattern": [
+        "相邻差约 0.75 mm（比空气小一个量级）",
+        "12 点跨度只有约 8 mm"
+      ]
+    },
+    {
+      "name": "传播距离 L 与飞行时间 T",
+      "field": "tof.rows.*.L",
+      "example": [
+        "L=100.0 mm / T=291.5 μs",
+        "L=200.0 mm / T=583.1 μs",
+        "L=320.0 mm / T=932.9 μs"
+      ],
+      "pattern": [
+        "T 与 L 严格线性，每 20 mm 对应约 58.3 μs",
+        "斜率的倒数就是声速"
+      ]
+    },
+    {
+      "name": "差频周期 T 与相位差 Δt",
+      "field": "light_sine.rows.*.T",
+      "example": [
+        "T=2.20 μs",
+        "T=2.21 μs",
+        "Δt=0.80 μs",
+        "Δt=1.00 μs"
+      ],
+      "pattern": [
+        "T 稳定在 2.2 μs 附近（抖动 <0.01 μs）",
+        "Δt 按 0.2 μs 等步长递增",
+        "单位是 μs，不是 ms"
+      ]
+    },
+    {
+      "name": "反射镜位移 Δx",
+      "field": "light_sine.rows.*.x2",
+      "example": [
+        "363.4 mm",
+        "454.2 mm",
+        "545.0 mm"
+      ],
+      "pattern": [
+        "Δx 与 Δt 成正比，Δx/Δt ≈ 454 mm/μs",
+        "李萨如法 Δx 恒定约 499.7 mm"
+      ]
+    }
+  ]
+}

@@ -11,6 +11,41 @@ import surfaceTensionConfig from "../../../backend/experiments/surface_tension/c
 import thermalConductivityConfig from "../../../backend/experiments/thermal_conductivity/config.json";
 import michelsonConfig from "../../../backend/experiments/michelson/config.json";
 
+// Typical-data reference shown next to the blank record sheet.  The numbers are
+// derived from the experiment's own formulas and standard values (see
+// artifacts/ and the analysis report); they are references, not answers.
+import polarizationReference from "../../../backend/experiments/polarization/data_reference.json";
+import soundLightReference from "../../../backend/experiments/soundlight/data_reference.json";
+import multimeterReference from "../../../backend/experiments/multimeter/data_reference.json";
+import bridgeReference from "../../../backend/experiments/bridge/data_reference.json";
+import solarCellReference from "../../../backend/experiments/solar_cell/data_reference.json";
+import gmrReference from "../../../backend/experiments/gmr/data_reference.json";
+import nmrReference from "../../../backend/experiments/nmr/data_reference.json";
+import viscosityReference from "../../../backend/experiments/viscosity/data_reference.json";
+import surfaceTensionReference from "../../../backend/experiments/surface_tension/data_reference.json";
+import thermalConductivityReference from "../../../backend/experiments/thermal_conductivity/data_reference.json";
+import michelsonReference from "../../../backend/experiments/michelson/data_reference.json";
+import photoelectricFranckHertzReference from "../../../backend/experiments/photoelectric_franck_hertz/data_reference.json";
+
+const dataReferenceById: Record<string, DataReference> = {
+  polarization: polarizationReference,
+  "sound-light": soundLightReference,
+  multimeter: multimeterReference,
+  bridge: bridgeReference,
+  "solar-cell": solarCellReference,
+  gmr: gmrReference,
+  nmr: nmrReference,
+  viscosity: viscosityReference,
+  "surface-tension": surfaceTensionReference,
+  "thermal-conductivity": thermalConductivityReference,
+  michelson: michelsonReference,
+  "photoelectric-franck-hertz": photoelectricFranckHertzReference,
+};
+
+export function getDataReference(id: string): DataReference | undefined {
+  return dataReferenceById[id];
+}
+
 const generalConfigs = [
   multimeterConfig,
   bridgeConfig,
@@ -46,6 +81,24 @@ export interface SubExperiment {
   resultFields: ResultField[];
 }
 
+/** One measured quantity: what it looks like in a real record sheet. */
+export interface DataReferenceEntry {
+  /** Chinese short name of the measured quantity. */
+  name: string;
+  /** Stable field-ID prefix, e.g. `voltage.rows.*.measured`; null for derived results. */
+  field: string | null;
+  /** 3-6 example values in handwriting precision, unit included. */
+  example: string[];
+  /** 2-3 short phrases describing the expected shape. */
+  pattern: string[];
+}
+
+export interface DataReference {
+  experiment_id: string;
+  note: string;
+  data_reference: DataReferenceEntry[];
+}
+
 export interface ExperimentConfig {
   id: string;
   name: string;
@@ -57,6 +110,8 @@ export interface ExperimentConfig {
   subExperiments: SubExperiment[];
   /** Legacy compatibility entries remain routable but are hidden from the catalogue. */
   hidden?: boolean;
+  /** Typical-data reference rendered as the "数据特征参考" card. */
+  dataReference?: DataReference;
 }
 
 const soundLightSubExperiments: SubExperiment[] = soundLightConfig.map((method) => ({
@@ -83,6 +138,7 @@ const coreExperiments: ExperimentConfig[] = [
       "ΔC (半波片转角)",
       "ΔP2 (检偏器转角)",
     ],
+    dataReference: dataReferenceById.polarization,
     subExperiments: [
       {
         id: "malus",
@@ -151,6 +207,7 @@ const coreExperiments: ExperimentConfig[] = [
       "反射镜位置 x₁ / x₂ (mm)",
     ],
     subExperiments: soundLightSubExperiments,
+    dataReference: dataReferenceById["sound-light"],
   },
 ];
 
@@ -170,6 +227,7 @@ const additionalExperiments: ExperimentConfig[] = generalConfigs.map((config) =>
     resultFields: method.results,
   })),
   hidden: config.id === "photoelectric" || config.id === "franck-hertz",
+  dataReference: dataReferenceById[config.id],
 }));
 
 const legacyModern = additionalExperiments.filter((experiment) => experiment.hidden);
@@ -182,6 +240,7 @@ const mergedModern: ExperimentConfig = {
   recordSheet: "/api/record-sheets/photoelectric-franck-hertz.pdf",
   measurements: legacyModern.flatMap((experiment) => experiment.measurements),
   subExperiments: legacyModern.flatMap((experiment) => experiment.subExperiments),
+  dataReference: dataReferenceById["photoelectric-franck-hertz"],
 };
 
 export const experiments: ExperimentConfig[] = [

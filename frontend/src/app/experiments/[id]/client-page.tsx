@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { getExperiment } from "@/lib/experiments";
+import DataReferenceCard from "@/components/DataReferenceCard";
 import { downloadRecordSheet, previewRecordSheet, trackEvent } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -285,6 +286,11 @@ export default function ExperimentDetailPage({
             </div>
           </div>
         </section>
+
+        {/* Typical data reference — shown where the blank sheet is downloaded */}
+        {experiment.dataReference && (
+          <DataReferenceCard dataReference={experiment.dataReference} />
+        )}
 
         {/* Flow */}
         <section>
