@@ -79,6 +79,23 @@ class ErrorGuardMiddleware(BaseHTTPMiddleware):
 
 APP_VERSION = "2.0.0-beta.1"
 
+# Canonical catalogue shown to users. Legacy experiment IDs remain routable
+# and can be requested explicitly for backwards compatibility.
+PUBLIC_EXPERIMENT_IDS = (
+    "polarization",
+    "sound-light",
+    "multimeter",
+    "bridge",
+    "solar-cell",
+    "gmr",
+    "nmr",
+    "viscosity",
+    "surface-tension",
+    "thermal-conductivity",
+    "michelson",
+    "photoelectric-franck-hertz",
+)
+
 
 app = FastAPI(
     title="PhysicsLab API",
@@ -217,8 +234,8 @@ async def recognize_table_image(
 
 
 @app.get("/api/experiments")
-async def list_experiments():
-    """List all available experiments."""
+async def list_experiments(include_legacy: bool = False):
+    """List the 12 public experiments, with opt-in legacy compatibility."""
     soundlight_config_path = BACKEND_ROOT / "experiments" / "soundlight" / "config.json"
     with soundlight_config_path.open(encoding="utf-8") as config_file:
         soundlight_methods = json.load(config_file)
@@ -293,7 +310,11 @@ async def list_experiments():
         "record_sheet": f"/api/record-sheets/{combined['id']}",
         "processing_time": combined["processingTime"],
     })
-    return {"experiments": experiments}
+    if include_legacy:
+        return {"experiments": experiments}
+    by_id = {item["id"]: item for item in experiments}
+    return {"experiments": [by_id[experiment_id]
+                            for experiment_id in PUBLIC_EXPERIMENT_IDS]}
 
 
 @app.get("/api/record-sheets/polarization")

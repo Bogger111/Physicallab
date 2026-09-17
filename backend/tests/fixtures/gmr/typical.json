@@ -1,5 +1,9 @@
 {
   "experiment_id": "gmr",
+  "fixture_type": "typical",
+  "source": "synthetic",
+  "verified": false,
+  "notes": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
   "kind": "general",
   "case": "typical",
   "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",

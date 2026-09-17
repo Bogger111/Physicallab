@@ -1,4 +1,9 @@
 {
+  "experiment_id": "michelson",
+  "fixture_type": "boundary",
+  "source": "structure-derived",
+  "verified": false,
+  "notes": "structure-derived boundary coverage; replace with lab-confirmed ranges when available",
   "extends": "typical.json",
   "case": "boundary",
   "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available",

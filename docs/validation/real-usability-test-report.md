@@ -25,7 +25,7 @@
 | 迈克尔逊干涉实验 | `michelson` | 配置驱动 | `experiments.general.engine._michelson` | 通过 |
 | 光电效应与弗兰克-赫兹实验 | `photoelectric-franck-hertz` | 合并公开入口 | `process_experiment` 分派至 `_photoelectric` 与 `_franck` | 通过 |
 
-API 仍保留带 `legacy: true` 的旧 `photoelectric` 目录项；公开数量按前端实际过滤后的 12 项计算。
+`GET /api/experiments` 现在由后端直接返回以上12项。旧 `photoelectric` 实现和路由继续保留，兼容调用方可显式使用 `GET /api/experiments?include_legacy=true` 查询 legacy 目录；前端不再承担过滤公开目录的责任。
 
 ## Fixture 体系
 
@@ -35,7 +35,17 @@ API 仍保留带 `legacy: true` 的旧 `photoelectric` 目录项；公开数量�
 - `boundary.json`：继承 typical 数据，并标记或修改配置/算法边界点。
 - `invalid.json`：继承 typical 数据，制造一个缺失或非法必填读数。
 
+每份文件都有 `experiment_id`、`fixture_type`、`source`、`verified` 和 `notes`。当前36份 fixture 的 `verified` 均为 `false`。
+
+### 验证层级定义
+
+- `synthetic`：为公式、API 和报告回归人工构造的数据，可验证代码行为，不能代表真实测量分布。
+- `structure-derived`：依据字段结构、配置预填值或算法允许边界构造的数据，可验证边界处理，不能称为真实实验合理范围。
+- `real`：来自真实实验、已匿名化并有人工作为 ground truth 复核的数据。只有图像与标签对应关系经人工检查后才允许标记 `verified: true`。
+
 偏振光和声速光速的边界值来自专用配置和引擎约束。其他实验尚无经过真实实验确认的统一合理区间，因此边界 fixture 主要覆盖配置预填端点、扫描端点、零载荷或起始时刻，并在文件中保留 `structure-derived` 说明。后续拿到真实数据后应优先替换这些边界依据，不应据此宣称科学范围已经验证。
+
+目前12个公开实验全部没有 `real + verified` fixture。`backend/tests/fixtures_real/README.md` 已建立真实数据进入规范，但目录中没有伪造的真实样本。
 
 ## 自动回归覆盖
 
@@ -52,6 +62,36 @@ API 仍保留带 `legacy: true` 的旧 `photoelectric` 目录项；公开数量�
 - 12 项 DOCX 和 12 项 PDF 均通过真实报告 API 生成并校验文件结构。
 
 完整后端测试结果：`180 passed, 2 warnings`，运行时间约 72 秒。两条 warning 来自 FastAPI/Starlette 当前测试客户端的依赖弃用提示，不影响测试结果。
+
+测试已分层：
+
+- 快速开发：`pytest -m "not document"`
+- 只跑完整报告：`pytest -m document`
+- 公开实验回归：`pytest -m real_usability`
+- 完整验证：`pytest`
+
+所有非 `document` 测试自动归入 `fast` marker，文档测试继续在完整验证中执行，没有复制测试代码。
+
+### 测试可以证明什么
+
+- 12个公开实验的当前 config/schema/validate/process API 合约可执行；
+- 合成输入能产生声明的有限数值结果和有效 PNG 图表；
+- 当前 DOCX/PDF 报告管线能生成结构有效、非空的文件；
+- 缺失或非法必填值会被拒绝；
+- 后续改动破坏上述行为时 pytest 会立即失败。
+
+### 测试不能证明什么
+
+- 真实学生记录的每一种写法和测量误差都能正确处理；
+- structure-derived 边界就是实验仪器的真实合理范围；
+- OCR 对真实手写数字达到既定准确率；
+- 当前科学结果已经由完整真实实验数据确认。
+
+### 真实数据进入流程
+
+真实数据必须先匿名化、记录实验与模板版本、建立稳定 field ID ground truth、注明来源日期和训练授权，再由人工复核图像与标签对应关系。复核完成前不得设置 `verified: true`，也不得混入 synthetic fixture 的科学结论。
+
+当前环境为 FastAPI 0.141.1、Starlette 1.6.0、httpx 0.28.1、pytest 9.1.1。warning 分别来自 FastAPI 对 `fastapi.testclient.TestClient` 的兼容提示，以及 Starlette 内部 `BlockingPortal` 类型别名。消除它们需要替换整个同步 TestClient 调用方式或改变依赖组合，风险和改动范围高于本阶段收益，因此本轮记录但不升级依赖。
 
 ## 本轮发现并修复的问题
 
@@ -75,7 +115,6 @@ API 仍保留带 `legacy: true` 的旧 `photoelectric` 目录项；公开数量�
 
 - 三类 API 请求形状不同：偏振光一次处理全部子实验，声速光速一次处理一个方法，通用实验使用 `{data: ...}`。测试需要薄适配层。
 - `backend/app/main.py` 集中了专用和通用路由，规模较大，但本轮未重构。
-- API 目录保留旧近代物理入口，前端再依据 `legacy` 过滤；公开目录的定义不是单一来源。
+- API 保留旧近代物理实现和兼容路由，但公开目录由后端 `PUBLIC_EXPERIMENT_IDS` 明确定义为12项。
 - 多数通用实验合理范围尚未由真实实验数据确认，当前 boundary fixture 只能作为结构和算法边界回归。
 - 报告生成包含 Matplotlib、DOCX 和 PDF，完整套件约需 72 秒；后续 CI 可将快速计算测试和完整文档测试拆成两个 job，但不应删除完整文档回归。
-

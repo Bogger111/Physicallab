@@ -53,6 +53,11 @@ def test_merged_modern_physics_entry_and_legacy_routes_coexist():
     listing = client.get("/api/experiments").json()["experiments"]
     ids = {item["id"] for item in listing}
     assert "photoelectric-franck-hertz" in ids
+    assert "photoelectric" not in ids
+    assert len(ids) == 12
+    legacy_listing = client.get("/api/experiments?include_legacy=true").json()["experiments"]
+    assert any(item["id"] == "photoelectric" and item.get("legacy")
+               for item in legacy_listing)
     assert client.get("/api/experiments/photoelectric/config").status_code == 200
     merged = client.get("/api/experiments/photoelectric-franck-hertz/config")
     assert merged.status_code == 200
@@ -155,6 +160,7 @@ def test_nonfinite_ratio_is_reported_as_null_not_a_crash(bg_uw):
 
 
 @pytest.mark.parametrize("fmt", ["docx", "pdf"])
+@pytest.mark.document
 def test_report_renders_when_a_reading_sits_at_the_background(fmt):
     response = client.post(f"/api/experiments/polarization/report?fmt={fmt}",
                            json=_malus_with_reading_at_background(40.0))

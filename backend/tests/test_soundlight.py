@@ -8,6 +8,8 @@ import json
 import math
 from pathlib import Path
 
+import pytest
+
 from experiments.soundlight import docs, engine
 
 
@@ -83,6 +85,7 @@ def test_zero_delta_t_is_rejected_without_dropping_the_point():
     assert any("必须全部大于零" in error for error in run["errors"])
 
 
+@pytest.mark.document
 def test_report_never_declares_synthetic_data_correct_or_trustworthy():
     run = engine.analyze("light_sine", _light_rows(), {"f_mhz": 150.0})
     blocks = docs._err_sources_blocks([("light_sine", run)])

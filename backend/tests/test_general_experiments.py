@@ -187,6 +187,7 @@ def test_surface_tension_uses_calibrated_sensitivity_and_reports_water_errors():
     assert "相对误差 Er =" in report_text
 
 
+@pytest.mark.document
 def test_photoelectric_iv_wavelengths_share_one_combined_plot():
     data = fixtures()["photoelectric"]
     run = process_experiment("photoelectric", data)
@@ -203,6 +204,7 @@ def test_photoelectric_iv_wavelengths_share_one_combined_plot():
     assert len(matching_images) == 1
 
 
+@pytest.mark.document
 def test_report_raw_table_trims_only_trailing_blank_template_rows():
     config = next(item for item in CONFIGS if item["id"] == "franck-hertz")
     method = next(item for item in config["methods"] if item["id"] == "higher_curve")
@@ -222,12 +224,13 @@ def test_catalogue_and_generic_api_contract():
     client = TestClient(app)
     listing = client.get("/api/experiments")
     assert listing.status_code == 200
-    assert len(listing.json()["experiments"]) == 13
+    assert len(listing.json()["experiments"]) == 12
     response = client.post("/api/experiments/michelson/process", json={"data": fixtures()["michelson"]})
     assert response.status_code == 200
     assert response.json()["status"] == "success"
 
 
+@pytest.mark.document
 @pytest.mark.parametrize("experiment_id", [item["id"] for item in CONFIGS])
 def test_general_report_rejects_data_when_required_methods_are_missing(experiment_id):
     client = TestClient(app)
@@ -244,6 +247,7 @@ def test_general_report_rejects_data_when_required_methods_are_missing(experimen
     assert first_required["name"] in response.json()["detail"]
 
 
+@pytest.mark.document
 def test_general_report_rejects_an_incomplete_required_table():
     client = TestClient(app)
     data = fixtures()["multimeter"]
@@ -266,6 +270,7 @@ def test_lecture_required_and_optional_content_is_represented():
     assert next(m for m in configs["gmr"]["methods"] if m["id"] == "transfer")["rowCount"] == 42
 
 
+@pytest.mark.document
 def test_blank_record_rows_are_writable_and_tables_fit_portrait_a4():
     for config in CONFIGS:
         blocks = docs.record_blocks(config["id"])
@@ -278,6 +283,7 @@ def test_blank_record_rows_are_writable_and_tables_fit_portrait_a4():
             assert len(table["rows"]) * table["row_h"] <= 24
 
 
+@pytest.mark.document
 def test_all_general_report_structures_and_record_sheets():
     for config in CONFIGS:
         experiment_id=config["id"]
@@ -292,6 +298,7 @@ def test_all_general_report_structures_and_record_sheets():
             assert archive.testzip() is None
 
 
+@pytest.mark.document
 def test_michelson_report_renders_word_and_pdf():
     data=fixtures()["michelson"]
     docx=docs.report_bytes("michelson",data,"docx")
@@ -303,6 +310,7 @@ def test_michelson_report_renders_word_and_pdf():
     assert all(page.rect.width == pytest.approx(595.28,abs=.2) for page in pdf)
 
 
+@pytest.mark.document
 @pytest.mark.parametrize("experiment_id", [item["id"] for item in CONFIGS])
 def test_every_general_report_renders_printable_pdf(experiment_id):
     pdf=fitz.open(stream=docs.report_bytes(experiment_id,fixtures()[experiment_id],"pdf"),filetype="pdf")

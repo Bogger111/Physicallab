@@ -1,4 +1,9 @@
 {
+  "experiment_id": "viscosity",
+  "fixture_type": "invalid",
+  "source": "synthetic",
+  "verified": false,
+  "notes": "validation or process must reject the missing required value",
   "extends": "typical.json",
   "case": "invalid",
   "scientific_validation": "intentionally incomplete required measurement",

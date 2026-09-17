@@ -16,6 +16,9 @@ from experiments.polarization import docbuild
 from experiments.soundlight import docs
 
 
+pytestmark = pytest.mark.document
+
+
 def _sound_fixture():
     phase = {
         "T": [2.19, 2.20, 2.21],

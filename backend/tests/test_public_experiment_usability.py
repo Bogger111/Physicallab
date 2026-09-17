@@ -27,6 +27,7 @@ MANIFEST = json.loads((FIXTURE_ROOT / "manifest.json").read_text(encoding="utf-8
 PUBLIC_EXPERIMENTS = MANIFEST["public_experiments"]
 PUBLIC_IDS = [item["id"] for item in PUBLIC_EXPERIMENTS]
 CLIENT = TestClient(app)
+pytestmark = pytest.mark.real_usability
 
 
 def _resolve_index(container: list[Any], token: int) -> int:
@@ -138,11 +139,11 @@ def assert_expected_fields(fixture: dict[str, Any], method_id: str | None,
 def test_fixture_manifest_matches_the_12_public_catalogue_entries():
     response = CLIENT.get("/api/experiments")
     assert response.status_code == 200
-    published = [item["id"] for item in response.json()["experiments"]
-                 if not item.get("legacy")]
-    assert set(published) == set(PUBLIC_IDS)
+    published = [item["id"] for item in response.json()["experiments"]]
+    assert published == PUBLIC_IDS
     assert len(PUBLIC_IDS) == 12
     assert len(set(PUBLIC_IDS)) == 12
+    assert all(not item.get("legacy") for item in response.json()["experiments"])
     for entry in PUBLIC_EXPERIMENTS:
         assert entry["process_endpoint"].endswith(f"/{entry['id']}/process")
         assert entry["calculation_entry"]
@@ -154,6 +155,10 @@ def test_fixture_corpus_has_typical_boundary_and_invalid_cases(experiment_id):
         fixture = load_fixture(experiment_id, case)
         assert fixture["experiment_id"] == experiment_id
         assert fixture["case"] == case
+        assert fixture["fixture_type"] == case
+        assert fixture["source"] in {"synthetic", "structure-derived", "real"}
+        assert fixture["verified"] is False
+        assert fixture["notes"].strip()
     boundary = load_fixture(experiment_id, "boundary")
     assert boundary["boundary_targets"]
     assert "real laboratory" in MANIFEST["validation_boundary"]
@@ -221,6 +226,7 @@ def test_invalid_fixture_is_rejected_by_validation_and_processing(experiment_id)
 
 @pytest.mark.parametrize("experiment_id", PUBLIC_IDS)
 @pytest.mark.parametrize("fmt", ["docx", "pdf"])
+@pytest.mark.document
 def test_typical_fixture_generates_nonempty_reports_through_the_real_api(experiment_id, fmt):
     fixture = load_fixture(experiment_id, "typical")
     response = CLIENT.post(f"/api/experiments/{experiment_id}/report?fmt={fmt}",

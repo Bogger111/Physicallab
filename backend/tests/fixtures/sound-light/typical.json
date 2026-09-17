@@ -1,5 +1,9 @@
 {
   "experiment_id": "sound-light",
+  "fixture_type": "typical",
+  "source": "synthetic",
+  "verified": false,
+  "notes": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
   "kind": "sound-light",
   "case": "typical",
   "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
