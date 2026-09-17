@@ -24,6 +24,8 @@ import {
 import { cn } from "@/lib/utils";
 import { getInputRange, isOutsideRange, rangeLabel, type InputRangeHint } from "@/lib/input-ranges";
 import DataInputTable from "@/components/workspace/DataInputTable";
+import DataContributionPanel from "@/components/workspace/DataContributionPanel";
+import { useDataCollection } from "@/hooks/useDataCollection";
 import { SOUND_LIGHT_WORKSPACE_STEPS } from "@/components/workspace/workspace-entry-flow";
 import soundLightConfig from "../../../../backend/experiments/soundlight/config.json";
 import {
@@ -361,6 +363,7 @@ function makeRows(rows: number, extraCols: number): string[][] {
 }
 
 export default function SoundLightWorkspace() {
+  const collection = useDataCollection(EXP_ID);
   const [step, setStep] = useState<Step>(SOUND_LIGHT_WORKSPACE_STEPS[0]);
   const [method, setMethod] = useState<string>("air_resonance");
   // cell data: key `${method}#${tableIndex}`
@@ -506,6 +509,13 @@ export default function SoundLightWorkspace() {
   const reportData = Object.fromEntries(
     processedKeys.map((k) => [k, { rows: processed[k].rows, params: processed[k].params }])
   );
+  const downloadFinalReport = async (
+    format: "docx" | "pdf",
+    data: Record<string, { rows: Record<string, (number | null)[]>; params: Record<string, number> }>,
+  ) => {
+    await downloadSoundLightReport(format, data);
+    await collection.commit(data);
+  };
   const basicReady = METHODS.filter((m) => m.required).every(
     (m) => !!processed[m.id]
   );
@@ -645,6 +655,8 @@ export default function SoundLightWorkspace() {
               </p>
             )}
 
+            <DataContributionPanel collection={collection} />
+
             {/* method selector */}
             <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="测量方法">
               {METHODS.map((m) => {
@@ -709,7 +721,7 @@ export default function SoundLightWorkspace() {
                 <button
                   onClick={() =>
                     runDownload("quick-report-docx", () =>
-                      downloadSoundLightReport("docx", filledAllReportData())
+                      downloadFinalReport("docx", filledAllReportData())
                     )
                   }
                   disabled={busyKey !== null || !requiredAllFilled}
@@ -721,7 +733,7 @@ export default function SoundLightWorkspace() {
                 <button
                   onClick={() =>
                     runDownload("quick-report-pdf", () =>
-                      downloadSoundLightReport("pdf", filledAllReportData())
+                      downloadFinalReport("pdf", filledAllReportData())
                     )
                   }
                   disabled={busyKey !== null || !requiredAllFilled}
@@ -956,7 +968,7 @@ export default function SoundLightWorkspace() {
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
-                          runDownload("report-docx", () => downloadSoundLightReport("docx", reportData))
+                          runDownload("report-docx", () => downloadFinalReport("docx", reportData))
                         }
                         disabled={busyKey !== null || !basicReady}
                         className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
@@ -966,7 +978,7 @@ export default function SoundLightWorkspace() {
                       </button>
                       <button
                         onClick={() =>
-                          runDownload("report-pdf", () => downloadSoundLightReport("pdf", reportData))
+                          runDownload("report-pdf", () => downloadFinalReport("pdf", reportData))
                         }
                         disabled={busyKey !== null || !basicReady}
                         className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"

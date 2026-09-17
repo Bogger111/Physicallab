@@ -1,0 +1,343 @@
+"""Optional, consent-first collection of original laboratory record sheets.
+
+This module is deliberately separate from calculation and reporting.  A
+storage failure must never affect validation, processing, or report creation.
+The collected image is the full user-provided record sheet; this first version
+does not crop cells, perform OCR, or train a model.
+"""
+
+from __future__ import annotations
+
+import io
+import json
+import math
+import os
+import re
+from abc import ABC, abstractmethod
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+from uuid import UUID, uuid4
+
+from PIL import Image, ImageOps, UnidentifiedImageError
+
+
+MAX_COLLECTION_IMAGE_BYTES = 12 * 1024 * 1024
+MAX_COLLECTION_IMAGE_PIXELS = 40_000_000
+TEMPLATE_VERSION = "2.0"
+ALLOWED_IMAGE_TYPES = {
+    "image/jpeg", "image/png", "image/webp", "image/bmp", "image/tiff",
+}
+
+
+class CollectionValidationError(ValueError):
+    """The submitted collection payload is not safe or schema-compatible."""
+
+
+class CollectionNotFoundError(FileNotFoundError):
+    """The requested collection session does not exist."""
+
+
+def collection_enabled() -> bool:
+    return os.getenv("ENABLE_DATA_COLLECTION", "false").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def collection_root() -> Path:
+    configured = os.getenv("PHYSICSLAB_COLLECTION_ROOT", "").strip()
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parents[1] / "data_collection"
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _canonical_session_id(value: str) -> str:
+    try:
+        parsed = UUID(value)
+    except (ValueError, AttributeError) as exc:
+        raise CollectionValidationError("无效的数据贡献会话") from exc
+    if str(parsed) != value:
+        raise CollectionValidationError("无效的数据贡献会话")
+    return value
+
+
+def validate_template_version(value: str) -> str:
+    if not re.fullmatch(r"[A-Za-z0-9._-]{1,40}", value or ""):
+        raise CollectionValidationError("模板版本格式无效")
+    return value
+
+
+def sanitize_record_image(content: bytes) -> bytes:
+    """Decode and re-encode to JPEG, removing EXIF and embedded metadata."""
+    if not content:
+        raise CollectionValidationError("没有收到记录表图片")
+    if len(content) > MAX_COLLECTION_IMAGE_BYTES:
+        raise CollectionValidationError("记录表图片不能超过 12 MB")
+    try:
+        with Image.open(io.BytesIO(content)) as source:
+            source.verify()
+        with Image.open(io.BytesIO(content)) as source:
+            if source.width * source.height > MAX_COLLECTION_IMAGE_PIXELS:
+                raise CollectionValidationError("记录表图片像素尺寸过大")
+            image = ImageOps.exif_transpose(source).convert("RGB")
+            output = io.BytesIO()
+            image.save(output, format="JPEG", quality=92, optimize=True)
+    except CollectionValidationError:
+        raise
+    except (UnidentifiedImageError, OSError, ValueError) as exc:
+        raise CollectionValidationError("无法读取记录表图片") from exc
+    return output.getvalue()
+
+
+def _numeric(value: Any) -> int | float | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise CollectionValidationError("确认数据必须是有限数字")
+    number = float(value)
+    if not math.isfinite(number):
+        raise CollectionValidationError("确认数据不得包含 NaN 或 Inf")
+    return value
+
+
+def _method_specs(experiment_id: str) -> tuple[dict[str, dict[str, set[str]]], set[str]]:
+    """Return stable schema keys derived from the canonical experiment config."""
+    if experiment_id == "polarization":
+        config_path = Path(__file__).resolve().parents[1] / "experiments" / "polarization" / "config.json"
+        raw = json.loads(config_path.read_text(encoding="utf-8"))
+        from experiments.schema import enrich_polarization_config
+        config = enrich_polarization_config(raw)
+        methods = config.get("subExperiments", [])
+        specs = {
+            method["id"]: {
+                "rows": {field["key"] for field in method.get("fields", [])},
+                "params": set(),
+                "initial": ({"c_deg", "c_min", "p2_deg", "p2_min"}
+                            if method["id"] == "halfwave" else set()),
+            }
+            for method in methods
+        }
+        return specs, {field["key"] for field in config.get("setupFields", [])}
+
+    if experiment_id == "sound-light":
+        config_path = Path(__file__).resolve().parents[1] / "experiments" / "soundlight" / "config.json"
+        raw = json.loads(config_path.read_text(encoding="utf-8"))
+        from experiments.schema import enrich_soundlight_config
+        methods = enrich_soundlight_config(raw)
+        specs = {
+            method["id"]: {
+                "rows": {field["key"] for field in method.get("fields", [])},
+                "params": {field["key"] for field in method.get("params", [])},
+                "initial": set(),
+            }
+            for method in methods
+        }
+        return specs, set()
+
+    from experiments.general.engine import CONFIG_BY_ID
+    config = CONFIG_BY_ID.get(experiment_id)
+    if not config:
+        raise CollectionValidationError("实验不存在或未公开")
+    specs = {
+        method["id"]: {
+            "rows": {field["key"] for field in method.get("columns", [])},
+            "params": {field["key"] for field in method.get("params", [])},
+            "initial": set(),
+        }
+        for method in config.get("methods", [])
+    }
+    return specs, set()
+
+
+def _store_value(fields: dict[str, int | float], field_id: str, value: Any) -> None:
+    number = _numeric(value)
+    if number is not None:
+        fields[field_id] = number
+
+
+def normalize_confirmed_fields(experiment_id: str, data: dict[str, Any]) -> dict[str, int | float]:
+    """Flatten report data to semantic field IDs independent of DOM ordering."""
+    if not isinstance(data, dict):
+        raise CollectionValidationError("确认数据必须是对象")
+    specs, setup_fields = _method_specs(experiment_id)
+    fields: dict[str, int | float] = {}
+
+    for key, value in data.items():
+        if key in setup_fields:
+            _store_value(fields, f"setup.{key}", value)
+            continue
+        if key not in specs:
+            raise CollectionValidationError(f"未知实验字段：{key}")
+        if value is None:
+            continue
+        if not isinstance(value, dict):
+            raise CollectionValidationError(f"{key} 数据必须是对象")
+        allowed_sections = {"rows", "params", "initial"}
+        unknown_sections = set(value) - allowed_sections
+        if unknown_sections:
+            raise CollectionValidationError(f"{key} 包含未知字段：{sorted(unknown_sections)[0]}")
+        spec = specs[key]
+
+        params = value.get("params") or {}
+        if not isinstance(params, dict):
+            raise CollectionValidationError(f"{key}.params 必须是对象")
+        for param_key, param_value in params.items():
+            if param_key not in spec["params"]:
+                raise CollectionValidationError(f"未知实验字段：{key}.params.{param_key}")
+            _store_value(fields, f"{key}.params.{param_key}", param_value)
+
+        initial = value.get("initial") or {}
+        if not isinstance(initial, dict):
+            raise CollectionValidationError(f"{key}.initial 必须是对象")
+        for initial_key, initial_value in initial.items():
+            if initial_key not in spec["initial"]:
+                raise CollectionValidationError(f"未知实验字段：{key}.initial.{initial_key}")
+            _store_value(fields, f"{key}.initial.{initial_key}", initial_value)
+
+        rows = value.get("rows") or []
+        if experiment_id == "sound-light":
+            if not isinstance(rows, dict):
+                raise CollectionValidationError(f"{key}.rows 必须是列数组对象")
+            for column_key, values in rows.items():
+                if column_key not in spec["rows"]:
+                    raise CollectionValidationError(f"未知实验字段：{key}.rows.{column_key}")
+                if not isinstance(values, list):
+                    raise CollectionValidationError(f"{key}.rows.{column_key} 必须是数组")
+                for index, row_value in enumerate(values, start=1):
+                    _store_value(fields, f"{key}.rows.row_{index:02d}.{column_key}", row_value)
+        else:
+            if not isinstance(rows, list):
+                raise CollectionValidationError(f"{key}.rows 必须是数组")
+            for index, row in enumerate(rows, start=1):
+                if not isinstance(row, dict):
+                    raise CollectionValidationError(f"{key}.rows 第 {index} 行必须是对象")
+                for column_key, row_value in row.items():
+                    if column_key not in spec["rows"]:
+                        raise CollectionValidationError(f"未知实验字段：{key}.rows.{column_key}")
+                    _store_value(fields, f"{key}.rows.row_{index:02d}.{column_key}", row_value)
+    return fields
+
+
+def valid_stable_field_id(experiment_id: str, field_id: str) -> bool:
+    """Validate an already flattened label against the current config schema."""
+    specs, setup_fields = _method_specs(experiment_id)
+    if field_id.startswith("setup."):
+        return field_id.removeprefix("setup.") in setup_fields
+    parts = field_id.split(".")
+    if len(parts) == 3 and parts[0] in specs and parts[1] in {"params", "initial"}:
+        return parts[2] in specs[parts[0]][parts[1]]
+    if len(parts) == 4 and parts[0] in specs and parts[1] == "rows":
+        return bool(re.fullmatch(r"row_[0-9]{2,}", parts[2])) and parts[3] in specs[parts[0]]["rows"]
+    return False
+
+
+class CollectionStorage(ABC):
+    """Storage boundary for later replacement by Cloud Storage or another backend."""
+
+    @abstractmethod
+    def create_session(self, *, experiment_id: str, template_version: str, image: bytes) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def commit_session(self, *, session_id: str, experiment_id: str,
+                       template_version: str, fields: dict[str, int | float]) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_session(self, session_id: str) -> None:
+        raise NotImplementedError
+
+
+class LocalCollectionStorage(CollectionStorage):
+    """Filesystem implementation using UUID filenames and atomic metadata writes."""
+
+    def __init__(self, root: Path | None = None) -> None:
+        self.root = root or collection_root()
+        self.raw_dir = self.root / "raw"
+        self.metadata_dir = self.root / "metadata"
+
+    def _metadata_path(self, session_id: str) -> Path:
+        return self.metadata_dir / f"{_canonical_session_id(session_id)}.json"
+
+    @staticmethod
+    def _write_json(path: Path, value: dict[str, Any]) -> None:
+        temporary = path.with_suffix(".json.tmp")
+        temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(path)
+
+    def create_session(self, *, experiment_id: str, template_version: str, image: bytes) -> dict[str, Any]:
+        session_id = str(uuid4())
+        self.raw_dir.mkdir(parents=True, exist_ok=True)
+        self.metadata_dir.mkdir(parents=True, exist_ok=True)
+        raw_path = self.raw_dir / f"{session_id}.jpg"
+        temporary_raw_path = self.raw_dir / f"{session_id}.jpg.tmp"
+        metadata_path = self.metadata_dir / f"{session_id}.json"
+        try:
+            temporary_raw_path.write_bytes(image)
+            temporary_raw_path.replace(raw_path)
+            now = _now()
+            metadata: dict[str, Any] = {
+                "session_id": session_id,
+                "experiment_id": experiment_id,
+                "template_version": template_version,
+                "consent": True,
+                "status": "pending_confirmation",
+                "revision": 0,
+                "created_at": now,
+                "confirmed_at": None,
+                "updated_at": now,
+                "image_path": f"raw/{session_id}.jpg",
+                "fields": {},
+            }
+            self._write_json(metadata_path, metadata)
+        except Exception:
+            temporary_raw_path.unlink(missing_ok=True)
+            raw_path.unlink(missing_ok=True)
+            metadata_path.unlink(missing_ok=True)
+            raise
+        return metadata
+
+    def commit_session(self, *, session_id: str, experiment_id: str,
+                       template_version: str, fields: dict[str, int | float]) -> dict[str, Any]:
+        if not fields:
+            raise CollectionValidationError("没有可保存的最终确认数值")
+        path = self._metadata_path(session_id)
+        if not path.is_file():
+            raise CollectionNotFoundError("数据贡献会话不存在")
+        metadata = json.loads(path.read_text(encoding="utf-8"))
+        if metadata.get("experiment_id") != experiment_id:
+            raise CollectionValidationError("实验与数据贡献会话不一致")
+        if metadata.get("template_version") != template_version:
+            raise CollectionValidationError("模板版本与数据贡献会话不一致")
+        if metadata.get("consent") is not True:
+            raise CollectionValidationError("该会话没有有效授权")
+        raw_path = self.root / str(metadata.get("image_path", ""))
+        if not raw_path.is_file():
+            raise CollectionNotFoundError("原始记录表图片不存在")
+        now = _now()
+        metadata.update({
+            "status": "confirmed",
+            "revision": int(metadata.get("revision", 0)) + 1,
+            "confirmed_at": now,
+            "updated_at": now,
+            "fields": fields,
+        })
+        self._write_json(path, metadata)
+        return metadata
+
+    def delete_session(self, session_id: str) -> None:
+        canonical = _canonical_session_id(session_id)
+        metadata_path = self.metadata_dir / f"{canonical}.json"
+        raw_path = self.raw_dir / f"{canonical}.jpg"
+        if not metadata_path.exists() and not raw_path.exists():
+            raise CollectionNotFoundError("数据贡献会话不存在")
+        metadata_path.unlink(missing_ok=True)
+        raw_path.unlink(missing_ok=True)
+
+
+def local_storage() -> LocalCollectionStorage:
+    return LocalCollectionStorage(collection_root())

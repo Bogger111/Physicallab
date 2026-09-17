@@ -125,6 +125,62 @@ export async function recognizeTableImage(
   return res.json();
 }
 
+export interface DataCollectionStatus {
+  enabled: boolean;
+  template_version: string;
+}
+
+export async function fetchDataCollectionStatus(): Promise<DataCollectionStatus> {
+  const res = await fetch(`${API_BASE}/api/data-collection/status`);
+  if (!res.ok) throw new Error(await failureMessage(res));
+  return res.json();
+}
+
+export async function createDataCollectionSession(
+  experimentId: string,
+  templateVersion: string,
+  image: File,
+): Promise<{ session_id: string; revision: number }> {
+  const form = new FormData();
+  form.append("image", image);
+  form.append("experiment_id", experimentId);
+  form.append("template_version", templateVersion);
+  form.append("consent", "true");
+  const res = await fetch(`${API_BASE}/api/data-collection/sessions`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) throw new Error(await failureMessage(res));
+  return res.json();
+}
+
+export async function commitDataCollectionSession(
+  sessionId: string,
+  experimentId: string,
+  templateVersion: string,
+  confirmedData: object,
+): Promise<{ revision: number; field_count: number }> {
+  const res = await fetch(`${API_BASE}/api/data-collection/sessions/${sessionId}/commit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      experiment_id: experimentId,
+      template_version: templateVersion,
+      consent: true,
+      confirmed_data: confirmedData,
+    }),
+  });
+  if (!res.ok) throw new Error(await failureMessage(res));
+  return res.json();
+}
+
+export async function deleteDataCollectionSession(sessionId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/data-collection/sessions/${sessionId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok && res.status !== 404) throw new Error(await failureMessage(res));
+}
+
 function anonymousSessionId(): string {
   if (typeof window === "undefined") return "server";
   const key = "physicslab-anonymous-session";

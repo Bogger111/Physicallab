@@ -35,8 +35,10 @@ import {
   type ProcessResponse,
 } from "@/lib/api";
 import DataInputTable from "@/components/workspace/DataInputTable";
+import DataContributionPanel from "@/components/workspace/DataContributionPanel";
 import SoundLightWorkspace from "@/components/workspace/SoundLightWorkspace";
 import GenericExperimentWorkspace from "@/components/workspace/GenericExperimentWorkspace";
+import { useDataCollection } from "@/hooks/useDataCollection";
 import { POLARIZATION_WORKSPACE_STEPS } from "@/components/workspace/workspace-entry-flow";
 import { cn } from "@/lib/utils";
 import { getInputRange, isOutsideRange, rangeLabel } from "@/lib/input-ranges";
@@ -71,6 +73,7 @@ function PolarizationWorkspace({
 }) {
   const { id } = use(params);
   const experiment = getExperiment(id);
+  const collection = useDataCollection("polarization");
   useEffect(() => {
     void trackEvent("workspace_start", id);
   }, [id]);
@@ -169,6 +172,12 @@ function PolarizationWorkspace({
       },
     };
   }, [bgUw, thetaQwp, malusData, hwInit, hwData, qwData, circData]);
+
+  const downloadFinalReport = async (format: "docx" | "pdf") => {
+    const data = buildRequest();
+    await downloadReport(format, data);
+    await collection.commit(data);
+  };
 
   // ---- derived fill stats (same per-sub heuristics as submission) ----
   const fills = {
@@ -394,6 +403,8 @@ function PolarizationWorkspace({
                 {dlError}
               </p>
             )}
+
+            <DataContributionPanel collection={collection} />
 
             {/* Setup params */}
             <div className="card mb-6 flex flex-col gap-5 p-6 shadow-soft sm:flex-row sm:items-center sm:justify-between">
@@ -835,7 +846,7 @@ function PolarizationWorkspace({
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => runDownload("report-docx", () => downloadReport("docx", buildRequest()))}
+                      onClick={() => runDownload("report-docx", () => downloadFinalReport("docx"))}
                       disabled={busyKey !== null}
                       className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
                     >
@@ -843,7 +854,7 @@ function PolarizationWorkspace({
                       Word 版
                     </button>
                     <button
-                      onClick={() => runDownload("report-pdf", () => downloadReport("pdf", buildRequest()))}
+                      onClick={() => runDownload("report-pdf", () => downloadFinalReport("pdf"))}
                       disabled={busyKey !== null}
                       className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
                     >

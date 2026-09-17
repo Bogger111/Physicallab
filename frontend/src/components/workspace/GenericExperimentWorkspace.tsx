@@ -30,6 +30,8 @@ import {
 import { cn } from "@/lib/utils";
 import { getInputRange, isOutsideRange, rangeLabel } from "@/lib/input-ranges";
 import OcrTableImporter from "./OcrTableImporter";
+import DataContributionPanel from "./DataContributionPanel";
+import { useDataCollection } from "@/hooks/useDataCollection";
 import {
   completionState,
   nextGridCell,
@@ -81,6 +83,7 @@ function formatValue(value: number | undefined): string {
 }
 
 export default function GenericExperimentWorkspace({ id }: { id: string }) {
+  const collection = useDataCollection(id);
   const [config, setConfig] = useState<GenericExperimentConfig | null>(null);
   const [draft, setDraft] = useState<Draft>({});
   const [active, setActive] = useState("");
@@ -211,6 +214,11 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
   });
 
   const reportPayload = (): GenericExperimentData => payload(completion.completedMethodIds);
+  const downloadFinalReport = async (format: "docx" | "pdf") => {
+    const data = reportPayload();
+    await downloadGenericReport(id, format, data);
+    await collection.commit(data);
+  };
 
   if (loading) return <div className="container-x flex min-h-[55vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-indigo-600" /></div>;
   if (!config || !current) return <div className="container-x py-16 text-center text-red-600">{error ?? "实验配置不存在"}</div>;
@@ -228,6 +236,8 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
           <button onClick={() => act("record", () => downloadRecordSheet("docx", id))} disabled={!!busy} className="inline-flex h-10 items-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white disabled:opacity-50"><FileDown className="h-4 w-4" />记录表 Word</button>
         </div>
       </div>
+
+      <DataContributionPanel collection={collection} />
 
       <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
         {config.methods.map((method, index) => (
@@ -336,13 +346,13 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
             预览结果
           </button>
           <button
-            onClick={() => act("docx", () => downloadGenericReport(id, "docx", reportPayload()))}
+            onClick={() => act("docx", () => downloadFinalReport("docx"))}
             disabled={!!busy || !basicReady}
             title={basicReady ? "直接生成完整报告 Word" : "请先填写完全部必做实验"}
             className="inline-flex h-10 items-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
           ><FileText className="h-4 w-4" />报告 Word</button>
           <button
-            onClick={() => act("pdf", () => downloadGenericReport(id, "pdf", reportPayload()))}
+            onClick={() => act("pdf", () => downloadFinalReport("pdf"))}
             disabled={!!busy || !basicReady}
             title={basicReady ? "直接生成完整报告 PDF" : "请先填写完全部必做实验"}
             className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
@@ -371,13 +381,13 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => act("docx", () => downloadGenericReport(id, "docx", reportPayload()))}
+                onClick={() => act("docx", () => downloadFinalReport("docx"))}
                 disabled={!!busy || !basicReady}
                 title={basicReady ? "下载完整报告 Word" : "填写完全部必做实验后才能生成报告"}
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
               ><FileText className="h-4 w-4" />完整报告 Word</button>
               <button
-                onClick={() => act("pdf", () => downloadGenericReport(id, "pdf", reportPayload()))}
+                onClick={() => act("pdf", () => downloadFinalReport("pdf"))}
                 disabled={!!busy || !basicReady}
                 title={basicReady ? "下载完整报告 PDF" : "填写完全部必做实验后才能生成报告"}
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"

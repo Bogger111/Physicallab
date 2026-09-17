@@ -14,7 +14,13 @@
 
 默认 provider 是 RapidOCR 3.9.2/PP-OCRv6-small ONNX Runtime；可以通过 `PHYSICSLAB_OCR_PROVIDER=paddleocr` 选择可选的 PP-OCRv5 provider（部署环境需额外安装 PaddleOCR）。OCR 只返回候选数字，用户在浏览器逐格复核后才会填入工作台。
 
-只有用户明确同意匿名采集且将单元格标记为 verified，反馈才写入 SQLite。默认不保存整张表格图片；当前反馈接口的 `cell_image_path` 仅为未来开发导出预留。`scripts/export_ocr_dataset.py` 只导出有明确同意、已确认且确实存在单元格图片的样本。
+原有逐单元格 OCR 反馈仍只有在用户明确同意且将单元格标记为 verified 后才写入 SQLite。
+
+此外提供独立、默认关闭的原始记录表贡献旁路。设置 `ENABLE_DATA_COLLECTION=true` 后，前端才显示该入口。用户必须主动选择已去除姓名、学号、电话、微信、面部、证件和其他个人信息的图片并勾选同意；未同意时后端不创建目录或文件。图片解码后重新编码为 JPEG，从而移除 EXIF 和嵌入元数据。会话只使用服务端 UUID，不从文件名建立身份关联，也不记录 IP、请求头、浏览器指纹或用户账户。
+
+上传后的会话处于 `pending_confirmation`。只有报告下载成功，前端才把本次最终数据提交为 `confirmed` 标签；后续修改并再次生成报告会更新同一会话并递增 revision。字段 ID 由后端实验配置生成，不依赖 DOM 顺序。收集错误由独立接口处理，不会改变 validate、process 或 report 的结果。
+
+本地实现位于 `backend/data_collection/raw` 与 `metadata`，存储边界为 `CollectionStorage` / `LocalCollectionStorage`。可用 `PHYSICSLAB_COLLECTION_ROOT` 改变根目录。Cloud Run 本地文件系统是临时的；正式启用前应替换为持久化存储实现。`scripts/export_ocr_dataset.py` 默认只导出已同意、已确认、字段仍符合当前 schema 且原图存在的会话，输出 `manifest.csv` 与未裁剪原图副本，不执行 OCR、单元格裁剪、分割或训练。传入 `--database` 时仍可执行旧版 SQLite 单元格反馈导出。
 
 ## 匿名分析
 

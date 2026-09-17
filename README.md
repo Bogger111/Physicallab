@@ -156,6 +156,8 @@ GitHub Pages 只能托管 `frontend/` 的静态页面，不能运行 FastAPI、N
 
 ## PhysKiller 2.0 数据闭环
 
-`backend/experiments/schema.py` 提供所有配置驱动实验的统一字段与 canonical validation；`POST /api/experiments/{id}/validate` 可单独执行校验。OCR 通过 provider boundary 支持 RapidOCR 默认路径和可选 PaddleOCR 路径，反馈只有在用户明确同意匿名采集并确认单元格后才保存。匿名事件通过 `/api/analytics/events` 记录，`scripts/export_ocr_dataset.py` 为未来微调导出已同意且有单元格图片的样本，不会自动训练或部署模型。
+`backend/experiments/schema.py` 提供所有配置驱动实验的统一字段与 canonical validation；`POST /api/experiments/{id}/validate` 可单独执行校验。OCR 通过 provider boundary 支持 RapidOCR 默认路径和可选 PaddleOCR 路径。匿名事件通过 `/api/analytics/events` 记录。
+
+可选的原始记录表贡献功能默认关闭（`ENABLE_DATA_COLLECTION=false`）。启用后，网页仍要求学生主动勾选同意并上传已裁掉或遮盖个人信息的图片；只有报告成功下载后，才把最终确认值按配置派生的稳定字段 ID 写入同一 UUID 会话。拒绝贡献不影响任何实验功能。原图在保存前重新编码为 JPEG 以移除 EXIF，服务不保存 IP、请求头、浏览器指纹、账户、姓名或学号。`scripts/export_ocr_dataset.py` 默认从 `backend/data_collection/raw` 与 `metadata` 生成 `manifest.csv`，不执行裁剪、OCR 或训练。生产环境必须为 `CollectionStorage` 配置持久化实现；Cloud Run 本地磁盘不能视为永久存储。
 
 完整迁移说明和限制见 `docs/physkiller-2.0.md`。
