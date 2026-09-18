@@ -44,12 +44,12 @@ export default function DataContributionPanel({
         <div className="min-w-0 flex-1">
           <h2 className="text-sm font-bold text-stone-900">自愿贡献匿名原始记录表</h2>
           <p className="mt-1 text-xs leading-5 text-stone-600">
-            此项完全自愿，默认关闭。拒绝或不上传不会影响手动输入、OCR、计算、验证和报告下载。
-            原图只在你主动确认后上传；最终数值只在报告成功生成后保存。
+            此项完全自愿，默认关闭。不参与不会影响数据录入、识别、计算、验证和报告下载中的任何一步。
+            原图只在你主动确认后上传；最终数值在报告成功生成后才保存。
           </p>
           <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
             上传前请自行裁掉或遮盖姓名、学号、电话、微信、面部、证件及其他个人信息。
-            图片会在保存前重新编码，自动去除 EXIF 拍摄信息。
+            图片保存前会重新编码，自动去掉拍摄时间、位置等照片信息。
           </div>
 
           {!uploaded ? (
@@ -86,7 +86,7 @@ export default function DataContributionPanel({
               </div>
               <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-stone-500">
                 <li className="inline-flex items-center gap-1"><UserCheck className="h-3.5 w-3.5" />自愿参与，随时可撤回</li>
-                <li className="inline-flex items-center gap-1"><Lock className="h-3.5 w-3.5" />已做脱敏处理（去 EXIF、不存账号信息）</li>
+                <li className="inline-flex items-center gap-1"><Lock className="h-3.5 w-3.5" />已做脱敏处理（不保存账号信息）</li>
                 <li className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" />不用于识别任何个人</li>
               </ul>
             </div>

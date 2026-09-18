@@ -1,166 +1,177 @@
-# PhysicsLab / PhysKiller 2.0 — 大学物理实验助手
+# PhysLab
 
-实验结束，数据处理也结束。
+### AI-powered Physics Laboratory Assistant
 
-> 当前发布通道为 **PhysKiller 2.0 Beta 1**。计算链、合成 fixture 和报告结构已经通过自动测试；完整真实实验数据与手写 OCR 仍需要学生、助教和教师共同验证。网页会持续显示测试版提示，所有 OCR 候选值必须人工确认。
+PhysLab 是一个面向大学物理实验的 AI 助手。它帮助学生完成实验数据处理的最后一公里：
 
-前端实验库现包含 12 个公开入口（API 目录额外保留带 `legacy: true` 的旧光电效应条目，旧的光电效应与弗兰克-赫兹入口仍兼容）。偏振光与声速/光速保留专用工作区；其余实验也已拆成独立的 `backend/experiments/<experiment>/` 模块。后端通过显式 Experiment Registry 统一访问 config、schema、validate、process、record sheet 和 report，共享数值、绘图与文档渲染基础设施。
+- **实验数据录入** —— 手写记录表拍照上传，自动识别成数据
+- **数据处理** —— 计算、误差分析、最小二乘拟合
+- **曲线绘制** —— 结果图自动生成并按报告规范排版
+- **实验报告** —— 一键导出含数据表、图像与计算结果的 Word / PDF
 
-## 功能
+> PhysLab **不替代实验**。纸笔记录、动手操作、观察现象仍是实验课的核心；PhysLab 只是把实验之后的数据处理与出图变成一分钟的事。
 
-- **实验前**: 下载标准数据记录表，打印后带入实验室；每次实验还配有「数据特征参考」卡片，提前告诉你各测量量的量级、相邻点间距与正常趋势
-- **实验中**: 在纸质表格上手写记录实验数据
-- **实验后**: 上传/输入数据，自动完成计算、拟合与绘图
-- **两种入口，同一工作台**: 普通实验不采集任何内容；「AI 实验共建」在完全相同的实验流程中，由学生自愿上传脱敏记录表并在报告完成后确认数据，自动切分为 OCR 训练样本（可随时撤回）
+**在线使用**：<https://bogger111.github.io/Physicallab/> · **问题反馈**：<https://github.com/Bogger111/Physicallab/issues>
 
-## 技术栈
+---
 
-- **前端**: Next.js + TypeScript + Tailwind CSS + shadcn/ui + Lucide React
-- **后端**: FastAPI + NumPy + SciPy + Matplotlib
-- **实验计算**: 独立 Python 计算引擎，由回归测试与合成 fixture 验证
+## Features
 
-## 验证边界
+### 📷 OCR 辅助实验数据录入
 
-- 算法单元测试、API 合约测试与合成 fixture 文档 QA 已覆盖。
-- 尚未使用完整真实实验数据完成端到端验证，不对真实实验结果作必然正确的保证。
+上传手写实验记录表的照片，PhysLab 会定位表格、切出每一个手写数值并给出识别候选。所有候选值都由你确认或修改后才进入计算。
 
-## 项目结构
+### 📊 自动数据处理
+
+- 数据计算：按每个实验的计算公式与单位自动处理
+- 误差分析：相对误差、标准差、相关系数等
+- 曲线绘制：验证性实验自动做最小二乘拟合与残差检查
+
+### 📝 实验报告生成
+
+一次导出即可得到：
+
+- 数据表（含原始读数与计算结果）
+- 结果图像（拟合曲线、特性曲线）
+- 计算结果与误差分析
+
+### 🤖 AI 实验共建
+
+你可以自愿选择「AI 实验共建」模式，在**正常完成实验的同时**，帮助 PhysLab 学习真实实验记录，提升未来实验数据识别能力。
+
+---
+
+## 使用流程
 
 ```
-physicslab/
-├── backend/                    # FastAPI 后端
-│   ├── app/
-│   │   ├── main.py            # FastAPI 应用
-│   │   └── routers/           # API 路由
-│   ├── experiments/
-│   │   ├── core/              # Registry、统一接口与共享基础设施
-│   │   ├── polarization/      # 偏振光实验
-│   │   ├── soundlight/        # 声速与光速实验
-│   │   ├── multimeter/        # 万用表实验（独立配置与适配器）
-│   │   ├── bridge/            # 交直流电桥实验
-│   │   └── .../               # 其余实验各自独立模块
-│   ├── tests/                 # 回归测试
-│   └── requirements.txt
-├── frontend/                  # Next.js 前端
-│   ├── src/
-│   │   ├── app/               # 页面
-│   │   │   ├── page.tsx       # 首页
-│   │   │   ├── experiments/   # 实验库 + 详情 + 工作台
-│   │   │   └── layout.tsx     # 布局
-│   │   ├── components/        # 组件
-│   │   └── lib/               # 工具函数
-│   └── public/
-│       └── record-sheets/     # 实验记录表 PDF
-├── docs/                      # 讲义覆盖审查与发布说明
-├── scripts/                   # 可重复执行的 QA / 报告脚本
-├── artifacts/                 # 记录表审查与模拟报告产物
-└── README.md
+1. 选择实验        2. 上传实验记录表     3. AI 辅助识别数据
+        ↓                    ↓                     ↓
+4. 检查并修改数据   5. 自动计算和绘图     6. 生成实验报告
 ```
 
-## 快速启动
+| 步骤 | 说明 |
+|---|---|
+| 1. 选择实验 | 打开实验库，选择本次要做的实验（支持 12 个大学物理实验） |
+| 2. 上传实验记录表 | 拍照或扫描手写记录表上传；也可以直接手动录入 |
+| 3. AI 辅助识别数据 | 系统按实验模板切出每个数值并给出识别结果 |
+| 4. 检查并修改数据 | 逐项确认；表格里可以直接改，超范围会给出提示 |
+| 5. 自动计算和绘图 | 点击处理后自动完成计算、拟合与出图 |
+| 6. 生成实验报告 | 下载 Word / PDF 报告，含数据表、图像与计算结果 |
 
-### 后端
+<p align="center">
+  <img src="docs/images/home.png" alt="PhysLab 首页" width="720">
+</p>
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/experiments.png" alt="实验库"><br><sub>实验库：12 个大学物理实验</sub></td>
+<td width="50%"><img src="docs/images/workspace.png" alt="实验工作台"><br><sub>工作台：数据录入、计算、绘图与报告</sub></td>
+</tr>
+</table>
+
+## 支持的实验
+
+| 分类 | 实验 |
+|---|---|
+| 光学 | 偏振光与双折射、迈克尔逊干涉实验 |
+| 波动 | 声速光速的测量 |
+| 电磁学 | 万用表的组装与校准、交直流电桥的原理及应用、太阳能电池特性、巨磁电阻效应及应用 |
+| 近代物理 | 核磁共振实验、光电效应与弗兰克-赫兹实验 |
+| 力学 | 落球法测液体粘滞系数、液体表面张力系数测量 |
+| 热学 | 稳态法测固体导热系数 |
+
+每个实验都配有标准记录表（可打印）、数据特征参考（这个实验的数据通常长什么样）与报告模板。
+
+## AI 实验共建模式
+
+AI 实验共建**不是额外任务**：它和普通实验走的是同一个工作台、同一套流程，区别只是实验结束后可以自愿贡献脱敏后的记录表。
+
+```
+选择共建模式 → 正常完成实验 → 确认数据 → 贡献脱敏实验记录 → 帮助优化 PhysLab
+```
+
+<p align="center">
+  <img src="docs/images/cobuild-intro.png" alt="AI 实验共建说明" width="720">
+</p>
+
+- **完全自愿**：不参与也完整可用，随时可以切回普通模式
+- **不影响正常实验**：录入、计算、绘图、报告流程完全一致
+- **可以撤回贡献**：撤回后原图与由它生成的数据样本一并删除
+
+## 数据安全
+
+参与前请先删除或遮盖：**姓名、学号、联系方式**（以及人脸、证件等任何个人信息）。
+
+系统会：
+
+- 删除图片元数据：保存前重新编码，去掉拍摄时间、位置等照片信息
+- 仅保存必要实验信息：只保留数值裁剪与最小必要的溯源信息
+- 不公开用户实验记录：原始图片保存在私有存储中，不会进入公开仓库
+
+<p align="center">
+  <img src="docs/images/report.png" alt="实验报告生成" width="720">
+</p>
+
+## 项目架构
+
+```
+User
+ │
+PhysLab（Next.js 界面 + FastAPI 服务）
+ │
+Experiment Processing（计算 · 误差分析 · 拟合绘图 · 报告）
+ │
+AI Data Pipeline（模板定位 · 表格切分 · 质量筛选）
+ │
+OCR Dataset（image, text）
+ │
+PhysLab_OCR（CRNN + CTC 识别模型训练）
+```
+
+PhysLab 负责采集与切分，[PhysLab_OCR](https://github.com/Bogger111/PhysLab_OCR) 负责数据集与模型训练——两个仓库职责分离。
+
+## 开发状态
+
+**当前（2.0）**
+
+- 支持 12 个大学物理实验的录入、计算、绘图与报告
+- 支持实验记录表 OCR 辅助录入（候选值须人工确认）
+- 支持 AI 实验数据共建闭环：采集 → 确认 → 切分 → 训练集导出
+- 后端 387 项、前端 44 项自动测试全部通过
+
+**未来**
+
+- 更多实验（力学、热学、电磁学、近代物理持续接入）
+- 更强的 OCR 模型：用共建数据训练后的识别能力提升
+- 更多智能实验辅助功能
+
+> 验证边界：计算链、记录表、报告与 OCR 管线均已通过自动测试与合成数据验证；真实手写数据与真实实验读数的端到端验证仍在进行，发布版中的所有 OCR 候选值都需要人工确认。
+
+## 本地运行（开发者）
+
 ```bash
-cd backend
-uv venv
-uv pip install -r requirements.txt
-python run.py
-# API 运行在 http://localhost:8001（生产命令见下方运行说明）
+# 后端
+cd backend && pip install -r requirements.txt
+uvicorn app.main:app --port 8001
+
+# 前端
+cd frontend && npm install && npm run dev
 ```
 
-### 前端
+开发开关（可选，默认关闭数据共建）：`backend/.env.local`
+
 ```bash
-cd frontend
-npm install
-npm run dev
-# 前端运行在 http://localhost:3000
+ENABLE_DATA_COLLECTION=true     # 打开数据共建
+PHYSICSLAB_DEV_MODE=true        # 打开开发者统计面板
 ```
 
-### 运行测试
-```bash
-cd backend
-.venv/Scripts/python.exe -m pytest tests/ -v
-```
+更多细节见 [docs/physkiller-2.0.md](docs/physkiller-2.0.md)（架构与流水线）、[docs/screenshots.md](docs/screenshots.md)（截图清单）、[CHANGELOG.md](CHANGELOG.md)（发布说明）。
 
-## 当前可用实验
+## 反馈
 
-公开入口共 12 个：万用表、交直流电桥、偏振光、光电效应与弗兰克-赫兹、声速光速、
-太阳能电池、巨磁电阻、核磁共振、液体粘滞系数、液体表面张力、固体导热系数、
-迈克尔逊干涉。
+- 使用问题与建议：<https://github.com/Bogger111/Physicallab/issues>
+- 数据共建相关疑问（授权、撤回、隐私）：同样通过 issue 联系
 
-通用实验接口：
+---
 
-- `GET /api/experiments/{experiment_id}/config`
-- `POST /api/experiments/{experiment_id}/process`
-- `GET /api/record-sheets/{experiment_id}.docx|pdf`
-- `POST /api/experiments/{experiment_id}/report?fmt=docx|pdf`
-
-所有实验报告均为一份完整报告，按“全部表格 → 全部图片 → 详细数据分析 →
-拓展、建议、误差分析与总结”排列，相邻部分强制换页。
-
-### 偏振光与双折射 (polarization)
-- 马吕斯定律: I vs cos²θ 线性拟合
-- 半波片: ΔP2 vs ΔC 关系验证
-- 四分之一波片: 椭圆偏振光强分布
-- 圆偏振光: 光强恒定性验证
-
-### 声速光速的测量 (sound-light)
-- 空气共振法、水中相位法、时差法测声速
-- 正弦波相位法、方波相位法、李萨如法测光速
-
-## 新增实验
-
-新增同类实验的主要步骤:
-1. 创建 `backend/experiments/<exp>/` 目录
-2. 添加实验 `config.json` 与 Calculation Adapter
-3. 在 Experiment Registry 注册，并添加前端实验入口
-4. 复用现有记录表、报告和工作台组件；特殊交互再增加薄适配层
-
-## 设计原则
-
-- 中文界面，浅色模式
-- Apple / Linear 克制感
-- 图表和数据是视觉中心
-- PC/Mac/iPad 好用，手机可查看
-- 不做 AI 魔法按钮
-
-## 运行说明（2026-09-09 更新）
-
-- 后端：`cd backend && ./.venv/Scripts/python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8001`
-  （8000 端口残留了一个无法在普通会话终止的旧进程，故统一走 8001；如需清掉请用管理员终端或重启后删除。）
-- 前端：`cd frontend && npm run build && npx next start -p 3000`；构建会读取 `.env.local`（NEXT_PUBLIC_API_URL=http://localhost:8001）。
-- 报告管线（新增）：`backend/experiments/polarization/{reports.py,docbuild.py}`。
-  - `GET  /api/record-sheets/polarization.{docx|pdf}`：空白记录表（Word / 紧凑 PDF，无填充色）
-  - `POST /api/experiments/polarization/report?fmt=docx|pdf`：四部分完整报告
-  - `POST /api/experiments/sound-light/report?fmt=docx|pdf`：四部分完整报告
-  - 完整报告统一按“全部表格 → 全部图片 → 详细数据处理 → 拓展、建议、误差分析与总结”排列，各部分强制换页。
-- 依赖新增：python-docx、reportlab（见 backend/requirements.txt）。
-
-## QA 产物
-
-- `docs/validation/lecture-coverage-audit.md`：讲义必做/选做项目覆盖审查。
-- `artifacts/record-sheet-audit/`：空白记录表的 Word/PDF 与缩略图审查。
-- `artifacts/simulation-reports/`：13 个实验的合成数据模拟报告、结果汇总和缩略图。
-- `scripts/generate_simulated_reports.py`：重新生成模拟报告；结果只用于算法与排版 QA，不能替代真实数据验收。
-
-## GitHub Pages 部署边界
-
-GitHub Pages 只能托管 `frontend/` 的静态页面，不能运行 FastAPI、NumPy、SciPy 或报告生成服务。要让在线工作台真正计算数据，后端必须部署到独立的 HTTPS 服务，并通过 `NEXT_PUBLIC_API_URL` 配置给前端；如果只发布 Pages 而不部署后端，实验浏览和静态记录表可以打开，数据处理与报告下载将不可用。
-
-## Cloudflare 部署
-
-项目提供 Cloudflare Pages + Containers 配置。前端静态导出仍在 `frontend/`，后端 Docker 镜像和 Container Worker 位于 `backend/Dockerfile` 与 `cloudflare/`。完整步骤见 `docs/deployment.md`。Cloudflare Pages 的 `NEXT_PUBLIC_BASE_PATH` 应为空；前端的 `NEXT_PUBLIC_API_URL` 必须指向已部署的 Container Worker HTTPS 地址。
-
-## 图片识别录入与范围提醒
-
-数据工作台支持保留手动输入，同时将当前手写数据表照片交给 RapidOCR/ONNX Runtime 识别。模型只返回候选数字；学生必须在网页校对区确认后，数据才会填入原有输入表格。建议只拍摄当前表格的数据区域，避免标题、单位和旁注被当作数值。
-
-合理范围定义位于 `frontend/src/lib/input-ranges.ts`，只用于网页中的黄色提醒。它们不会进入计算请求、结果 JSON、空白记录表、Word 或 PDF 报告；超出范围也不会阻止学生保留真实测量值。
-
-## PhysKiller 2.0 数据闭环
-
-`backend/experiments/schema.py` 提供所有配置驱动实验的统一字段与 canonical validation；`POST /api/experiments/{id}/validate` 可单独执行校验。OCR 通过 provider boundary 支持 RapidOCR 默认路径和可选 PaddleOCR 路径。匿名事件通过 `/api/analytics/events` 记录。
-
-可选的原始记录表贡献功能默认关闭（`ENABLE_DATA_COLLECTION=false`）。启用后，网页仍要求学生主动勾选同意并上传已裁掉或遮盖个人信息的图片；只有报告成功下载后，才把最终确认值按配置派生的稳定字段 ID 写入同一 UUID 会话。拒绝贡献不影响任何实验功能。原图在保存前重新编码为 JPEG 以移除 EXIF，服务不保存 IP、请求头、浏览器指纹、账户、姓名或学号。`scripts/export_ocr_dataset.py` 默认从 `backend/data_collection/raw` 与 `metadata` 生成 `manifest.csv`，不执行裁剪、OCR 或训练。生产环境必须为 `CollectionStorage` 配置持久化实现；Cloud Run 本地磁盘不能视为永久存储。
-
-完整迁移说明和限制见 `docs/physkiller-2.0.md`。
+HUST 华中科技大学 · 大学物理实验

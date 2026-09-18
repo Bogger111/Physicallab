@@ -1,2 +1,8 @@
+# Private collection data must never be committed (defence in depth: the
+# repository root also ignores this whole directory). Only the documentation in
+# this folder is tracked.
+sessions/
+datasets/
+# legacy layout, kept so an old checkout stays protected
 raw/
 metadata/

@@ -40,7 +40,7 @@ test("the voluntary / withdraw / redacted promises stay visible", () => {
   assert.match(panel, /自愿参与，随时可撤回/);
   assert.match(panel, /已做脱敏处理/);
   assert.match(panel, /随时可以撤回删除/);
-  assert.match(panel, /去除 EXIF 拍摄信息/);
+  assert.match(panel, /自动去掉拍摄时间、位置等照片信息/);
 });
 
 test("the withdraw button deletes the session through the API", () => {
@@ -48,6 +48,12 @@ test("the withdraw button deletes the session through the API", () => {
   assert.match(panel, /collection\.withdraw\(\)/);
   assert.match(hook, /deleteDataCollectionSession\(sessionId\)/);
   assert.match(api, /method: "DELETE"/);
+});
+
+test("the copy stays free of jargon", () => {
+  for (const word of ["EXIF", "session_id", "UUID", "collection_mode"]) {
+    assert.ok(!panel.includes(word), `the panel must not expose ${word}`);
+  }
 });
 
 test("the card never renders internals", () => {
