@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Contribution experience: after a successful upload the panel shows a contribution card (实验类型 / 状态 / 后续 / 当前贡献) with the estimated number of OCR samples, the voluntary-withdraw-redaction promises and a 撤回贡献 button; only a short contribution reference is rendered, never the full session id or a storage path.
+- Added `backend/ocr_dataset/export.py` (+ CLI `python -m backend.ocr_dataset.export [--experiment] [--output] [--dry-run]`): packs every confirmed session into `physlab_ocr_dataset.zip` as `dataset/{images/*.png, labels.csv, manifest.json}` for direct use by Bogger111/PhysLab_OCR.
+- Added `GET /api/data-collection/stats` (sessions / confirmed / samples + per-experiment breakdown) and the developer dashboard `/dev/data-collection`; both are gated — a configured `PHYSICSLAB_ADMIN_KEY` (header `X-Admin-Key`) always wins, otherwise `PHYSICSLAB_DEV_MODE=true` opens them locally, and both default to hidden.
+- Statistics read only session metadata and the dataset index (`samples.csv`); no image is ever scanned. Experiments now also report a human-readable `experiment_name`, and upload/commit responses carry `estimated_samples`.
+
 - Enabled the collection loop for local development: `backend/.env.local` (`ENABLE_DATA_COLLECTION=true`, git-ignored) is read at startup by the dependency-free `app.dev_env`, where real environment variables always win so production config is untouched.
 - Renamed the filesystem storage implementation to `LocalFileStorage` (the documented default behind `CollectionStorage`; `LocalCollectionStorage` remains as an alias).
 - The contribution panel now shows the saved `session_id` and 「记录已保存，可用于后续优化实验数据识别能力。」 after a successful upload.

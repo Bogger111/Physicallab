@@ -56,6 +56,26 @@ request IP addresses, headers, browser fingerprints, or account data. Offline
 numeric-cell segmentation and review live in `backend/ocr_dataset`; they do not
 change this API or copy full source pages into dataset output.
 
+## Statistics (developer surface)
+
+`GET /api/data-collection/stats` returns `total_sessions`, `confirmed_sessions`,
+`samples_created` and a per-experiment breakdown.  It reads only session
+metadata and the dataset index (`datasets/<export>/samples.csv`): images are
+never scanned or opened.
+
+Access is closed by default:
+
+| Configuration | Result |
+|---|---|
+| `PHYSICSLAB_ADMIN_KEY` set, header `X-Admin-Key` matches | 200 (constant-time compare) |
+| `PHYSICSLAB_ADMIN_KEY` set, header missing or wrong | 404 |
+| no admin key, `PHYSICSLAB_DEV_MODE=true` | 200 (local development only) |
+| neither | 404 — the endpoint is not advertised |
+
+The matching page is `/dev/data-collection` in the frontend, rendered only when
+`NEXT_PUBLIC_PHYSICSLAB_DEV_MODE=true` is part of the build, marked `noindex` and
+absent from the navigation.
+
 Local disk in a Cloud Run instance is ephemeral. A production deployment that
 enables this feature must supply a persistent `CollectionStorage`
 implementation before treating collected files as durable.

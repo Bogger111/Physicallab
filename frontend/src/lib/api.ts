@@ -130,6 +130,30 @@ export interface DataCollectionStatus {
   template_version: string;
 }
 
+export interface DataCollectionSessionResponse {
+  session_id: string;
+  revision: number;
+  experiment_id?: string;
+  experiment_name?: string;
+  /** How many OCR samples this contribution can produce. */
+  estimated_samples?: number;
+  field_count?: number;
+  status?: string;
+}
+
+export interface DataCollectionStats {
+  total_sessions: number;
+  confirmed_sessions: number;
+  samples_created: number;
+  experiments: Record<string, number>;
+  consented_sessions?: number;
+  sessions_by_experiment?: Record<string, number>;
+  confirmed_by_experiment?: Record<string, number>;
+  sessions_awaiting_values?: number;
+  dataset?: { export: string; labeled_samples: number; image_files: number; sessions_in_dataset: number };
+  generated_at?: string;
+}
+
 export async function fetchDataCollectionStatus(): Promise<DataCollectionStatus> {
   const res = await fetch(`${API_BASE}/api/data-collection/status`);
   if (!res.ok) throw new Error(await failureMessage(res));
@@ -140,7 +164,7 @@ export async function createDataCollectionSession(
   experimentId: string,
   templateVersion: string,
   image: File,
-): Promise<{ session_id: string; revision: number }> {
+): Promise<DataCollectionSessionResponse> {
   const form = new FormData();
   form.append("image", image);
   form.append("experiment_id", experimentId);
@@ -159,7 +183,7 @@ export async function commitDataCollectionSession(
   experimentId: string,
   templateVersion: string,
   confirmedData: object,
-): Promise<{ revision: number; field_count: number }> {
+): Promise<DataCollectionSessionResponse> {
   const res = await fetch(`${API_BASE}/api/data-collection/sessions/${sessionId}/commit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -169,6 +193,15 @@ export async function commitDataCollectionSession(
       consent: true,
       confirmed_data: confirmedData,
     }),
+  });
+  if (!res.ok) throw new Error(await failureMessage(res));
+  return res.json();
+}
+
+export async function fetchDataCollectionStats(adminKey?: string): Promise<DataCollectionStats> {
+  const res = await fetch(`${API_BASE}/api/data-collection/stats`, {
+    headers: adminKey ? { "X-Admin-Key": adminKey } : undefined,
+    cache: "no-store",
   });
   if (!res.ok) throw new Error(await failureMessage(res));
   return res.json();

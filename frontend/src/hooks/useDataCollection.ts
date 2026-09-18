@@ -19,6 +19,10 @@ export interface DataCollectionController {
   state: ContributionState;
   sessionId: string | null;
   revision: number;
+  /** Estimated OCR samples this contribution can produce. */
+  estimatedSamples: number | null;
+  /** Human-readable experiment name reported by the API. */
+  experimentName: string | null;
   error: string | null;
   upload: () => Promise<void>;
   commit: (data: object) => Promise<void>;
@@ -33,6 +37,8 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [state, setState] = useState<ContributionState>("idle");
   const [revision, setRevision] = useState(0);
+  const [estimatedSamples, setEstimatedSamples] = useState<number | null>(null);
+  const [experimentName, setExperimentName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,6 +63,8 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
       const response = await createDataCollectionSession(experimentId, templateVersion, file);
       setSessionId(response.session_id);
       setRevision(response.revision);
+      setEstimatedSamples(response.estimated_samples ?? null);
+      setExperimentName(response.experiment_name ?? null);
       setState("pending");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "原始记录表上传失败");
@@ -74,6 +82,8 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
         data,
       );
       setRevision(response.revision);
+      if (typeof response.estimated_samples === "number") setEstimatedSamples(response.estimated_samples);
+      if (response.experiment_name) setExperimentName(response.experiment_name);
       setState("confirmed");
       setError(null);
     } catch (reason) {
@@ -97,6 +107,7 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
     setConsent(false);
     setFile(null);
     setRevision(0);
+    setEstimatedSamples(null);
     setState("idle");
     setError(null);
   }, [sessionId]);
@@ -110,6 +121,8 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
     state,
     sessionId,
     revision,
+    estimatedSamples,
+    experimentName,
     error,
     upload,
     commit,

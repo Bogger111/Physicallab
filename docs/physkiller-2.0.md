@@ -86,6 +86,24 @@ backend/data_collection/
 - 隐私：原始页面只存在私有存储，导出目录只含单个数裁剪；`CollectionStorage` 提供 `local_storage()`（开发）与将来的 GCS 实现（生产）。
 - 端到端验收：把导出目录复制到 `PhysLab_OCR/data/` 后，直接运行该仓库的 `train.py` 可正常训练（loss 2.19 → 0.62，GT 保留 `26.590` 尾零）。
 
+## 数据共建体验、导出与统计
+
+**贡献卡片**：上传成功后前端展示实验类型、保存状态、后续动作与「预计生成 N 个 OCR 样本」（来自 `estimated_samples`：待确认时为模板可裁切单元格上限，确认后按 charset 合法且命中模板的字段精确计算），并保留自愿/可撤回/已脱敏的说明与「撤回贡献」按钮。卡片只显示 8 位贡献编号，不显示完整 UUID 与存储路径。
+
+**导出压缩包**：
+
+```bash
+python -m backend.ocr_dataset.export                    # 全部 confirmed session
+python -m backend.ocr_dataset.export --experiment sound-light
+python -m backend.ocr_dataset.export --output dist/physlab_ocr_dataset.zip
+python -m backend.ocr_dataset.export --dry-run
+```
+
+产物 `physlab_ocr_dataset.zip`：`dataset/images/*.png`、`dataset/labels.csv`（仅 `image,text`）、`dataset/manifest.json`（`version/created_at/experiment_count/sample_count` + 每实验分布）。解压后可直接作为 `PhysLab_OCR/data/`。
+
+**开发者统计**：`GET /api/data-collection/stats` 只读 metadata 与 `samples.csv`（不扫描图片），返回 `total_sessions / confirmed_sessions / samples_created / experiments`。权限：配置了 `PHYSICSLAB_ADMIN_KEY` 时必须带 `X-Admin-Key`（恒定时间比较），未配置时仅 `PHYSICSLAB_DEV_MODE=true` 放行，两者都不满足则返回 404（不暴露端点存在）。对应前端页面 `/dev/data-collection`，仅在构建期 `NEXT_PUBLIC_PHYSICSLAB_DEV_MODE=true` 时渲染，且不在任何公开导航中、标记 noindex。
+
+## 验证边界
 ## 验证边界
 ## 验证边界
 

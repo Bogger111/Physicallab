@@ -1,6 +1,6 @@
 """Optional consent-first record-sheet collection API glue."""
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from starlette.concurrency import run_in_threadpool
 
 from app.models import CollectionCommitRequest
@@ -54,8 +54,15 @@ async def create_data_collection_session(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except OSError as exc:
         raise HTTPException(status_code=503, detail="记录表贡献暂时不可用，不影响报告生成") from exc
+    from app.collection_stats import estimate_samples, experiment_name
+
     return {"status": "pending_confirmation", "session_id": metadata["session_id"],
-            "revision": metadata["revision"]}
+            "revision": metadata["revision"],
+            "experiment_id": experiment_id,
+            "experiment_name": experiment_name(experiment_id),
+            # Upper bound: every cell of this experiment's record sheet the
+            # template knows about. The exact number follows the confirmed values.
+            "estimated_samples": estimate_samples(experiment_id)}
 
 
 @router.post("/api/data-collection/sessions/{session_id}/commit")
@@ -90,8 +97,13 @@ async def commit_data_collection_session(session_id: str, req: CollectionCommitR
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except OSError as exc:
         raise HTTPException(status_code=503, detail="确认数据暂时无法保存，不影响报告生成") from exc
+    from app.collection_stats import estimate_samples, experiment_name
+
     return {"status": metadata["status"], "session_id": metadata["session_id"],
-            "revision": metadata["revision"], "field_count": len(metadata["fields"])}
+            "revision": metadata["revision"], "field_count": len(metadata["fields"]),
+            "experiment_id": req.experiment_id,
+            "experiment_name": experiment_name(req.experiment_id),
+            "estimated_samples": estimate_samples(req.experiment_id, metadata["fields"])}
 
 
 @router.post("/api/data-collection/sessions/{session_id}/build-ocr")
@@ -127,6 +139,26 @@ async def build_ocr_dataset(session_id: str):
     except OSError as exc:
         raise HTTPException(status_code=503, detail="数据集导出暂时不可用") from exc
     return outcome.as_api_payload()
+
+
+@router.get("/api/data-collection/stats")
+async def data_collection_stats(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
+    """Contributor statistics for the developer dashboard.
+
+    Never public: a configured ``PHYSICSLAB_ADMIN_KEY`` must be presented in the
+    ``X-Admin-Key`` header, and only when no key is configured does
+    ``PHYSICSLAB_DEV_MODE=true`` open it for local development.  Otherwise the
+    endpoint behaves as if it did not exist.
+    """
+    from app.collection_stats import collection_stats, stats_allowed
+    from app.data_collection import collection_enabled, collection_root
+
+    if not collection_enabled() or not stats_allowed(x_admin_key):
+        raise HTTPException(status_code=404, detail="Not Found")
+    try:
+        return await run_in_threadpool(collection_stats, collection_root())
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="统计数据暂时不可用") from exc
 
 
 @router.delete("/api/data-collection/sessions/{session_id}")
