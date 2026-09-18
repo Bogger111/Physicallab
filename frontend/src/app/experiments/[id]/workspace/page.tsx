@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { experiments } from "@/lib/experiments";
 import ExperimentWorkspaceClient from "./client-page";
 
@@ -10,5 +11,9 @@ export default function ExperimentWorkspacePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  return <ExperimentWorkspaceClient params={params} />;
+  return (
+    <Suspense fallback={null}>
+      <ExperimentWorkspaceClient params={params} />
+    </Suspense>
+  );
 }

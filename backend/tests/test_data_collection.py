@@ -209,8 +209,8 @@ def test_metadata_has_no_identity_or_request_fingerprint(collection_root):
     }
     assert forbidden.isdisjoint({str(key).lower() for key in metadata})
     assert set(metadata) == {
-        "session_id", "experiment_id", "template_version", "consent", "status",
-        "revision", "created_at", "confirmed_at", "updated_at", "image_path", "fields",
+        "session_id", "experiment_id", "template_version", "collection_mode", "consent",
+        "status", "revision", "created_at", "confirmed_at", "updated_at", "image_path", "fields",
     }
 
 

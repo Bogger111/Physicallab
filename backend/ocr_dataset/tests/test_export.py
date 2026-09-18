@@ -107,6 +107,21 @@ def test_export_filters_by_experiment(collection, tmp_path):
     assert only_sound.experiment_count == 1
 
 
+def test_export_ignores_ordinary_sessions(tmp_path):
+    """Only AI co-build sessions are contributions; ordinary runs are not data."""
+    root = tmp_path / "collection"
+    image = rendered_page("multimeter").copy()
+    write_ink(image, field_box("multimeter", MULTIMETER_FIELDS[0]), "20.04")
+    make_collection(root, "multimeter", image, {MULTIMETER_FIELDS[0]: "20.04"}, collection_mode=False)
+    outcome = export_dataset(tmp_path / "ordinary.zip", collection_root=root)
+    assert outcome.sessions_seen == 0
+    assert outcome.sample_count == 0
+    assert outcome.problems == ["no AI co-build sessions to export"]
+    assert (tmp_path / "ordinary.zip").is_file(), "an empty archive is still produced"
+    with zipfile.ZipFile(tmp_path / "ordinary.zip") as bundle:
+        assert bundle.read("dataset/labels.csv").decode("utf-8").strip() == "image,text"
+
+
 def test_export_ignores_pending_and_unconsented_sessions(collection, tmp_path):
     root = collection
     confirmed_session(root, "multimeter", {MULTIMETER_FIELDS[0]: "20.04"}, revision=0)   # never confirmed

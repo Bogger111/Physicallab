@@ -22,6 +22,7 @@ async def create_data_collection_session(
     experiment_id: str = Form(...),
     template_version: str = Form("2.0"),
     consent: bool = Form(False),
+    collection_mode: bool = Form(False),
 ):
     from app.data_collection import (
         ALLOWED_IMAGE_TYPES,
@@ -49,6 +50,7 @@ async def create_data_collection_session(
             experiment_id=experiment_id,
             template_version=version,
             image=sanitized,
+            collection_mode=collection_mode,
         )
     except CollectionValidationError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -60,6 +62,7 @@ async def create_data_collection_session(
             "revision": metadata["revision"],
             "experiment_id": experiment_id,
             "experiment_name": experiment_name(experiment_id),
+            "collection_mode": bool(collection_mode),
             # Upper bound: every cell of this experiment's record sheet the
             # template knows about. The exact number follows the confirmed values.
             "estimated_samples": estimate_samples(experiment_id)}
@@ -103,6 +106,7 @@ async def commit_data_collection_session(session_id: str, req: CollectionCommitR
             "revision": metadata["revision"], "field_count": len(metadata["fields"]),
             "experiment_id": req.experiment_id,
             "experiment_name": experiment_name(req.experiment_id),
+            "collection_mode": metadata.get("collection_mode") is True,
             "estimated_samples": estimate_samples(req.experiment_id, metadata["fields"])}
 
 
@@ -125,6 +129,12 @@ async def build_ocr_dataset(session_id: str):
     if not collection_enabled():
         raise HTTPException(status_code=404, detail="数据贡献功能未启用")
     try:
+        record = await run_in_threadpool(local_storage().load_session, session_id)
+        if record.collection_mode is not True:
+            raise HTTPException(
+                status_code=400,
+                detail="只有「AI 实验共建模式」的会话才会生成 OCR 训练数据",
+            )
         outcome = await run_in_threadpool(
             build_session_dataset, session_id, storage=local_storage(),
         )

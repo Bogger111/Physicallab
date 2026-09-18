@@ -10,6 +10,7 @@ interface and writes the derived dataset outside the repository.
 
 from __future__ import annotations
 
+import csv
 import io
 import json
 import math
@@ -260,6 +261,7 @@ class SessionRecord:
     image_bytes: bytes
     image_ref: str
     metadata: dict[str, Any]
+    collection_mode: bool = False
 
 
 class CollectionStorage(ABC):
@@ -270,7 +272,13 @@ class CollectionStorage(ABC):
     """
 
     @abstractmethod
-    def create_session(self, *, experiment_id: str, template_version: str, image: bytes) -> dict[str, Any]:
+    def create_session(self, *, experiment_id: str, template_version: str, image: bytes,
+                       collection_mode: bool = False) -> dict[str, Any]:
+        """Store one uploaded record sheet.
+
+        ``collection_mode`` records whether the contributor entered through the
+        AI co-build入口; only such sessions become OCR training data.
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -337,7 +345,8 @@ class LocalFileStorage(CollectionStorage):
         temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         temporary.replace(path)
 
-    def create_session(self, *, experiment_id: str, template_version: str, image: bytes) -> dict[str, Any]:
+    def create_session(self, *, experiment_id: str, template_version: str, image: bytes,
+                       collection_mode: bool = False) -> dict[str, Any]:
         session_id = str(uuid4())
         directory = self.session_dir(session_id)
         directory.mkdir(parents=True, exist_ok=True)
@@ -352,6 +361,7 @@ class LocalFileStorage(CollectionStorage):
                 "session_id": session_id,
                 "experiment_id": experiment_id,
                 "template_version": template_version,
+                "collection_mode": bool(collection_mode),
                 "consent": True,
                 "status": "pending_confirmation",
                 "revision": 0,
@@ -416,17 +426,102 @@ class LocalFileStorage(CollectionStorage):
             image_bytes=image_path.read_bytes(),
             image_ref=image_ref,
             metadata=metadata,
+            collection_mode=metadata.get("collection_mode") is True,
         )
 
     def delete_session(self, session_id: str) -> None:
+        """Withdraw one contribution: session bytes *and* its dataset samples."""
         directory = self.session_dir(session_id)
         if not directory.exists():
             raise CollectionNotFoundError("数据贡献会话不存在")
         shutil.rmtree(directory, ignore_errors=False)
+        purge_dataset_session(self.dataset_root(), session_id)
 
 
 #: Backwards-compatible alias: the class was called LocalCollectionStorage.
 LocalCollectionStorage = LocalFileStorage
+
+
+def purge_dataset_session(dataset_root: Path, session_id: str) -> dict[str, int]:
+    """Drop every exported sample that came from one session.
+
+    A withdrawal has to leave no training trace: the crop images, the
+    `samples.csv` rows, the `rejected.csv` rows and the manifest counts are all
+    updated here. Session directories are not touched.
+    """
+    dataset_root = Path(dataset_root)
+    removed_images = 0
+    removed_samples = 0
+    removed_rejections = 0
+    if not dataset_root.is_dir():
+        return {"images": 0, "samples": 0, "rejections": 0}
+
+    for export_dir in sorted(path for path in dataset_root.iterdir() if path.is_dir()):
+        samples_path = export_dir / "samples.csv"
+        rows: list[dict[str, str]] = []
+        kept: list[dict[str, str]] = []
+        if samples_path.is_file():
+            with samples_path.open("r", encoding="utf-8", newline="") as handle:
+                rows = [dict(row) for row in csv.DictReader(handle)]
+            kept = [row for row in rows if row.get("session_id") != session_id]
+            removed_samples += len(rows) - len(kept)
+            for row in rows:
+                if row.get("session_id") != session_id:
+                    continue
+                image = str(row.get("image", ""))
+                path = export_dir / "images" / image
+                if image and path.is_file():
+                    path.unlink()
+                    removed_images += 1
+            if rows != kept:
+                _write_rows(samples_path, kept, SAMPLE_COLUMNS)
+
+        labels_path = export_dir / "labels.csv"
+        if labels_path.is_file() and rows:
+            with labels_path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.writer(handle, lineterminator="\n")
+                writer.writerow(["image", "text"])
+                for row in kept:
+                    writer.writerow([row.get("image", ""), row.get("text", "")])
+
+        rejected_path = export_dir / "rejected.csv"
+        if rejected_path.is_file():
+            with rejected_path.open("r", encoding="utf-8", newline="") as handle:
+                rejected = [dict(row) for row in csv.DictReader(handle)]
+            remaining = [row for row in rejected if row.get("session_id") != session_id]
+            removed_rejections += len(rejected) - len(remaining)
+            if len(remaining) != len(rejected):
+                _write_rows(rejected_path, remaining, list(rejected[0].keys()) if rejected else [])
+
+        manifest_path = export_dir / "manifest.json"
+        if manifest_path.is_file():
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                manifest = None
+            if isinstance(manifest, dict) and isinstance(manifest.get("dataset"), dict):
+                manifest["dataset"]["samples"] = len(kept)
+                manifest["dataset"]["images"] = len(list((export_dir / "images").glob("*.png")))
+                manifest_path.write_text(
+                    json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    return {"images": removed_images, "samples": removed_samples, "rejections": removed_rejections}
+
+
+def _write_rows(path: Path, rows: list[dict[str, str]], columns: list[str]) -> None:
+    fields = columns or (list(rows[0].keys()) if rows else [])
+    if not fields:
+        path.write_text("", encoding="utf-8")
+        return
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({name: row.get(name, "") for name in fields})
+
+
+SAMPLE_COLUMNS = ["image", "text", "field_id", "session_id", "experiment_id", "revision",
+                  "source_image", "segmentation_method", "quality_score", "sample_key", "notes"]
 
 
 def local_storage() -> LocalFileStorage:

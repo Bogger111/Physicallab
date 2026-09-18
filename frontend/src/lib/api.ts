@@ -137,6 +137,8 @@ export interface DataCollectionSessionResponse {
   experiment_name?: string;
   /** How many OCR samples this contribution can produce. */
   estimated_samples?: number;
+  /** True when the session was created from the AI co-build entry. */
+  collection_mode?: boolean;
   field_count?: number;
   status?: string;
 }
@@ -144,6 +146,9 @@ export interface DataCollectionSessionResponse {
 export interface DataCollectionStats {
   total_sessions: number;
   confirmed_sessions: number;
+  collection_sessions?: number;
+  collection_confirmed_sessions?: number;
+  plain_sessions?: number;
   samples_created: number;
   experiments: Record<string, number>;
   consented_sessions?: number;
@@ -170,6 +175,8 @@ export async function createDataCollectionSession(
   form.append("experiment_id", experimentId);
   form.append("template_version", templateVersion);
   form.append("consent", "true");
+  // Only sessions started from the AI co-build entry become training data.
+  form.append("collection_mode", "true");
   const res = await fetch(`${API_BASE}/api/data-collection/sessions`, {
     method: "POST",
     body: form,

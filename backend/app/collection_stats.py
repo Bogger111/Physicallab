@@ -125,6 +125,7 @@ def _session_summaries(root: Path) -> list[dict[str, Any]]:
             "revision": metadata.get("revision") if isinstance(metadata.get("revision"), int) else 0,
             "fields": len(metadata.get("fields") or {}) if isinstance(metadata.get("fields"), dict) else 0,
             "consent": metadata.get("consent") is True,
+            "collection_mode": metadata.get("collection_mode") is True,
         })
     return summaries
 
@@ -168,9 +169,15 @@ def collection_stats(root: Path) -> dict[str, Any]:
         key = item["experiment_id"] or "unknown"
         confirmed_by_experiment[key] = confirmed_by_experiment.get(key, 0) + 1
 
+    contributions = [item for item in sessions if item["collection_mode"]]
+    contribution_confirmed = [item for item in contributions if item["status"] == "confirmed" and item["revision"] >= 1]
     return {
         "total_sessions": len(sessions),
         "confirmed_sessions": len(confirmed),
+        # AI co-build figures: ordinary experiment sessions are not contributions.
+        "collection_sessions": len(contributions),
+        "collection_confirmed_sessions": len(contribution_confirmed),
+        "plain_sessions": len(sessions) - len(contributions),
         "consented_sessions": sum(1 for item in sessions if item["consent"]),
         "samples_created": samples_created,
         "experiments": experiments,

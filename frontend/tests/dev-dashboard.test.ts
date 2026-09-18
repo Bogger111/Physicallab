@@ -22,12 +22,18 @@ test("the dashboard is gated behind the development flag", () => {
 });
 
 test("it shows sessions, confirmed sessions and sample totals", () => {
-  assert.match(dashboard, /"Sessions"/);
-  assert.match(dashboard, /"Confirmed"/);
+  assert.match(dashboard, /总实验数 Sessions/);
   assert.match(dashboard, /"OCR Samples"/);
   assert.match(dashboard, /stats\.total_sessions/);
   assert.match(dashboard, /stats\.confirmed_sessions/);
   assert.match(dashboard, /stats\.samples_created/);
+});
+
+test("it separates ordinary runs from AI contributions", () => {
+  assert.match(dashboard, /AI 贡献 Contributions/);
+  assert.match(dashboard, /stats\.collection_sessions/);
+  assert.match(dashboard, /stats\.plain_sessions/);
+  assert.match(dashboard, /普通实验 \{stats\.plain_sessions \?\? 0\} 个（不采集）/);
 });
 
 test("it breaks the totals down per experiment", () => {

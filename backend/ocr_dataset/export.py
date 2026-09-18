@@ -94,6 +94,8 @@ def _confirmed_sessions(root: Path, experiment_id: str | None) -> list[dict[str,
             continue
         if not isinstance(metadata, dict):
             continue
+        if metadata.get("collection_mode") is not True:
+            continue                     # ordinary experiments are never training data
         if metadata.get("consent") is not True or metadata.get("status") != "confirmed":
             continue
         if not isinstance(metadata.get("revision"), int) or metadata["revision"] < 1:
@@ -159,7 +161,14 @@ def export_dataset(
                     outcome.experiments[key] = outcome.experiments.get(key, 0) + 1
         outcome.experiment_count = len(outcome.experiments)
 
-        outcome.problems.extend(verify_export(staging) if staging.is_dir() else ["no dataset built"])
+        if staging.is_dir():
+            outcome.problems.extend(verify_export(staging))
+        elif outcome.sessions_seen == 0:
+            # A legitimate, empty result: nobody has contributed through the AI
+            # co-build entry yet.
+            outcome.problems.append("no AI co-build sessions to export")
+        else:
+            outcome.problems.append("no dataset built")
 
         if not dry_run:
             _write_archive(staging, archive, outcome)
@@ -170,6 +179,13 @@ def export_dataset(
 
 def _write_archive(staging: Path, archive: Path, outcome: ExportOutcome) -> None:
     archive.parent.mkdir(parents=True, exist_ok=True)
+    # No eligible session → the builder never created the staging directory; the
+    # archive still has to be a valid, empty PhysLab_OCR dataset.
+    staging.mkdir(parents=True, exist_ok=True)
+    labels_path = staging / LABELS_FILENAME
+    if not labels_path.is_file():
+        with labels_path.open("w", encoding="utf-8", newline="") as handle:
+            csv.writer(handle, lineterminator="\n").writerow(("image", "text"))
     manifest = {
         "version": EXPORT_VERSION,
         "created_at": datetime.now(timezone.utc).isoformat(),

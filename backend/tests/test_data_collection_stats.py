@@ -27,7 +27,7 @@ def _sessions_root(tmp_path: Path, monkeypatch) -> Path:
 
 def make_session(root: Path, *, experiment_id: str = "multimeter", status: str = "confirmed",
                  revision: int = 1, fields: dict | None = None, session_id: str | None = None,
-                 subdir: str = "") -> str:
+                 subdir: str = "", collection_mode: bool = True) -> str:
     session_id = session_id or str(uuid4())
     directory = root / "sessions" / session_id / subdir
     directory.mkdir(parents=True, exist_ok=True)
@@ -37,6 +37,7 @@ def make_session(root: Path, *, experiment_id: str = "multimeter", status: str =
         "experiment_id": experiment_id,
         "template_version": "2.0",
         "consent": True,
+        "collection_mode": collection_mode,
         "status": status,
         "revision": revision,
         "created_at": "2026-01-01T00:00:00+00:00",
@@ -223,3 +224,103 @@ def test_stats_never_touch_the_image_files(tmp_path, monkeypatch):
     response = CLIENT.get("/api/data-collection/stats")
     assert response.status_code == 200
     assert response.json()["total_sessions"] == 1
+
+
+# ------------------------------------------------------------------ AI co-build mode
+
+def test_ordinary_sessions_are_not_ai_contributions(tmp_path, monkeypatch):
+    """Entering the ordinary flow must not create collection data at all."""
+    root = _sessions_root(tmp_path, monkeypatch)
+    make_session(root, status="confirmed", fields={MULTIMETER_FIELD: "20.04"}, collection_mode=False)
+    make_session(root, status="confirmed", fields={MULTIMETER_FIELD: "26.59"}, collection_mode=True)
+    stats = collection_stats(root)
+    assert stats["total_sessions"] == 2
+    assert stats["collection_sessions"] == 1
+    assert stats["collection_confirmed_sessions"] == 1
+    assert stats["plain_sessions"] == 1
+
+
+def test_upload_records_the_entry_mode(tmp_path, monkeypatch):
+    import io
+
+    from PIL import Image
+
+    root = _sessions_root(tmp_path, monkeypatch)
+    for mode in ("true", "false"):
+        image = io.BytesIO()
+        Image.new("RGB", (120, 90), "white").save(image, format="PNG")
+        response = CLIENT.post(
+            "/api/data-collection/sessions",
+            files={"image": ("sheet.png", image.getvalue(), "image/png")},
+            data={"experiment_id": "multimeter", "template_version": "2.0", "consent": "true",
+                  "collection_mode": mode},
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["collection_mode"] is (mode == "true")
+        metadata = json.loads(
+            (root / "sessions" / body["session_id"] / "metadata.json").read_text(encoding="utf-8"))
+        assert metadata["collection_mode"] is (mode == "true")
+
+
+def test_withdrawing_a_contribution_purges_its_dataset_samples(tmp_path, monkeypatch):
+    from app.data_collection import LocalFileStorage, purge_dataset_session
+
+    root = _sessions_root(tmp_path, monkeypatch)
+    keep = make_session(root, fields={MULTIMETER_FIELD: "20.04"})
+    drop = make_session(root, fields={MULTIMETER_FIELD: "26.59"})
+    export = root / "datasets" / "ocr_export"
+    (export / "images").mkdir(parents=True)
+    for image in ("000001.png", "000002.png"):
+        (export / "images" / image).write_bytes(b"png")
+    with (export / "samples.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["image", "text", "session_id", "experiment_id"],
+                                lineterminator="\n")
+        writer.writeheader()
+        writer.writerow({"image": "000001.png", "text": "20.04", "session_id": keep, "experiment_id": "multimeter"})
+        writer.writerow({"image": "000002.png", "text": "26.59", "session_id": drop, "experiment_id": "multimeter"})
+    (export / "labels.csv").write_text("image,text\n000001.png,20.04\n000002.png,26.59\n", encoding="utf-8")
+    (export / "rejected.csv").write_text("session_id,field_id,reason\n" + drop + ",x,blank\n", encoding="utf-8")
+    (export / "manifest.json").write_text(json.dumps({"dataset": {"samples": 2, "images": 2}}), encoding="utf-8")
+
+    LocalFileStorage(root).delete_session(drop)
+
+    assert not (root / "sessions" / drop).exists(), "session bytes must be gone"
+    assert not (export / "images" / "000002.png").exists(), "the withdrawn crop must be gone"
+    assert (export / "images" / "000001.png").is_file(), "other contributions stay"
+    labels = (export / "labels.csv").read_text(encoding="utf-8").strip().splitlines()
+    assert labels == ["image,text", "000001.png,20.04"]
+    assert drop not in (export / "rejected.csv").read_text(encoding="utf-8")
+    manifest = json.loads((export / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["dataset"]["samples"] == 1 and manifest["dataset"]["images"] == 1
+
+
+def test_purge_is_safe_without_a_dataset(tmp_path):
+    from app.data_collection import purge_dataset_session
+
+    assert purge_dataset_session(tmp_path / "nothing", "s") == {"images": 0, "samples": 0, "rejections": 0}
+
+
+def test_build_ocr_refuses_an_ordinary_session(tmp_path, monkeypatch):
+    import io
+
+    from PIL import Image
+
+    root = _sessions_root(tmp_path, monkeypatch)
+    image = io.BytesIO()
+    Image.new("RGB", (120, 90), "white").save(image, format="PNG")
+    upload = CLIENT.post(
+        "/api/data-collection/sessions",
+        files={"image": ("sheet.png", image.getvalue(), "image/png")},
+        data={"experiment_id": "multimeter", "template_version": "2.0", "consent": "true",
+              "collection_mode": "false"},
+    ).json()
+    CLIENT.post(
+        f"/api/data-collection/sessions/{upload['session_id']}/commit",
+        json={"experiment_id": "multimeter", "template_version": "2.0", "consent": True,
+              "confirmed_data": {"voltage": {"rows": [{"measured": "20.04"}], "params": {}}}},
+    )
+    response = CLIENT.post(f"/api/data-collection/sessions/{upload['session_id']}/build-ocr")
+    assert response.status_code == 400
+    assert "共建" in response.json()["detail"]
+    assert not (root / "datasets").exists()

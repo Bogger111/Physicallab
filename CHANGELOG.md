@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added the AI co-build mode as a *mode of the same workspace*: the home page and the experiment library now offer 普通实验 and AI 实验共建 (`?mode=collection`), both resolving to the same detail page and the same workspace — no duplicated experiment page, no separate upload flow.
+- The co-build entry shows an explainer card (自愿参与 / 不影响实验完成 / 上传前脱敏 / 可随时撤回) whose button opens the ordinary workspace with the flag set; the ordinary entry renders no contribution panel at all, so it never creates a session, never stores an image and never stores field data.
+- Sessions now carry `collection_mode`; only `confirmed` **and** `collection_mode=true` sessions are accepted by `build-ocr` and by the export archive (ordinary runs are ordinary runs).
+- A committed contribution shows a thank-you dialog (what it improves, which experiment, how many OCR samples) with 继续使用 PhysLab and 撤回本次贡献; withdrawal deletes the session, the source image and every dataset sample derived from it (images, `samples.csv`, `rejected.csv` rows and manifest counts).
+- Developer statistics now separate ordinary runs from AI contributions (`collection_sessions`, `collection_confirmed_sessions`, `plain_sessions`).
+
 - Contribution experience: after a successful upload the panel shows a contribution card (实验类型 / 状态 / 后续 / 当前贡献) with the estimated number of OCR samples, the voluntary-withdraw-redaction promises and a 撤回贡献 button; only a short contribution reference is rendered, never the full session id or a storage path.
 - Added `backend/ocr_dataset/export.py` (+ CLI `python -m backend.ocr_dataset.export [--experiment] [--output] [--dry-run]`): packs every confirmed session into `physlab_ocr_dataset.zip` as `dataset/{images/*.png, labels.csv, manifest.json}` for direct use by Bogger111/PhysLab_OCR.
 - Added `GET /api/data-collection/stats` (sessions / confirmed / samples + per-experiment breakdown) and the developer dashboard `/dev/data-collection`; both are gated — a configured `PHYSICSLAB_ADMIN_KEY` (header `X-Admin-Key`) always wins, otherwise `PHYSICSLAB_DEV_MODE=true` opens them locally, and both default to hidden.

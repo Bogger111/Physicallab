@@ -146,6 +146,8 @@ def _now() -> str:
 
 def _session_gate(record: Any) -> None:
     """Same admission rules the offline collector applies, applied earlier."""
+    if getattr(record, "collection_mode", False) is not True:
+        raise BuilderError("只有「AI 实验共建模式」的会话才会生成 OCR 训练数据")
     if record.consent is not True:
         raise BuilderError("该会话没有有效授权")
     if record.status != "confirmed":

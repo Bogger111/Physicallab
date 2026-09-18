@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { experiments } from "@/lib/experiments";
 import ExperimentDetailClient from "./client-page";
 
@@ -10,5 +11,9 @@ export default function ExperimentDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  return <ExperimentDetailClient params={params} />;
+  return (
+    <Suspense fallback={null}>
+      <ExperimentDetailClient params={params} />
+    </Suspense>
+  );
 }

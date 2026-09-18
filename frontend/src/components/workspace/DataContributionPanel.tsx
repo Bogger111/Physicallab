@@ -2,10 +2,16 @@
 
 import { CheckCircle2, Database, Loader2, Lock, ShieldCheck, Trash2, Upload, UserCheck } from "lucide-react";
 import type { DataCollectionController } from "@/hooks/useDataCollection";
+import { useCollectionMode } from "@/hooks/useCollectionMode";
+import ContributionThanksDialog from "./ContributionThanksDialog";
 
 /**
- * Voluntary record-sheet contribution.  The panel is informational: it never
- * feeds the workbench, the calculation chain or the report.
+ * Voluntary record-sheet contribution, shown only inside the AI co-build entry
+ * (`?mode=collection`).  In the ordinary entry the panel renders nothing at all,
+ * so no session, image or field data is ever created for a normal experiment.
+ *
+ * The panel is informational: it never feeds the workbench, the calculation
+ * chain or the report.
  *
  * After a successful upload it shows a contribution card — what was saved, what
  * happens next and how many OCR training samples this session can produce.  No
@@ -20,14 +26,17 @@ export default function DataContributionPanel({
   /** Fallback label when the API has not answered yet. */
   experimentName?: string;
 }) {
-  if (!collection.enabled) return null;
+  const collectionMode = useCollectionMode();
+  if (!collection.enabled || !collectionMode) return null;
 
   const uploaded = collection.state === "pending" || collection.state === "confirmed";
   const name = collection.experimentName ?? experimentName ?? "本次实验";
   const reference = collection.sessionId ? collection.sessionId.slice(0, 8) : null;
 
   return (
-    <section className="mb-6 rounded-2xl border border-sky-200 bg-sky-50/60 p-5">
+    <>
+      <ContributionThanksDialog collection={collection} experimentName={experimentName} />
+      <section className="mb-6 rounded-2xl border border-sky-200 bg-sky-50/60 p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-700 text-white">
           <Database className="h-4 w-4" />
@@ -150,5 +159,6 @@ export default function DataContributionPanel({
         </div>
       </div>
     </section>
+    </>
   );
 }

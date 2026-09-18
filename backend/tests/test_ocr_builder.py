@@ -180,7 +180,8 @@ def create_session(experiment_id: str, values: dict[str, str]) -> str:
     response = CLIENT.post(
         "/api/data-collection/sessions",
         files={"image": ("sheet.jpg", upload_bytes(experiment_id, values), "image/jpeg")},
-        data={"experiment_id": experiment_id, "template_version": "2.0", "consent": "true"},
+        data={"experiment_id": experiment_id, "template_version": "2.0", "consent": "true",
+              "collection_mode": "true"},
     )
     assert response.status_code == 200, response.text
     return response.json()["session_id"]

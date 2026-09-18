@@ -118,8 +118,8 @@ export default function DataCollectionDashboard() {
         <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              ["Sessions", stats.total_sessions],
-              ["Confirmed", stats.confirmed_sessions],
+              ["总实验数 Sessions", stats.total_sessions],
+              ["AI 贡献 Contributions", stats.collection_sessions ?? stats.confirmed_sessions],
               ["OCR Samples", stats.samples_created],
               ["待确认数值", stats.sessions_awaiting_values ?? Math.max(0, stats.total_sessions - stats.confirmed_sessions)],
             ].map(([label, value]) => (
@@ -131,9 +131,15 @@ export default function DataCollectionDashboard() {
           </div>
 
           <section className="mt-6 rounded-2xl border border-stone-200 bg-white p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-stone-900">
-              <Database className="h-4 w-4 text-indigo-600" />Experiments
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="flex items-center gap-2 text-sm font-bold text-stone-900">
+                <Database className="h-4 w-4 text-indigo-600" />Experiments
+              </h2>
+              <p className="text-xs text-stone-500">
+                普通实验 {stats.plain_sessions ?? 0} 个（不采集） · AI 共建{" "}
+                {stats.collection_sessions ?? 0} 个（其中已确认 {stats.collection_confirmed_sessions ?? 0} 个）
+              </p>
+            </div>
             {experiments.length === 0 ? (
               <p className="mt-3 text-sm text-stone-500">还没有实验数据。</p>
             ) : (

@@ -23,6 +23,9 @@ export interface DataCollectionController {
   estimatedSamples: number | null;
   /** Human-readable experiment name reported by the API. */
   experimentName: string | null;
+  /** True right after a contribution was committed: drives the thank-you dialog. */
+  showThanks: boolean;
+  dismissThanks: () => void;
   error: string | null;
   upload: () => Promise<void>;
   commit: (data: object) => Promise<void>;
@@ -39,6 +42,7 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
   const [revision, setRevision] = useState(0);
   const [estimatedSamples, setEstimatedSamples] = useState<number | null>(null);
   const [experimentName, setExperimentName] = useState<string | null>(null);
+  const [showThanks, setShowThanks] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -85,6 +89,9 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
       if (typeof response.estimated_samples === "number") setEstimatedSamples(response.estimated_samples);
       if (response.experiment_name) setExperimentName(response.experiment_name);
       setState("confirmed");
+      // The experiment itself is finished at this point, so this is the moment
+      // to thank the contributor — and to offer the withdrawal.
+      setShowThanks(true);
       setError(null);
     } catch (reason) {
       // Data contribution is always best-effort and must not turn a successful
@@ -108,9 +115,12 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
     setFile(null);
     setRevision(0);
     setEstimatedSamples(null);
+    setShowThanks(false);
     setState("idle");
     setError(null);
   }, [sessionId]);
+
+  const dismissThanks = useCallback(() => setShowThanks(false), []);
 
   return {
     enabled,
@@ -123,6 +133,8 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
     revision,
     estimatedSamples,
     experimentName,
+    showThanks,
+    dismissThanks,
     error,
     upload,
     commit,

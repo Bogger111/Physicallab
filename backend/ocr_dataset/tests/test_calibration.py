@@ -89,7 +89,7 @@ def write_ink(image: np.ndarray, box: tuple[int, int, int, int], text: str) -> N
 
 
 def make_collection(root: Path, experiment_id: str, image: np.ndarray, fields: dict[str, str],
-                    *, revision: int = 1) -> str:
+                    *, revision: int = 1, collection_mode: bool = True) -> str:
     session_id = str(uuid4())
     session_dir = root / "sessions" / session_id
     session_dir.mkdir(parents=True, exist_ok=True)
@@ -98,6 +98,7 @@ def make_collection(root: Path, experiment_id: str, image: np.ndarray, fields: d
     (session_dir / "metadata.json").write_text(json.dumps({
         "session_id": session_id, "experiment_id": experiment_id, "template_version": "2.0",
         "consent": True, "status": "confirmed", "revision": revision,
+        "collection_mode": collection_mode,
         "created_at": "2026-01-01T00:00:00+00:00", "confirmed_at": "2026-01-01T00:01:00+00:00",
         "updated_at": "2026-01-01T00:01:00+00:00",
         "image_path": f"sessions/{session_id}/raw.jpg", "fields": fields,

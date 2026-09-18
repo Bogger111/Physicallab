@@ -37,6 +37,29 @@
 - `backend/tests/test_data_reference.py` 会重新推导这些数值（马吕斯定律、声速、光速、Cu50 斜率、太阳能电池填充因子与充电截止电压、GMR 单支灵敏度、核磁旋磁比、粘滞系数、表面张力、迈克尔逊波长、普朗克常量、弗兰克-赫兹峰间距），公式不符即测试失败。
 - `field` 指向采集层的稳定字段 ID（`method.rows.*.key`），与 `valid_stable_field_id` 校验一致；派生量填 `null`。
 
+## AI 实验共建模式（同一工作台，两种入口）
+
+数据采集不是一个独立功能，而是同一实验流程的一个开关：
+
+```
+首页 / 实验库
+├── 普通实验        → /experiments/…            （不采集：不建 session、不存图片、不存字段）
+└── AI 实验共建      → /experiments/…?mode=collection
+        ↓ 说明卡片「参与 PhysLab AI 实验共建」→ 开始共建实验
+     同一个实验工作台（录入 → OCR/手填 → 校验 → 计算 → 绘图 → 报告）
+        ↓ 报告生成成功
+     commit（collection_mode=true，状态 confirmed）
+        ↓
+     感谢弹窗（改进项 / 实验名 / 生成样本数 + 继续使用 PhysLab / 撤回本次贡献）
+```
+
+- 模式只写在 URL 里（`?mode=collection`），详情页、工作台、导航链接都原样传递；没有复制任何实验页面。
+- `DataContributionPanel` 只在共建模式渲染；普通模式连上传控件都不存在，因此不可能产生 session。
+- `metadata.collection_mode` 为 `true/false`；`build-ocr`、`ocr_dataset/export.py` 只接受 **confirmed 且 collection_mode=true** 的会话，普通实验永远不会成为训练数据。
+- 撤回是彻底的：删除 session 目录（原图 + metadata）以及由它生成的图片、`samples.csv` / `rejected.csv` 行，并刷新 manifest 计数。
+- 开发者统计区分：`total_sessions`（总实验数）、`collection_sessions`（AI 贡献）、`plain_sessions`（普通实验，不采集）。
+
+## 本地开发闭环
 ## 本地开发闭环（当前阶段）
 
 不接云存储，全部落在本机，用来跑通真实数据闭环：
