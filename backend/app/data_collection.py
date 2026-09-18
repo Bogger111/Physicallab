@@ -293,7 +293,7 @@ class CollectionStorage(ABC):
         raise NotImplementedError
 
 
-class LocalCollectionStorage(CollectionStorage):
+class LocalFileStorage(CollectionStorage):
     """Filesystem implementation using UUID directories and atomic metadata writes.
 
     Layout mirrors the production object-store prefix one to one::
@@ -425,5 +425,14 @@ class LocalCollectionStorage(CollectionStorage):
         shutil.rmtree(directory, ignore_errors=False)
 
 
-def local_storage() -> LocalCollectionStorage:
-    return LocalCollectionStorage(collection_root())
+#: Backwards-compatible alias: the class was called LocalCollectionStorage.
+LocalCollectionStorage = LocalFileStorage
+
+
+def local_storage() -> LocalFileStorage:
+    """The development/production-default implementation of CollectionStorage.
+
+    Local files for now; a bucket-backed implementation simply replaces this
+    accessor, since every caller goes through the interface.
+    """
+    return LocalFileStorage(collection_root())

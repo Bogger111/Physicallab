@@ -58,17 +58,31 @@ export default function DataContributionPanel({ collection }: { collection: Data
               </div>
             </div>
           ) : (
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-white px-3 py-2.5">
-              <p className="text-xs text-emerald-800">
-                {collection.state === "confirmed"
-                  ? `最终数据已确认（修订 ${collection.revision}）；再次生成报告会更新为最新值。`
-                  : "原图已保存，等待你成功生成报告后确认最终数值。"}
+            <div className="mt-4 space-y-2 rounded-xl border border-emerald-200 bg-white px-3 py-3">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
+                <ShieldCheck className="h-4 w-4" />
+                记录已保存，可用于后续优化实验数据识别能力。
               </p>
-              <button
-                type="button"
-                onClick={() => void collection.withdraw()}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-700"
-              ><Trash2 className="h-3.5 w-3.5" />撤回并删除</button>
+              {collection.sessionId && (
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-stone-500">
+                  <span>会话编号 session_id</span>
+                  <code className="select-all rounded bg-stone-100 px-1.5 py-0.5 font-mono text-[11px] text-stone-700">
+                    {collection.sessionId}
+                  </code>
+                </p>
+              )}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-[11px] text-stone-500">
+                  {collection.state === "confirmed"
+                    ? `最终数值已确认（修订 ${collection.revision}）；再次生成报告会更新为最新值。`
+                    : "原图已保存，等你成功生成报告后，本次确认的实验数据会一并保存为该记录表的标签。"}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void collection.withdraw()}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-700"
+                ><Trash2 className="h-3.5 w-3.5" />撤回并删除</button>
+              </div>
             </div>
           )}
           {collection.error && <p role="alert" className="mt-2 text-xs text-red-700">{collection.error}；实验功能不受影响。</p>}

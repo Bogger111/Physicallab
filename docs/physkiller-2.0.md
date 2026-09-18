@@ -37,6 +37,34 @@
 - `backend/tests/test_data_reference.py` 会重新推导这些数值（马吕斯定律、声速、光速、Cu50 斜率、太阳能电池填充因子与充电截止电压、GMR 单支灵敏度、核磁旋磁比、粘滞系数、表面张力、迈克尔逊波长、普朗克常量、弗兰克-赫兹峰间距），公式不符即测试失败。
 - `field` 指向采集层的稳定字段 ID（`method.rows.*.key`），与 `valid_stable_field_id` 校验一致；派生量填 `null`。
 
+## 本地开发闭环（当前阶段）
+
+不接云存储，全部落在本机，用来跑通真实数据闭环：
+
+```bash
+# 1. 开关（已被 .gitignore 忽略；真实环境变量优先，不影响生产）
+backend/.env.local:  ENABLE_DATA_COLLECTION=true
+
+# 2. 启动后端
+cd backend && ./.venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
+# 3. 启动前端（frontend/.env.local 指向 http://localhost:8001）
+cd frontend && npm run dev
+
+# 4. 生成训练集（也可由 POST .../build-ocr 触发）
+python -m ocr_dataset.builder --session-id <uuid> --output <dir>
+```
+
+盘上结构（`CollectionStorage` 接口不变，当前实现 `LocalFileStorage`）：
+
+```
+backend/data_collection/
+├── sessions/<session_id>/{raw.jpg, metadata.json}
+└── datasets/ocr_export/{images/*.png, labels.csv, samples.csv, rejected.csv, manifest.json}
+```
+
+上传后前端显示会话编号与「记录已保存，可用于后续优化实验数据识别能力。」；
+只有报告下载成功才会 commit 成 confirmed，只有 confirmed 会话能生成 OCR 数据集。
+
 ## 数据采集 → OCR 训练集流水线
 
 两个仓库职责分离：PhysLab 负责采集与切分，PhysLab_OCR 负责数据集与 CRNN 训练。

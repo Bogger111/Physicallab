@@ -5,6 +5,28 @@ record-sheet collection interface. The feature is disabled by default. Enable
 it with `ENABLE_DATA_COLLECTION=true` and optionally set
 `PHYSICSLAB_COLLECTION_ROOT` to a persistent directory.
 
+## Development switch
+
+The feature is off unless a switch turns it on, and the same switch drives local
+development and production:
+
+```bash
+# backend/.env.local  (git-ignored, read at startup by app.dev_env)
+ENABLE_DATA_COLLECTION=true
+# optional: keep collected data outside the repository
+# PHYSICSLAB_COLLECTION_ROOT=D:/physicslab-private/collection
+```
+
+`app.dev_env.load_local_env()` reads `backend/.env.local` then `backend/.env` and
+only fills keys that are **not already set**, so a real deployment (Cloud Run env
+vars, exported shell variables, CI) always wins and a checked-out file can never
+change production behavior.  `backend/.env.local` is listed in `.gitignore`.
+
+Storage stays behind `CollectionStorage`; the implementation in use today is
+`LocalFileStorage` (files under `backend/data_collection/`, or
+`PHYSICSLAB_COLLECTION_ROOT`).  Nothing else in the code base knows where the
+bytes live, so a bucket-backed implementation replaces `local_storage()` only.
+
 Runtime files are intentionally ignored by Git, and the layout mirrors the
 production private-bucket prefix one to one:
 

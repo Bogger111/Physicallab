@@ -17,6 +17,7 @@ export interface DataCollectionController {
   file: File | null;
   setFile: (file: File | null) => void;
   state: ContributionState;
+  sessionId: string | null;
   revision: number;
   error: string | null;
   upload: () => Promise<void>;
@@ -107,6 +108,7 @@ export function useDataCollection(experimentId: string): DataCollectionControlle
     file,
     setFile,
     state,
+    sessionId,
     revision,
     error,
     upload,

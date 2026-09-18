@@ -12,8 +12,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from app.dev_env import load_local_env
 from app.routers import analytics, data_collection, experiments, ocr, record_sheets, reports
 from experiments.core.registry import PUBLIC_EXPERIMENT_IDS
+
+#: Local development switches (backend/.env.local).  Existing environment
+#: variables win, so production configuration is untouched.
+load_local_env()
 
 
 class SafeJSONResponse(JSONResponse):

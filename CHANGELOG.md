@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Enabled the collection loop for local development: `backend/.env.local` (`ENABLE_DATA_COLLECTION=true`, git-ignored) is read at startup by the dependency-free `app.dev_env`, where real environment variables always win so production config is untouched.
+- Renamed the filesystem storage implementation to `LocalFileStorage` (the documented default behind `CollectionStorage`; `LocalCollectionStorage` remains as an alias).
+- The contribution panel now shows the saved `session_id` and 「记录已保存，可用于后续优化实验数据识别能力。」 after a successful upload.
+- Verified the closed loop locally: upload → `sessions/<uuid>/{raw.jpg,metadata.json}` → commit → `POST .../build-ocr` → `datasets/ocr_export/{images/*.png, labels.csv}` → copied into `PhysLab_OCR/data/`, where the unmodified `train.py` trained to `Loss 0.1013` with `Pred: 26.59` matching the label.
+
 - Added the `PhysLab` → `PhysLab_OCR` dataset pipeline: `POST /api/data-collection/sessions/{id}/build-ocr` turns one confirmed session into `images/*.png` + `labels.csv` (`image,text` only), with `samples.csv`, `rejected.csv` and `manifest.json` as separate provenance.
 - Added `backend/ocr_layouts/<experiment>.json` templates (field id → record-sheet cell) generated from the calibrated layouts, plus `ocr_dataset/templates.py` drift checks so a template can never disagree with its calibration.
 - Collection storage moved to `sessions/<uuid>/raw.jpg` + `metadata.json` (mirroring the production private-bucket prefix), with `CollectionStorage.load_session()` keeping the interface storage-agnostic; `datasets/<export>/` holds derived output only.
