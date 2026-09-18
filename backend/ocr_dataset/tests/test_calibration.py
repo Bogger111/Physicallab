@@ -91,16 +91,16 @@ def write_ink(image: np.ndarray, box: tuple[int, int, int, int], text: str) -> N
 def make_collection(root: Path, experiment_id: str, image: np.ndarray, fields: dict[str, str],
                     *, revision: int = 1) -> str:
     session_id = str(uuid4())
-    (root / "raw").mkdir(parents=True, exist_ok=True)
-    (root / "metadata").mkdir(parents=True, exist_ok=True)
-    cv2.imwrite(str(root / "raw" / f"{session_id}.jpg"), image,
+    session_dir = root / "sessions" / session_id
+    session_dir.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(session_dir / "raw.jpg"), image,
                 [int(cv2.IMWRITE_JPEG_QUALITY), 94])
-    (root / "metadata" / f"{session_id}.json").write_text(json.dumps({
+    (session_dir / "metadata.json").write_text(json.dumps({
         "session_id": session_id, "experiment_id": experiment_id, "template_version": "2.0",
         "consent": True, "status": "confirmed", "revision": revision,
         "created_at": "2026-01-01T00:00:00+00:00", "confirmed_at": "2026-01-01T00:01:00+00:00",
         "updated_at": "2026-01-01T00:01:00+00:00",
-        "image_path": f"raw/{session_id}.jpg", "fields": fields,
+        "image_path": f"sessions/{session_id}/raw.jpg", "fields": fields,
     }, ensure_ascii=False), encoding="utf-8")
     return session_id
 
@@ -304,7 +304,7 @@ def test_latest_revision_replaces_the_previous_export(tmp_path):
     write_ink(image, field_box(layout, field_id), "1.100")
     root = tmp_path / "collection"
     session_id = make_collection(root, "multimeter", image, {field_id: "1.100"}, revision=1)
-    metadata_path = root / "metadata" / f"{session_id}.json"
+    metadata_path = root / "sessions" / session_id / "metadata.json"
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     metadata.update({"revision": 2, "fields": {field_id: "9.900"}})
     metadata_path.write_text(json.dumps(metadata, ensure_ascii=False), encoding="utf-8")

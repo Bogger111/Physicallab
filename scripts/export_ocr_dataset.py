@@ -3,8 +3,10 @@
 
 No training, cropping, segmentation, or OCR is performed here.  The default
 mode reads the optional raw record-sheet collection and writes one CSV row per
-stable field label.  The legacy SQLite cell-feedback export remains available
-when ``--database`` is supplied.
+stable field label, referencing the record sheet *inside private storage*.
+Source pages are never copied out of private storage: numeric crops for training
+come from ``backend/ocr_dataset/builder.py``.  The legacy SQLite cell-feedback
+export remains available when ``--database`` is supplied.
 
 Example:
     python scripts/export_ocr_dataset.py --output ocr_dataset
@@ -16,7 +18,6 @@ import argparse
 import csv
 import json
 import math
-import shutil
 import sqlite3
 import sys
 from pathlib import Path
@@ -50,23 +51,21 @@ def _contains_forbidden_metadata(value: object) -> bool:
 
 
 def export_collection_dataset(collection_root: Path, output: Path) -> int:
-    """Export confirmed labels and their uncropped source sheet to manifest.csv."""
+    """Export confirmed labels, pointing at private storage for the source sheet."""
     from app.data_collection import valid_stable_field_id
 
     output.mkdir(parents=True, exist_ok=True)
-    images = output / "images"
-    images.mkdir(exist_ok=True)
     manifest_path = output / "manifest.csv"
     rows: list[dict[str, object]] = []
-    metadata_dir = collection_root / "metadata"
+    sessions_dir = collection_root / "sessions"
 
-    for metadata_path in sorted(metadata_dir.glob("*.json")) if metadata_dir.is_dir() else []:
+    for metadata_path in sorted(sessions_dir.rglob("metadata.json")) if sessions_dir.is_dir() else []:
         try:
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
             if not REQUIRED_METADATA_KEYS.issubset(metadata):
                 continue
             session_id = str(metadata["session_id"])
-            if str(UUID(session_id)) != session_id or metadata_path.stem != session_id:
+            if str(UUID(session_id)) != session_id or metadata_path.parent.name != session_id:
                 continue
             if metadata.get("consent") is not True or metadata.get("status") != "confirmed":
                 continue
@@ -82,24 +81,26 @@ def export_collection_dataset(collection_root: Path, output: Path) -> int:
             fields = metadata.get("fields")
             if not isinstance(fields, dict) or not fields:
                 continue
+            # Confirmed values may be numeric *strings* ("22.090"): they must be
+            # exported verbatim, never coerced to a float.
             if any(
                 isinstance(value, bool)
-                or not isinstance(value, (int, float))
-                or not math.isfinite(float(value))
+                or not isinstance(value, (int, float, str))
+                or (isinstance(value, str) and not value.strip())
+                or (not isinstance(value, str) and not math.isfinite(float(value)))
                 for value in fields.values()
             ):
                 continue
-            expected_image_path = f"raw/{session_id}.jpg"
+            expected_image_path = f"sessions/{session_id}/raw.jpg"
             if metadata.get("image_path") != expected_image_path:
                 continue
-            source = collection_root / expected_image_path
-            if not source.is_file():
+            if not (collection_root / expected_image_path).is_file():
                 continue
             if any(not valid_stable_field_id(experiment_id, str(field_id)) for field_id in fields):
                 continue
-            destination = images / f"{session_id}.jpg"
-            shutil.copy2(source, destination)
-            relative = f"images/{destination.name}"
+            # Private-storage reference only: the page itself stays where it was
+            # collected, and never lands in a dataset directory.
+            relative = expected_image_path
             for field_id, value in sorted(fields.items()):
                 rows.append({
                     "session_id": session_id,
@@ -170,7 +171,7 @@ def main() -> None:
     parser.add_argument("--database", type=Path, default=None,
                         help="legacy telemetry.sqlite3 cell-feedback export")
     parser.add_argument("--collection-root", type=Path, default=None,
-                        help="raw/metadata root (defaults to PHYSICSLAB_COLLECTION_ROOT)")
+                        help="collection root with sessions/ (defaults to PHYSICSLAB_COLLECTION_ROOT)")
     parser.add_argument("--output", type=Path, default=Path("ocr_dataset"))
     args = parser.parse_args()
     if args.database is not None:

@@ -89,8 +89,8 @@ def test_consent_false_creates_no_files(collection_root):
 
 def test_consent_true_saves_sanitized_image_and_pending_metadata(collection_root):
     session_id = _create_session()
-    raw = collection_root / "raw" / f"{session_id}.jpg"
-    metadata_path = collection_root / "metadata" / f"{session_id}.json"
+    raw = collection_root / "sessions" / session_id / "raw.jpg"
+    metadata_path = collection_root / "sessions" / session_id / "metadata.json"
     assert raw.read_bytes().startswith(b"\xff\xd8\xff")
     with Image.open(raw) as saved:
         assert not saved.getexif()
@@ -126,7 +126,7 @@ def test_invalid_field_is_rejected_before_confirmation(collection_root):
         "voltage": {"rows": [{"invented_dom_column": 1}], "params": {}},
     })
     assert response.status_code == 400
-    metadata = json.loads((collection_root / "metadata" / f"{session_id}.json").read_text(encoding="utf-8"))
+    metadata = json.loads((collection_root / "sessions" / session_id / "metadata.json").read_text(encoding="utf-8"))
     assert metadata["status"] == "pending_confirmation"
     assert metadata["fields"] == {}
 
@@ -135,7 +135,7 @@ def test_empty_confirmed_data_is_not_a_training_sample(collection_root):
     session_id = _create_session()
     response = _commit(session_id, {"voltage": {"rows": [], "params": {}}})
     assert response.status_code == 400
-    metadata = json.loads((collection_root / "metadata" / f"{session_id}.json").read_text(encoding="utf-8"))
+    metadata = json.loads((collection_root / "sessions" / session_id / "metadata.json").read_text(encoding="utf-8"))
     assert metadata["status"] == "pending_confirmation"
 
 
@@ -191,7 +191,7 @@ def test_final_modification_overwrites_labels_and_increments_revision(collection
     assert first.status_code == second.status_code == 200
     assert first.json()["revision"] == 1
     assert second.json()["revision"] == 2
-    metadata = json.loads((collection_root / "metadata" / f"{session_id}.json").read_text(encoding="utf-8"))
+    metadata = json.loads((collection_root / "sessions" / session_id / "metadata.json").read_text(encoding="utf-8"))
     assert metadata["fields"]["voltage.rows.row_01.measured"] == 20.1
     assert metadata["revision"] == 2
 
@@ -202,7 +202,7 @@ def test_metadata_has_no_identity_or_request_fingerprint(collection_root):
         "voltage": {"rows": [{"set": 20, "measured": 20.1}], "params": {}},
     })
     assert response.status_code == 200
-    metadata = json.loads((collection_root / "metadata" / f"{session_id}.json").read_text(encoding="utf-8"))
+    metadata = json.loads((collection_root / "sessions" / session_id / "metadata.json").read_text(encoding="utf-8"))
     forbidden = {
         "name", "student_id", "phone", "wechat", "email", "ip", "ip_address",
         "user_agent", "browser_fingerprint", "account", "headers",
@@ -236,8 +236,12 @@ def test_confirmed_session_exports_uncropped_image_and_stable_field_csv(collecti
         "voltage.rows.row_01.set", "voltage.rows.row_01.measured",
     }
     assert {row["session_id"] for row in rows} == {session_id}
-    assert {row["image_path"] for row in rows} == {f"images/{session_id}.jpg"}
-    assert (output / "images" / f"{session_id}.jpg").read_bytes().startswith(b"\xff\xd8\xff")
+    # The manifest references the page inside private storage; no source page is
+    # ever copied into a dataset directory.
+    assert {row["image_path"] for row in rows} == {f"sessions/{session_id}/raw.jpg"}
+    assert not (output / "images").exists()
+    private = collection_root / "sessions" / session_id / "raw.jpg"
+    assert private.read_bytes().startswith(b"\xff\xd8\xff")
 
 
 @pytest.mark.document

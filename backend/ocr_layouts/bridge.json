@@ -1,0 +1,424 @@
+{
+  "schema_version": "1.0",
+  "experiment": "bridge",
+  "experiment_id": "bridge",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "source": {
+    "kind": "calibrated_record_sheet",
+    "calibration": "ocr_dataset/layouts/bridge.json",
+    "capture_scope": "calibrated_page_1"
+  },
+  "cells": [
+    {
+      "field_id": "balanced.rows.row_01.rn",
+      "bbox": [
+        0.05875,
+        0.15245,
+        0.94437,
+        0.18206
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "balanced.rows.row_02.rn",
+      "bbox": [
+        0.05875,
+        0.18206,
+        0.94437,
+        0.21167
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "balanced.rows.row_03.rn",
+      "bbox": [
+        0.05875,
+        0.21167,
+        0.94437,
+        0.24127
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capacitor.rows.row_01.cn",
+      "bbox": [
+        0.05875,
+        0.77243,
+        0.50125,
+        0.80203
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capacitor.rows.row_01.rn",
+      "bbox": [
+        0.50125,
+        0.77243,
+        0.94437,
+        0.80203
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capacitor.rows.row_02.cn",
+      "bbox": [
+        0.05875,
+        0.80203,
+        0.50125,
+        0.83164
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capacitor.rows.row_02.rn",
+      "bbox": [
+        0.50125,
+        0.80203,
+        0.94437,
+        0.83164
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capacitor.rows.row_03.cn",
+      "bbox": [
+        0.05875,
+        0.83164,
+        0.50125,
+        0.86125
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capacitor.rows.row_03.rn",
+      "bbox": [
+        0.50125,
+        0.83164,
+        0.94437,
+        0.86125
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_01.temperature",
+      "bbox": [
+        0.05875,
+        0.35882,
+        0.50125,
+        0.38842
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_01.u0",
+      "bbox": [
+        0.50125,
+        0.35882,
+        0.94437,
+        0.38842
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_02.temperature",
+      "bbox": [
+        0.05875,
+        0.38842,
+        0.50125,
+        0.41803
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_02.u0",
+      "bbox": [
+        0.50125,
+        0.38842,
+        0.94437,
+        0.41803
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_03.temperature",
+      "bbox": [
+        0.05875,
+        0.41803,
+        0.50125,
+        0.44764
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_03.u0",
+      "bbox": [
+        0.50125,
+        0.41803,
+        0.94437,
+        0.44764
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_04.temperature",
+      "bbox": [
+        0.05875,
+        0.44764,
+        0.50125,
+        0.47724
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_04.u0",
+      "bbox": [
+        0.50125,
+        0.44764,
+        0.94437,
+        0.47724
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_05.temperature",
+      "bbox": [
+        0.05875,
+        0.47724,
+        0.50125,
+        0.50685
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_05.u0",
+      "bbox": [
+        0.50125,
+        0.47724,
+        0.94437,
+        0.50685
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_06.temperature",
+      "bbox": [
+        0.05875,
+        0.50685,
+        0.50125,
+        0.53646
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_06.u0",
+      "bbox": [
+        0.50125,
+        0.50685,
+        0.94437,
+        0.53646
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_07.temperature",
+      "bbox": [
+        0.05875,
+        0.53646,
+        0.50125,
+        0.56606
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_07.u0",
+      "bbox": [
+        0.50125,
+        0.53646,
+        0.94437,
+        0.56606
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_08.temperature",
+      "bbox": [
+        0.05875,
+        0.56606,
+        0.50125,
+        0.59567
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_08.u0",
+      "bbox": [
+        0.50125,
+        0.56606,
+        0.94437,
+        0.59567
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_09.temperature",
+      "bbox": [
+        0.05875,
+        0.59567,
+        0.50125,
+        0.62528
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_09.u0",
+      "bbox": [
+        0.50125,
+        0.59567,
+        0.94437,
+        0.62528
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_10.temperature",
+      "bbox": [
+        0.05875,
+        0.62528,
+        0.50125,
+        0.65488
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "cu50.rows.row_10.u0",
+      "bbox": [
+        0.50125,
+        0.62528,
+        0.94437,
+        0.65488
+      ],
+      "page": 1,
+      "confidence": 0.9
+    }
+  ],
+  "registration": {
+    "anchors": [
+      [
+        0.05875,
+        0.07026,
+        0.94437,
+        0.1224
+      ],
+      [
+        0.05875,
+        0.1224,
+        0.94437,
+        0.24127
+      ],
+      [
+        0.05875,
+        0.27662,
+        0.94437,
+        0.32921
+      ],
+      [
+        0.05875,
+        0.32921,
+        0.94437,
+        0.65488
+      ],
+      [
+        0.05875,
+        0.69023,
+        0.94437,
+        0.74282
+      ],
+      [
+        0.05875,
+        0.74282,
+        0.94437,
+        0.86125
+      ],
+      [
+        0.05875,
+        0.8966,
+        0.94437,
+        0.94918
+      ]
+    ],
+    "lattice": {
+      "x": [
+        0.05847,
+        0.35371,
+        0.50133,
+        0.64895,
+        0.94419
+      ],
+      "y": [
+        0.0701,
+        0.09636,
+        0.12262,
+        0.15225,
+        0.18188,
+        0.21151,
+        0.24114,
+        0.27649,
+        0.30276,
+        0.32902,
+        0.35865,
+        0.38828,
+        0.41791,
+        0.44754,
+        0.47717,
+        0.5068,
+        0.53643,
+        0.56606,
+        0.59569,
+        0.62532,
+        0.65495,
+        0.6903,
+        0.71656,
+        0.74282,
+        0.77245,
+        0.80208,
+        0.83171,
+        0.86134,
+        0.89669,
+        0.92296,
+        0.94922
+      ]
+    }
+  }
+}

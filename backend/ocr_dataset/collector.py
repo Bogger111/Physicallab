@@ -89,10 +89,10 @@ def collect_sessions(
     ``rglob`` intentionally supports archived revision snapshots.  Duplicate
     metadata for the same session is resolved by revision, never file order.
     """
-    metadata_dir = root / "metadata"
+    sessions_dir = root / "sessions"
     selected: dict[str, tuple[int, CollectionCandidate]] = {}
     rejects: list[CollectionReject] = []
-    paths = sorted(metadata_dir.rglob("*.json")) if metadata_dir.is_dir() else []
+    paths = sorted(sessions_dir.rglob("metadata.json")) if sessions_dir.is_dir() else []
     for path in paths:
         metadata: dict[str, Any] = {}
         try:
@@ -117,7 +117,7 @@ def collect_sessions(
                 rejects.append(_reject(metadata, "personal_information_not_removed"))
                 continue
             image_ref = str(metadata.get("image_path", ""))
-            expected = f"raw/{sid}.jpg"
+            expected = f"sessions/{sid}/raw.jpg"
             if image_ref != expected:
                 rejects.append(_reject(metadata, "invalid_source_image_reference", source=image_ref))
                 continue

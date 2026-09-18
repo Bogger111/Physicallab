@@ -2,8 +2,10 @@
 
 This module is deliberately separate from calculation and reporting.  A
 storage failure must never affect validation, processing, or report creation.
-The collected image is the full user-provided record sheet; this first version
-does not crop cells, perform OCR, or train a model.
+The collected image is the full user-provided record sheet.  Dividing it into
+training cells happens offline in ``ocr_dataset`` (see
+``ocr_dataset.builder``), which reads sessions through this module's storage
+interface and writes the derived dataset outside the repository.
 """
 
 from __future__ import annotations
@@ -13,7 +15,9 @@ import json
 import math
 import os
 import re
+import shutil
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -242,8 +246,28 @@ def valid_stable_field_id(experiment_id: str, field_id: str) -> bool:
     return False
 
 
+@dataclass(frozen=True)
+class SessionRecord:
+    """One stored collection session, read back without knowing the backend."""
+
+    session_id: str
+    experiment_id: str
+    template_version: str
+    revision: int
+    consent: bool
+    status: str
+    fields: dict[str, Any]
+    image_bytes: bytes
+    image_ref: str
+    metadata: dict[str, Any]
+
+
 class CollectionStorage(ABC):
-    """Storage boundary for later replacement by Cloud Storage or another backend."""
+    """Storage boundary: local files for development, object storage in production.
+
+    A production deployment supplies an implementation backed by a private
+    bucket; nothing in this interface assumes a local filesystem.
+    """
 
     @abstractmethod
     def create_session(self, *, experiment_id: str, template_version: str, image: bytes) -> dict[str, Any]:
@@ -255,20 +279,57 @@ class CollectionStorage(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def load_session(self, session_id: str) -> SessionRecord:
+        """Read one session (metadata + raw image bytes) for dataset building."""
+        raise NotImplementedError
+
+    @abstractmethod
     def delete_session(self, session_id: str) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def dataset_root(self) -> Any:
+        """Base location for derived datasets (never inside the repository)."""
         raise NotImplementedError
 
 
 class LocalCollectionStorage(CollectionStorage):
-    """Filesystem implementation using UUID filenames and atomic metadata writes."""
+    """Filesystem implementation using UUID directories and atomic metadata writes.
+
+    Layout mirrors the production object-store prefix one to one::
+
+        <root>/sessions/<uuid>/raw.jpg
+        <root>/sessions/<uuid>/metadata.json
+        <root>/datasets/<export>/images/*.png
+        <root>/datasets/<export>/labels.csv
+    """
 
     def __init__(self, root: Path | None = None) -> None:
         self.root = root or collection_root()
-        self.raw_dir = self.root / "raw"
-        self.metadata_dir = self.root / "metadata"
+
+    @property
+    def sessions_dir(self) -> Path:
+        return self.root / "sessions"
+
+    def session_dir(self, session_id: str) -> Path:
+        return self.sessions_dir / _canonical_session_id(session_id)
+
+    def _raw_path(self, session_id: str) -> Path:
+        return self.session_dir(session_id) / "raw.jpg"
 
     def _metadata_path(self, session_id: str) -> Path:
-        return self.metadata_dir / f"{_canonical_session_id(session_id)}.json"
+        return self.session_dir(session_id) / "metadata.json"
+
+    def _image_ref(self, session_id: str) -> str:
+        return f"sessions/{session_id}/raw.jpg"
+
+    def dataset_root(self) -> Path:
+        return self.root / "datasets"
+
+    def dataset_dir(self, name: str) -> Path:
+        if not re.fullmatch(r"[A-Za-z0-9._-]{1,60}", name or ""):
+            raise CollectionValidationError("数据集目录名无效")
+        return self.dataset_root() / name
 
     @staticmethod
     def _write_json(path: Path, value: dict[str, Any]) -> None:
@@ -278,11 +339,11 @@ class LocalCollectionStorage(CollectionStorage):
 
     def create_session(self, *, experiment_id: str, template_version: str, image: bytes) -> dict[str, Any]:
         session_id = str(uuid4())
-        self.raw_dir.mkdir(parents=True, exist_ok=True)
-        self.metadata_dir.mkdir(parents=True, exist_ok=True)
-        raw_path = self.raw_dir / f"{session_id}.jpg"
-        temporary_raw_path = self.raw_dir / f"{session_id}.jpg.tmp"
-        metadata_path = self.metadata_dir / f"{session_id}.json"
+        directory = self.session_dir(session_id)
+        directory.mkdir(parents=True, exist_ok=True)
+        raw_path = self._raw_path(session_id)
+        temporary_raw_path = directory / "raw.jpg.tmp"
+        metadata_path = self._metadata_path(session_id)
         try:
             temporary_raw_path.write_bytes(image)
             temporary_raw_path.replace(raw_path)
@@ -297,14 +358,12 @@ class LocalCollectionStorage(CollectionStorage):
                 "created_at": now,
                 "confirmed_at": None,
                 "updated_at": now,
-                "image_path": f"raw/{session_id}.jpg",
+                "image_path": self._image_ref(session_id),
                 "fields": {},
             }
             self._write_json(metadata_path, metadata)
         except Exception:
-            temporary_raw_path.unlink(missing_ok=True)
-            raw_path.unlink(missing_ok=True)
-            metadata_path.unlink(missing_ok=True)
+            shutil.rmtree(directory, ignore_errors=True)
             raise
         return metadata
 
@@ -322,8 +381,7 @@ class LocalCollectionStorage(CollectionStorage):
             raise CollectionValidationError("模板版本与数据贡献会话不一致")
         if metadata.get("consent") is not True:
             raise CollectionValidationError("该会话没有有效授权")
-        raw_path = self.root / str(metadata.get("image_path", ""))
-        if not raw_path.is_file():
+        if not self._raw_path(session_id).is_file():
             raise CollectionNotFoundError("原始记录表图片不存在")
         now = _now()
         metadata.update({
@@ -336,14 +394,35 @@ class LocalCollectionStorage(CollectionStorage):
         self._write_json(path, metadata)
         return metadata
 
-    def delete_session(self, session_id: str) -> None:
+    def load_session(self, session_id: str) -> SessionRecord:
         canonical = _canonical_session_id(session_id)
-        metadata_path = self.metadata_dir / f"{canonical}.json"
-        raw_path = self.raw_dir / f"{canonical}.jpg"
-        if not metadata_path.exists() and not raw_path.exists():
+        path = self._metadata_path(canonical)
+        if not path.is_file():
             raise CollectionNotFoundError("数据贡献会话不存在")
-        metadata_path.unlink(missing_ok=True)
-        raw_path.unlink(missing_ok=True)
+        metadata = json.loads(path.read_text(encoding="utf-8"))
+        image_ref = str(metadata.get("image_path", ""))
+        image_path = self.root / image_ref if image_ref else Path()
+        if image_ref != self._image_ref(canonical) or not image_path.is_file():
+            raise CollectionNotFoundError("原始记录表图片不存在")
+        fields = metadata.get("fields")
+        return SessionRecord(
+            session_id=canonical,
+            experiment_id=str(metadata.get("experiment_id", "")),
+            template_version=str(metadata.get("template_version", "")),
+            revision=int(metadata.get("revision", 0)) if isinstance(metadata.get("revision"), int) else 0,
+            consent=metadata.get("consent") is True,
+            status=str(metadata.get("status", "")),
+            fields=dict(fields) if isinstance(fields, dict) else {},
+            image_bytes=image_path.read_bytes(),
+            image_ref=image_ref,
+            metadata=metadata,
+        )
+
+    def delete_session(self, session_id: str) -> None:
+        directory = self.session_dir(session_id)
+        if not directory.exists():
+            raise CollectionNotFoundError("数据贡献会话不存在")
+        shutil.rmtree(directory, ignore_errors=False)
 
 
 def local_storage() -> LocalCollectionStorage:

@@ -33,6 +33,36 @@ Re-calibrating the layouts after a record-sheet change:
 python -m backend.ocr_dataset.calibrate --all --write --overlay artifacts/_calib
 ```
 
+## PhysLab_OCR export (template-driven, `image,text`)
+
+The training repository `Bogger111/PhysLab_OCR` reads exactly two things:
+
+```
+data/images/*.png
+data/labels.csv          # header: image,text
+```
+
+`ocr_dataset.builder` produces that shape directly from a confirmed session, and
+`backend/ocr_layouts/<experiment>.json` holds the per-experiment template (which
+cell belongs to which stable field id):
+
+```bash
+python -m backend.ocr_dataset.builder --session-id SESSION_UUID --output <dir>
+python -m backend.ocr_dataset.builder --session-id SESSION_UUID --dry-run
+python -m backend.ocr_dataset.templates --check        # template/calibration drift
+python -m backend.ocr_dataset.templates --write        # regenerate from calibration
+```
+
+Templates are generated from the calibrated layouts, so a field id can never
+point at the wrong cell.  Everything else the run produces (`samples.csv`,
+`rejected.csv`, `manifest.json`) is provenance and stays out of `labels.csv`:
+
+* `image` is always a bare filename — the OCR loader does `Path(image_dir) / row["image"]`;
+* every label must be encodable with the OCR charset (`0123456789.`) or its
+  `encode()` raises, so `-0.5`, `22.09 mV` and `1.2e-3` are rejected, never clipped;
+* crops keep the original aspect ratio and a single value each: resizing to
+  160x80 is the OCR dataset transform's job.
+
 ## Input contract
 
 Only sessions that satisfy all of the following are read:

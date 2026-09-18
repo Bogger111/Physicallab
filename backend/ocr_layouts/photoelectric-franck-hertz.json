@@ -1,0 +1,668 @@
+{
+  "schema_version": "1.0",
+  "experiment": "photoelectric-franck-hertz",
+  "experiment_id": "photoelectric-franck-hertz",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "source": {
+    "kind": "calibrated_record_sheet",
+    "calibration": "ocr_dataset/layouts/photoelectric-franck-hertz.json",
+    "capture_scope": "calibrated_page_1"
+  },
+  "cells": [
+    {
+      "field_id": "iv_436.rows.row_01.current",
+      "bbox": [
+        0.28,
+        0.30932,
+        0.50125,
+        0.33584
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_02.current",
+      "bbox": [
+        0.28,
+        0.33584,
+        0.50125,
+        0.36191
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_03.current",
+      "bbox": [
+        0.28,
+        0.36191,
+        0.50125,
+        0.38842
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_04.current",
+      "bbox": [
+        0.28,
+        0.38842,
+        0.50125,
+        0.41449
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_05.current",
+      "bbox": [
+        0.28,
+        0.41449,
+        0.50125,
+        0.44101
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_06.current",
+      "bbox": [
+        0.28,
+        0.44101,
+        0.50125,
+        0.46708
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_07.current",
+      "bbox": [
+        0.28,
+        0.46708,
+        0.50125,
+        0.49315
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_08.current",
+      "bbox": [
+        0.28,
+        0.49315,
+        0.50125,
+        0.51966
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_09.current",
+      "bbox": [
+        0.28,
+        0.51966,
+        0.50125,
+        0.54574
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_10.current",
+      "bbox": [
+        0.28,
+        0.54574,
+        0.50125,
+        0.57225
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_11.current",
+      "bbox": [
+        0.28,
+        0.57225,
+        0.50125,
+        0.59832
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_12.current",
+      "bbox": [
+        0.28,
+        0.59832,
+        0.50125,
+        0.62483
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_13.current",
+      "bbox": [
+        0.28,
+        0.62483,
+        0.50125,
+        0.65091
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_14.current",
+      "bbox": [
+        0.28,
+        0.65091,
+        0.50125,
+        0.67698
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_15.current",
+      "bbox": [
+        0.28,
+        0.67698,
+        0.50125,
+        0.70349
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_16.current",
+      "bbox": [
+        0.28,
+        0.70349,
+        0.50125,
+        0.72956
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_17.current",
+      "bbox": [
+        0.28,
+        0.72956,
+        0.50125,
+        0.75608
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_18.current",
+      "bbox": [
+        0.7225,
+        0.30932,
+        0.94437,
+        0.33584
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_19.current",
+      "bbox": [
+        0.7225,
+        0.33584,
+        0.94437,
+        0.36191
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_20.current",
+      "bbox": [
+        0.7225,
+        0.36191,
+        0.94437,
+        0.38842
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_21.current",
+      "bbox": [
+        0.7225,
+        0.38842,
+        0.94437,
+        0.41449
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_22.current",
+      "bbox": [
+        0.7225,
+        0.41449,
+        0.94437,
+        0.44101
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_23.current",
+      "bbox": [
+        0.7225,
+        0.44101,
+        0.94437,
+        0.46708
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_24.current",
+      "bbox": [
+        0.7225,
+        0.46708,
+        0.94437,
+        0.49315
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_25.current",
+      "bbox": [
+        0.7225,
+        0.49315,
+        0.94437,
+        0.51966
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_26.current",
+      "bbox": [
+        0.7225,
+        0.51966,
+        0.94437,
+        0.54574
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_27.current",
+      "bbox": [
+        0.7225,
+        0.54574,
+        0.94437,
+        0.57225
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_28.current",
+      "bbox": [
+        0.7225,
+        0.57225,
+        0.94437,
+        0.59832
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_29.current",
+      "bbox": [
+        0.7225,
+        0.59832,
+        0.94437,
+        0.62483
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_30.current",
+      "bbox": [
+        0.7225,
+        0.62483,
+        0.94437,
+        0.65091
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_31.current",
+      "bbox": [
+        0.7225,
+        0.65091,
+        0.94437,
+        0.67698
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_32.current",
+      "bbox": [
+        0.7225,
+        0.67698,
+        0.94437,
+        0.70349
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_33.current",
+      "bbox": [
+        0.7225,
+        0.70349,
+        0.94437,
+        0.72956
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv_436.rows.row_34.current",
+      "bbox": [
+        0.7225,
+        0.72956,
+        0.94437,
+        0.75608
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_01.us1",
+      "bbox": [
+        0.23563,
+        0.09987,
+        0.4125,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_01.us2",
+      "bbox": [
+        0.4125,
+        0.09987,
+        0.59,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_01.us3",
+      "bbox": [
+        0.59,
+        0.09987,
+        0.76687,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_01.us4",
+      "bbox": [
+        0.76687,
+        0.09987,
+        0.94437,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_02.us1",
+      "bbox": [
+        0.23563,
+        0.12947,
+        0.4125,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_02.us2",
+      "bbox": [
+        0.4125,
+        0.12947,
+        0.59,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_02.us3",
+      "bbox": [
+        0.59,
+        0.12947,
+        0.76687,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_02.us4",
+      "bbox": [
+        0.76687,
+        0.12947,
+        0.94437,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_03.us1",
+      "bbox": [
+        0.23563,
+        0.15908,
+        0.4125,
+        0.18869
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_03.us2",
+      "bbox": [
+        0.4125,
+        0.15908,
+        0.59,
+        0.18869
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_03.us3",
+      "bbox": [
+        0.59,
+        0.15908,
+        0.76687,
+        0.18869
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_03.us4",
+      "bbox": [
+        0.76687,
+        0.15908,
+        0.94437,
+        0.18869
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_04.us1",
+      "bbox": [
+        0.23563,
+        0.18869,
+        0.4125,
+        0.21829
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_04.us2",
+      "bbox": [
+        0.4125,
+        0.18869,
+        0.59,
+        0.21829
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_04.us3",
+      "bbox": [
+        0.59,
+        0.18869,
+        0.76687,
+        0.21829
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_04.us4",
+      "bbox": [
+        0.76687,
+        0.18869,
+        0.94437,
+        0.21829
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_05.us1",
+      "bbox": [
+        0.23563,
+        0.21829,
+        0.4125,
+        0.2479
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_05.us2",
+      "bbox": [
+        0.4125,
+        0.21829,
+        0.59,
+        0.2479
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_05.us3",
+      "bbox": [
+        0.59,
+        0.21829,
+        0.76687,
+        0.2479
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "planck.rows.row_05.us4",
+      "bbox": [
+        0.76687,
+        0.21829,
+        0.94437,
+        0.2479
+      ],
+      "page": 1,
+      "confidence": 0.9
+    }
+  ],
+  "registration": {
+    "anchors": [
+      [
+        0.05875,
+        0.07026,
+        0.94437,
+        0.2479
+      ],
+      [
+        0.05875,
+        0.28325,
+        0.94437,
+        0.75608
+      ]
+    ],
+    "lattice": {
+      "x": [
+        0.05847,
+        0.23562,
+        0.2799,
+        0.41276,
+        0.50133,
+        0.5899,
+        0.72276,
+        0.76704,
+        0.94419
+      ],
+      "y": [
+        0.0701,
+        0.09973,
+        0.12936,
+        0.15899,
+        0.18862,
+        0.21825,
+        0.24788,
+        0.28323,
+        0.30949,
+        0.33575,
+        0.36202,
+        0.38828,
+        0.41454,
+        0.4408,
+        0.46707,
+        0.49333,
+        0.51959,
+        0.54585,
+        0.57212,
+        0.59838,
+        0.62464,
+        0.65091,
+        0.67717,
+        0.70343,
+        0.72969,
+        0.75596
+      ]
+    }
+  }
+}

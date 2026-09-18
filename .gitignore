@@ -14,4 +14,9 @@ venv/
 .env.local
 /ocr_dataset/
 data/
+
+# Private collection storage and derived OCR datasets (never tracked):
+backend/data_collection/
+backend/datasets/
+datasets/
 *.sqlite3

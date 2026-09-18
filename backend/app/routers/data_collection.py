@@ -94,6 +94,41 @@ async def commit_data_collection_session(session_id: str, req: CollectionCommitR
             "revision": metadata["revision"], "field_count": len(metadata["fields"])}
 
 
+@router.post("/api/data-collection/sessions/{session_id}/build-ocr")
+async def build_ocr_dataset(session_id: str):
+    """Turn one confirmed session into a PhysLab_OCR compatible dataset.
+
+    Template-driven OpenCV cropping only: no generic text detection, no model
+    training here.  Samples that cannot be mapped to a stable field id with high
+    confidence are rejected (or queued for review) instead of entering the set.
+    """
+    from app.data_collection import (
+        CollectionNotFoundError,
+        CollectionValidationError,
+        collection_enabled,
+        local_storage,
+    )
+    from ocr_dataset.builder import BuilderError, build_session_dataset
+
+    if not collection_enabled():
+        raise HTTPException(status_code=404, detail="数据贡献功能未启用")
+    try:
+        outcome = await run_in_threadpool(
+            build_session_dataset, session_id, storage=local_storage(),
+        )
+    except CollectionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except BuilderError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except CollectionValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail=f"实验模板不可用：{exc}") from exc
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="数据集导出暂时不可用") from exc
+    return outcome.as_api_payload()
+
+
 @router.delete("/api/data-collection/sessions/{session_id}")
 async def delete_data_collection_session(session_id: str):
     from app.data_collection import (

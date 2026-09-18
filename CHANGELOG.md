@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added the `PhysLab` → `PhysLab_OCR` dataset pipeline: `POST /api/data-collection/sessions/{id}/build-ocr` turns one confirmed session into `images/*.png` + `labels.csv` (`image,text` only), with `samples.csv`, `rejected.csv` and `manifest.json` as separate provenance.
+- Added `backend/ocr_layouts/<experiment>.json` templates (field id → record-sheet cell) generated from the calibrated layouts, plus `ocr_dataset/templates.py` drift checks so a template can never disagree with its calibration.
+- Collection storage moved to `sessions/<uuid>/raw.jpg` + `metadata.json` (mirroring the production private-bucket prefix), with `CollectionStorage.load_session()` keeping the interface storage-agnostic; `datasets/<export>/` holds derived output only.
+- Fixed three crop-quality defects found while building this: wide cells no longer collapse to "blank" (printed-rule residue no longer inflates the ink area floor or the stroke scale), a vertical rule ghost no longer stretches a crop across empty paper, and printed-rule hairlines are whitened out of the exported crop.
+- Fixed a 500 in the export path when a session produced zero samples (empty `samples.csv` write).
+- The legacy `scripts/export_ocr_dataset.py` collection export now accepts confirmed numeric *strings* (it silently dropped `"22.090"`) and no longer copies full source pages out of private storage; it references the private path instead.
+- The consent-first collection API, all experiment calculations, and the OCR feedback path are unchanged.
+
 - Added the typical-data reference ("数据特征参考") card to every experiment page: each published experiment ships `data_reference.json` next to its config with 3-6 measured quantities, handwriting-precision example values and expected patterns, rendered where the blank record sheet is downloaded.
 - The reference values are re-derived from each experiment's own formulas and standard constants by `backend/tests/test_data_reference.py` (Malus law, air/water sound speed, light speed, Cu50 slope, solar-cell fill factor and charge cutoff, GMR single-branch sensitivity, NMR gyromagnetic ratio, viscosity range, surface tension from 0.07275 N/m, Michelson wavelength, Planck constant, Franck-Hertz peak spacing).
 - Reference data is informational only: the card has no inputs and never feeds the calculation chain or the record sheet.

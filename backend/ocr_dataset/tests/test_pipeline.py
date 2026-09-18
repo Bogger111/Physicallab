@@ -57,11 +57,10 @@ def _layout(path: Path, *, mapped: bool = True) -> None:
 
 def _metadata(root: Path, *, revision: int = 1, label: str = "22.090", subdir: str = "") -> str:
     session_id = str(uuid4())
-    raw = root / "raw"
-    raw.mkdir(parents=True, exist_ok=True)
-    _sheet(raw / f"{session_id}.jpg")
-    metadata_dir = root / "metadata" / subdir
+    session_dir = root / "sessions" / session_id
+    metadata_dir = session_dir / subdir
     metadata_dir.mkdir(parents=True, exist_ok=True)
+    _sheet(session_dir / "raw.jpg")
     metadata = {
         "session_id": session_id,
         "experiment_id": "multimeter",
@@ -72,10 +71,10 @@ def _metadata(root: Path, *, revision: int = 1, label: str = "22.090", subdir: s
         "created_at": "2026-01-01T00:00:00+00:00",
         "confirmed_at": "2026-01-01T00:01:00+00:00",
         "updated_at": "2026-01-01T00:01:00+00:00",
-        "image_path": f"raw/{session_id}.jpg",
+        "image_path": f"sessions/{session_id}/raw.jpg",
         "fields": {FIELD_ID: label},
     }
-    (metadata_dir / f"{session_id}.json").write_text(json.dumps(metadata), encoding="utf-8")
+    (metadata_dir / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
     return session_id
 
 
@@ -129,11 +128,12 @@ def test_deterministic_sample_id():
 def test_collector_uses_latest_revision_only(tmp_path):
     root = tmp_path / "collection"
     session_id = _metadata(root, revision=1, label="22.090", subdir="old")
-    original = json.loads((root / "metadata" / "old" / f"{session_id}.json").read_text())
+    session_dir = root / "sessions" / session_id
+    original = json.loads((session_dir / "old" / "metadata.json").read_text())
     latest = {**original, "revision": 2, "fields": {FIELD_ID: "22.100"}}
-    latest_dir = root / "metadata" / "latest"
+    latest_dir = session_dir / "latest"
     latest_dir.mkdir(parents=True)
-    (latest_dir / f"{session_id}.json").write_text(json.dumps(latest), encoding="utf-8")
+    (latest_dir / "metadata.json").write_text(json.dumps(latest), encoding="utf-8")
     sessions, _ = collect_sessions(root)
     assert len(sessions) == 1
     assert sessions[0].revision == 2
@@ -162,10 +162,10 @@ def test_illegal_charset_is_rejected_before_segmentation(tmp_path):
 def test_duplicate_session_sample_is_not_duplicated(tmp_path):
     root = tmp_path / "collection"
     session_id = _metadata(root, subdir="a")
-    duplicate_dir = root / "metadata" / "b"
+    session_dir = root / "sessions" / session_id
+    duplicate_dir = session_dir / "b"
     duplicate_dir.mkdir(parents=True)
-    source = root / "metadata" / "a" / f"{session_id}.json"
-    (duplicate_dir / f"{session_id}.json").write_bytes(source.read_bytes())
+    (duplicate_dir / "metadata.json").write_bytes((session_dir / "a" / "metadata.json").read_bytes())
     sessions, _ = collect_sessions(root)
     assert [item.session_id for item in sessions] == [session_id]
 
@@ -174,7 +174,7 @@ def test_contact_sheet_and_csv_generation(tmp_path):
     sample = AcceptedSample(
         deterministic_sample_id("s", "f", 1),
         np.full((45, 120), 210, dtype=np.uint8), "22.090", "multimeter",
-        FIELD_ID, "s", "raw/s.jpg", 1, "template_roi", .91,
+        FIELD_ID, "s", "sessions/s/raw.jpg", 1, "template_roi", .91,
     )
     sheet = tmp_path / "contact.png"
     write_contact_sheet([sample], sheet)

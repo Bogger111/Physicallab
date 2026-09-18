@@ -1,0 +1,606 @@
+{
+  "schema_version": "1.0",
+  "experiment": "surface-tension",
+  "experiment_id": "surface-tension",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "source": {
+    "kind": "calibrated_record_sheet",
+    "calibration": "ocr_dataset/layouts/surface-tension.json",
+    "capture_scope": "calibrated_page_1"
+  },
+  "cells": [
+    {
+      "field_id": "calibration.rows.row_01.u_down",
+      "bbox": [
+        0.64875,
+        0.15245,
+        0.94437,
+        0.18206
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_01.u_up",
+      "bbox": [
+        0.35375,
+        0.15245,
+        0.64875,
+        0.18206
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_02.u_down",
+      "bbox": [
+        0.64875,
+        0.18206,
+        0.94437,
+        0.21167
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_02.u_up",
+      "bbox": [
+        0.35375,
+        0.18206,
+        0.64875,
+        0.21167
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_03.u_down",
+      "bbox": [
+        0.64875,
+        0.21167,
+        0.94437,
+        0.24127
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_03.u_up",
+      "bbox": [
+        0.35375,
+        0.21167,
+        0.64875,
+        0.24127
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_04.u_down",
+      "bbox": [
+        0.64875,
+        0.24127,
+        0.94437,
+        0.27088
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_04.u_up",
+      "bbox": [
+        0.35375,
+        0.24127,
+        0.64875,
+        0.27088
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_05.u_down",
+      "bbox": [
+        0.64875,
+        0.27088,
+        0.94437,
+        0.30049
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_05.u_up",
+      "bbox": [
+        0.35375,
+        0.27088,
+        0.64875,
+        0.30049
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_06.u_down",
+      "bbox": [
+        0.64875,
+        0.30049,
+        0.94437,
+        0.33009
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_06.u_up",
+      "bbox": [
+        0.35375,
+        0.30049,
+        0.64875,
+        0.33009
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_07.u_down",
+      "bbox": [
+        0.64875,
+        0.33009,
+        0.94437,
+        0.3597
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_07.u_up",
+      "bbox": [
+        0.35375,
+        0.33009,
+        0.64875,
+        0.3597
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_08.u_down",
+      "bbox": [
+        0.64875,
+        0.3597,
+        0.94437,
+        0.38931
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "calibration.rows.row_08.u_up",
+      "bbox": [
+        0.35375,
+        0.3597,
+        0.64875,
+        0.38931
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_01.x1",
+      "bbox": [
+        0.50125,
+        0.77243,
+        0.7225,
+        0.80203
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_01.x2",
+      "bbox": [
+        0.7225,
+        0.77243,
+        0.94437,
+        0.80203
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_01.y1",
+      "bbox": [
+        0.05875,
+        0.77243,
+        0.28,
+        0.80203
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_01.y2",
+      "bbox": [
+        0.28,
+        0.77243,
+        0.50125,
+        0.80203
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_02.x1",
+      "bbox": [
+        0.50125,
+        0.80203,
+        0.7225,
+        0.83164
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_02.x2",
+      "bbox": [
+        0.7225,
+        0.80203,
+        0.94437,
+        0.83164
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_02.y1",
+      "bbox": [
+        0.05875,
+        0.80203,
+        0.28,
+        0.83164
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_02.y2",
+      "bbox": [
+        0.28,
+        0.80203,
+        0.50125,
+        0.83164
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_03.x1",
+      "bbox": [
+        0.50125,
+        0.83164,
+        0.7225,
+        0.86125
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_03.x2",
+      "bbox": [
+        0.7225,
+        0.83164,
+        0.94437,
+        0.86125
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_03.y1",
+      "bbox": [
+        0.05875,
+        0.83164,
+        0.28,
+        0.86125
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_03.y2",
+      "bbox": [
+        0.28,
+        0.83164,
+        0.50125,
+        0.86125
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_04.x1",
+      "bbox": [
+        0.50125,
+        0.86125,
+        0.7225,
+        0.89085
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_04.x2",
+      "bbox": [
+        0.7225,
+        0.86125,
+        0.94437,
+        0.89085
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_04.y1",
+      "bbox": [
+        0.05875,
+        0.86125,
+        0.28,
+        0.89085
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_04.y2",
+      "bbox": [
+        0.28,
+        0.86125,
+        0.50125,
+        0.89085
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_05.x1",
+      "bbox": [
+        0.50125,
+        0.89085,
+        0.7225,
+        0.92046
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_05.x2",
+      "bbox": [
+        0.7225,
+        0.89085,
+        0.94437,
+        0.92046
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_05.y1",
+      "bbox": [
+        0.05875,
+        0.89085,
+        0.28,
+        0.92046
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "capillary.rows.row_05.y2",
+      "bbox": [
+        0.28,
+        0.89085,
+        0.50125,
+        0.92046
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_01.u1",
+      "bbox": [
+        0.05875,
+        0.50685,
+        0.50125,
+        0.53646
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_01.u2",
+      "bbox": [
+        0.50125,
+        0.50685,
+        0.94437,
+        0.53646
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_02.u1",
+      "bbox": [
+        0.05875,
+        0.53646,
+        0.50125,
+        0.56606
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_02.u2",
+      "bbox": [
+        0.50125,
+        0.53646,
+        0.94437,
+        0.56606
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_03.u1",
+      "bbox": [
+        0.05875,
+        0.56606,
+        0.50125,
+        0.59567
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_03.u2",
+      "bbox": [
+        0.50125,
+        0.56606,
+        0.94437,
+        0.59567
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_04.u1",
+      "bbox": [
+        0.05875,
+        0.59567,
+        0.50125,
+        0.62528
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_04.u2",
+      "bbox": [
+        0.50125,
+        0.59567,
+        0.94437,
+        0.62528
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_05.u1",
+      "bbox": [
+        0.05875,
+        0.62528,
+        0.50125,
+        0.65488
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "pull_off.rows.row_05.u2",
+      "bbox": [
+        0.50125,
+        0.62528,
+        0.94437,
+        0.65488
+      ],
+      "page": 1,
+      "confidence": 0.9
+    }
+  ],
+  "registration": {
+    "anchors": [
+      [
+        0.05875,
+        0.07026,
+        0.94437,
+        0.1224
+      ],
+      [
+        0.05875,
+        0.1224,
+        0.94437,
+        0.38931
+      ],
+      [
+        0.05875,
+        0.42466,
+        0.94437,
+        0.47724
+      ],
+      [
+        0.05875,
+        0.47724,
+        0.94437,
+        0.65488
+      ],
+      [
+        0.05875,
+        0.69023,
+        0.94437,
+        0.74282
+      ],
+      [
+        0.05875,
+        0.74282,
+        0.94437,
+        0.92046
+      ]
+    ],
+    "lattice": {
+      "x": [
+        0.05847,
+        0.2799,
+        0.35371,
+        0.50133,
+        0.64895,
+        0.72276,
+        0.94419
+      ],
+      "y": [
+        0.0701,
+        0.09636,
+        0.12262,
+        0.15225,
+        0.18188,
+        0.21151,
+        0.24114,
+        0.27077,
+        0.3004,
+        0.33003,
+        0.35966,
+        0.38929,
+        0.42464,
+        0.45091,
+        0.47717,
+        0.5068,
+        0.53643,
+        0.56606,
+        0.59569,
+        0.62532,
+        0.65495,
+        0.6903,
+        0.71656,
+        0.74282,
+        0.77245,
+        0.80208,
+        0.83171,
+        0.86134,
+        0.89097,
+        0.9206
+      ]
+    }
+  }
+}

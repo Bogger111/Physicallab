@@ -143,6 +143,46 @@ def _ink_mask(image: np.ndarray, *, sensitivity: float = 8.0, ceiling: float = 2
     return image < min(ceiling, float(np.mean(image)) - sensitivity)
 
 
+def _rule_residue(box: tuple[int, int, int, int], shape: tuple[int, int]) -> bool:
+    """A hairline mark sitting *on* a cell edge is left-over printed rule.
+
+    Inpainting removes the printed rules, but a one- to three-pixel ghost
+    survives exactly on the cell border — including a partial vertical ghost
+    inside a wide cell, which would otherwise stretch the crop across empty
+    paper.  Paper rules are hair-thin (measured in pixels, not in percentages of
+    a 1600 px page) and touch the border; handwriting that a border clips is
+    thicker than three pixels, so the distinction is safe.
+    """
+    height, width = shape[:2]
+    x, y, box_width, box_height = box
+    thin_horizontal = box_height <= 3 and box_width >= 0.25 * width
+    thin_vertical = box_width <= 3 and box_height >= 0.25 * height
+    touches_edge = (
+        x <= 1 or y <= 1
+        or x + box_width >= width - 1 or y + box_height >= height - 1
+    )
+    return touches_edge and (thin_horizontal or thin_vertical)
+
+
+def _strip_rule_residue(image: np.ndarray) -> np.ndarray:
+    """Paint hairline border ghosts white so the training crop holds only ink."""
+    if image.size == 0 or min(image.shape[:2]) < 4:
+        return image
+    ink = _ink_mask(image, sensitivity=40.0, ceiling=200.0)
+    if not np.any(ink):
+        return image
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(ink.astype(np.uint8), connectivity=8)
+    residue = [
+        index for index in range(1, count)
+        if _rule_residue(tuple(int(value) for value in stats[index, :4]), image.shape)
+    ]
+    if not residue:
+        return image
+    cleaned = image.copy()
+    cleaned[np.isin(labels, residue)] = 255
+    return cleaned
+
+
 def _border_contact(image: np.ndarray) -> bool:
     """True when strong ink reaches the very edge of the cell crop."""
     if min(image.shape[:2]) < 4:
@@ -155,6 +195,16 @@ def _border_contact(image: np.ndarray) -> bool:
     total_ink = int(np.count_nonzero(ink))
     if total_ink == 0:
         return False
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(ink.astype(np.uint8), connectivity=8)
+    residue = {
+        index for index in range(1, count)
+        if _rule_residue(tuple(int(value) for value in stats[index, :4]), image.shape)
+    }
+    if residue:
+        ink = ink & ~np.isin(labels, list(residue))
+        total_ink = int(np.count_nonzero(ink))
+        if total_ink == 0:
+            return False
     return np.count_nonzero(ink & ring) / total_ink > 0.22
 
 
@@ -182,20 +232,33 @@ def _significant_ink(image: np.ndarray) -> tuple[np.ndarray, tuple[str, ...]]:
     count, labels, stats, _ = cv2.connectedComponentsWithStats(ink.astype(np.uint8), connectivity=8)
     if count <= 2:
         return ink, ()
+    height, width = image.shape[:2]
     boxes = {index: tuple(int(v) for v in stats[index, :4]) for index in range(1, count)}
     areas = {index: int(stats[index, cv2.CC_STAT_AREA]) for index in range(1, count)}
-    widest = max(box[2] for box in boxes.values())
-    area_floor = max(16, 0.15 * max(areas.values()))
-    significant = {index for index, area in areas.items() if area >= area_floor}
+    # Printed-rule ghosts (long, flat, hugging the cell edge) would otherwise
+    # inflate both the area floor and the "widest stroke" scale, so every real
+    # digit of a wide cell would be dropped as a speck, and a vertical ghost
+    # would stretch the crop across empty paper.
+    content = {
+        index for index, box in boxes.items()
+        if not _rule_residue(box, image.shape)
+    }
+    if not content:
+        return np.zeros_like(ink, dtype=bool), ()
+    widest = max(boxes[index][2] for index in content)
+    area_floor = max(16, 0.15 * max(areas[index] for index in content))
+    significant = {index for index in content if areas[index] >= area_floor}
     if not significant:
         return np.zeros_like(ink, dtype=bool), ()
-    threshold = max(3, int(0.6 * widest))
+    # A mark belongs to a stroke when it sits within about one cell height of it;
+    # a speck in the far corner of a wide cell does not.
+    threshold = max(3, min(int(0.6 * widest), max(6, int(0.9 * height))))
     keep = {index: boxes[index] for index in significant}
     # A speck is kept only when it really belongs to a stroke: JPEG ringing along
     # the removed rules also produces isolated one-pixel components, and two
     # adjacent specks must not count as neighbours of each other.
     for index, box in boxes.items():
-        if index in significant:
+        if index in significant or index not in content:
             continue
         if any(_box_gap(box, boxes[other]) <= threshold for other in significant):
             keep[index] = box
@@ -266,7 +329,7 @@ def _crop_cell(
     notes: tuple[str, ...] = ()
     if tighten:
         inner, notes = _tighten_ink(inner)
-    return inner, contact, notes
+    return _strip_rule_residue(inner), contact, notes
 
 
 def crop_template_roi(

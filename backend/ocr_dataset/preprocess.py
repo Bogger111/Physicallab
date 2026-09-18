@@ -19,13 +19,36 @@ class PreprocessedPage:
     corners: tuple[tuple[float, float], ...]
 
 
-def load_grayscale(path: Path, *, denoise: bool = False) -> np.ndarray:
-    with Image.open(path) as source:
-        oriented = ImageOps.exif_transpose(source).convert("L")
-        image = np.asarray(oriented).copy()
+def grayscale_from_image(source: Image.Image, *, denoise: bool = False) -> np.ndarray:
+    """EXIF-corrected grayscale array from an already decoded image."""
+    oriented = ImageOps.exif_transpose(source).convert("L")
+    image = np.asarray(oriented).copy()
     if denoise:
         image = cv2.fastNlMeansDenoising(image, None, 5, 7, 21)
     return image
+
+
+def load_grayscale(path: Path, *, denoise: bool = False) -> np.ndarray:
+    with Image.open(path) as source:
+        return grayscale_from_image(source, denoise=denoise)
+
+
+def preprocess_content(
+    content: bytes,
+    reference_size: tuple[int, int],
+    *,
+    denoise: bool = False,
+) -> PreprocessedPage:
+    """Same pipeline as ``preprocess_page`` but from in-memory bytes.
+
+    Collection storage hands out bytes (local file or downloaded object), so the
+    dataset builder never needs a path on disk.
+    """
+    import io
+
+    with Image.open(io.BytesIO(content)) as source:
+        image = grayscale_from_image(source, denoise=denoise)
+    return _page_from_grayscale(image, reference_size)
 
 
 def _order_corners(points: np.ndarray) -> np.ndarray:
@@ -69,13 +92,7 @@ def perspective_correct(
                                borderMode=cv2.BORDER_REPLICATE)
 
 
-def preprocess_page(
-    path: Path,
-    reference_size: tuple[int, int],
-    *,
-    denoise: bool = False,
-) -> PreprocessedPage:
-    image = load_grayscale(path, denoise=denoise)
+def _page_from_grayscale(image: np.ndarray, reference_size: tuple[int, int]) -> PreprocessedPage:
     height, width = image.shape
     corners, confidence = detect_page_boundary(image)
     if corners is not None:
@@ -93,3 +110,12 @@ def preprocess_page(
     full = ((0.0, 0.0), (float(width - 1), 0.0),
             (float(width - 1), float(height - 1)), (0.0, float(height - 1)))
     return PreprocessedPage(corrected, fallback_confidence, "full_frame_resize", (width, height), full)
+
+
+def preprocess_page(
+    path: Path,
+    reference_size: tuple[int, int],
+    *,
+    denoise: bool = False,
+) -> PreprocessedPage:
+    return _page_from_grayscale(load_grayscale(path, denoise=denoise), reference_size)

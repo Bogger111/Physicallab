@@ -5,12 +5,17 @@ record-sheet collection interface. The feature is disabled by default. Enable
 it with `ENABLE_DATA_COLLECTION=true` and optionally set
 `PHYSICSLAB_COLLECTION_ROOT` to a persistent directory.
 
-Runtime files are intentionally ignored by Git:
+Runtime files are intentionally ignored by Git, and the layout mirrors the
+production private-bucket prefix one to one:
 
-- `raw/<session_id>.jpg`: the user-provided full record-sheet image, decoded
-  and re-encoded as JPEG to remove EXIF and embedded metadata;
-- `metadata/<session_id>.json`: consent, experiment/template identifiers,
-  timestamps, revision number, and confirmed values keyed by stable schema IDs.
+- `sessions/<session_id>/raw.jpg`: the user-provided full record-sheet image,
+  decoded and re-encoded as JPEG to remove EXIF and embedded metadata;
+- `sessions/<session_id>/metadata.json`: consent, experiment/template
+  identifiers, timestamps, revision number, and confirmed values keyed by stable
+  schema IDs;
+- `datasets/<export>/`: derived output only (`images/`, `labels.csv`).  Source
+  pages are never copied into it, because numeric crops are produced from the
+  private image at build time.
 
 The UI must ask for explicit consent before upload. Users are told to crop or
 redact names, student IDs, phone/WeChat details, faces, identity documents, and
@@ -18,7 +23,12 @@ other personal information before contributing. Declining does not remove any
 experiment, calculation, validation, OCR, or report function.
 
 Only a successful report download triggers confirmed field labels. Repeated
-report generation updates the same session and increments its revision. The
+report generation updates the same session and increments its revision.
+
+`POST /api/data-collection/sessions/{id}/build-ocr` turns one confirmed session
+into a `PhysLab_OCR` compatible dataset (see `backend/ocr_dataset/builder.py`):
+template-driven OpenCV cropping, a quality gate, and only numeric crops in the
+output.  It is gated by the same `ENABLE_DATA_COLLECTION` flag. The
 online API does not crop cells, perform training, identify users, or store
 request IP addresses, headers, browser fingerprints, or account data. Offline
 numeric-cell segmentation and review live in `backend/ocr_dataset`; they do not

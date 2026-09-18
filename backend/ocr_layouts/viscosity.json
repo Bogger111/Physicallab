@@ -1,0 +1,540 @@
+{
+  "schema_version": "1.0",
+  "experiment": "viscosity",
+  "experiment_id": "viscosity",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "source": {
+    "kind": "calibrated_record_sheet",
+    "calibration": "ocr_dataset/layouts/viscosity.json",
+    "capture_scope": "calibrated_page_1"
+  },
+  "cells": [
+    {
+      "field_id": "diameter.rows.row_01.x1",
+      "bbox": [
+        0.05875,
+        0.09987,
+        0.50125,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter.rows.row_01.x2",
+      "bbox": [
+        0.50125,
+        0.09987,
+        0.94437,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter.rows.row_02.x1",
+      "bbox": [
+        0.05875,
+        0.12947,
+        0.50125,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter.rows.row_02.x2",
+      "bbox": [
+        0.50125,
+        0.12947,
+        0.94437,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter.rows.row_03.x1",
+      "bbox": [
+        0.05875,
+        0.15908,
+        0.50125,
+        0.18869
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter.rows.row_03.x2",
+      "bbox": [
+        0.50125,
+        0.15908,
+        0.94437,
+        0.18869
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_01.diameter",
+      "bbox": [
+        0.05875,
+        0.57181,
+        0.23563,
+        0.60141
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_01.t1",
+      "bbox": [
+        0.23563,
+        0.57181,
+        0.4125,
+        0.60141
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_01.t2",
+      "bbox": [
+        0.4125,
+        0.57181,
+        0.59,
+        0.60141
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_01.t3",
+      "bbox": [
+        0.59,
+        0.57181,
+        0.76687,
+        0.60141
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_01.t4",
+      "bbox": [
+        0.76687,
+        0.57181,
+        0.94437,
+        0.60141
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_02.diameter",
+      "bbox": [
+        0.05875,
+        0.60141,
+        0.23563,
+        0.63102
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_02.t1",
+      "bbox": [
+        0.23563,
+        0.60141,
+        0.4125,
+        0.63102
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_02.t2",
+      "bbox": [
+        0.4125,
+        0.60141,
+        0.59,
+        0.63102
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_02.t3",
+      "bbox": [
+        0.59,
+        0.60141,
+        0.76687,
+        0.63102
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_02.t4",
+      "bbox": [
+        0.76687,
+        0.60141,
+        0.94437,
+        0.63102
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_03.diameter",
+      "bbox": [
+        0.05875,
+        0.63102,
+        0.23563,
+        0.66063
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_03.t1",
+      "bbox": [
+        0.23563,
+        0.63102,
+        0.4125,
+        0.66063
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_03.t2",
+      "bbox": [
+        0.4125,
+        0.63102,
+        0.59,
+        0.66063
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_03.t3",
+      "bbox": [
+        0.59,
+        0.63102,
+        0.76687,
+        0.66063
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "diameter_effect.rows.row_03.t4",
+      "bbox": [
+        0.76687,
+        0.63102,
+        0.94437,
+        0.66063
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_01.t1",
+      "bbox": [
+        0.23563,
+        0.30623,
+        0.4125,
+        0.33584
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_01.t2",
+      "bbox": [
+        0.4125,
+        0.30623,
+        0.59,
+        0.33584
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_01.t3",
+      "bbox": [
+        0.59,
+        0.30623,
+        0.76687,
+        0.33584
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_01.t4",
+      "bbox": [
+        0.76687,
+        0.30623,
+        0.94437,
+        0.33584
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_02.t1",
+      "bbox": [
+        0.23563,
+        0.33584,
+        0.4125,
+        0.36544
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_02.t2",
+      "bbox": [
+        0.4125,
+        0.33584,
+        0.59,
+        0.36544
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_02.t3",
+      "bbox": [
+        0.59,
+        0.33584,
+        0.76687,
+        0.36544
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_02.t4",
+      "bbox": [
+        0.76687,
+        0.33584,
+        0.94437,
+        0.36544
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_03.t1",
+      "bbox": [
+        0.23563,
+        0.36544,
+        0.4125,
+        0.39505
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_03.t2",
+      "bbox": [
+        0.4125,
+        0.36544,
+        0.59,
+        0.39505
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_03.t3",
+      "bbox": [
+        0.59,
+        0.36544,
+        0.76687,
+        0.39505
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_03.t4",
+      "bbox": [
+        0.76687,
+        0.36544,
+        0.94437,
+        0.39505
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_04.t1",
+      "bbox": [
+        0.23563,
+        0.39505,
+        0.4125,
+        0.42466
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_04.t2",
+      "bbox": [
+        0.4125,
+        0.39505,
+        0.59,
+        0.42466
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_04.t3",
+      "bbox": [
+        0.59,
+        0.39505,
+        0.76687,
+        0.42466
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_04.t4",
+      "bbox": [
+        0.76687,
+        0.39505,
+        0.94437,
+        0.42466
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_05.t1",
+      "bbox": [
+        0.23563,
+        0.42466,
+        0.4125,
+        0.45426
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_05.t2",
+      "bbox": [
+        0.4125,
+        0.42466,
+        0.59,
+        0.45426
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_05.t3",
+      "bbox": [
+        0.59,
+        0.42466,
+        0.76687,
+        0.45426
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "viscosity.rows.row_05.t4",
+      "bbox": [
+        0.76687,
+        0.42466,
+        0.94437,
+        0.45426
+      ],
+      "page": 1,
+      "confidence": 0.9
+    }
+  ],
+  "registration": {
+    "anchors": [
+      [
+        0.05875,
+        0.07026,
+        0.94437,
+        0.18869
+      ],
+      [
+        0.05875,
+        0.22404,
+        0.94437,
+        0.27662
+      ],
+      [
+        0.05875,
+        0.27662,
+        0.94437,
+        0.45426
+      ],
+      [
+        0.05875,
+        0.48962,
+        0.94437,
+        0.5422
+      ],
+      [
+        0.05875,
+        0.5422,
+        0.94437,
+        0.66063
+      ]
+    ],
+    "lattice": {
+      "x": [
+        0.05847,
+        0.20609,
+        0.23562,
+        0.35371,
+        0.41276,
+        0.50133,
+        0.5899,
+        0.64895,
+        0.76704,
+        0.79657,
+        0.94419
+      ],
+      "y": [
+        0.0701,
+        0.09973,
+        0.12936,
+        0.15899,
+        0.18862,
+        0.22397,
+        0.25023,
+        0.27649,
+        0.30612,
+        0.33575,
+        0.36538,
+        0.39501,
+        0.42464,
+        0.45427,
+        0.48962,
+        0.51589,
+        0.54215,
+        0.57178,
+        0.60141,
+        0.63104,
+        0.66067
+      ]
+    }
+  }
+}

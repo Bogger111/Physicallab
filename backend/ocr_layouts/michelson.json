@@ -1,0 +1,278 @@
+{
+  "schema_version": "1.0",
+  "experiment": "michelson",
+  "experiment_id": "michelson",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "source": {
+    "kind": "calibrated_record_sheet",
+    "calibration": "ocr_dataset/layouts/michelson.json",
+    "capture_scope": "calibrated_page_1"
+  },
+  "cells": [
+    {
+      "field_id": "observations.rows.row_01.localized_code",
+      "bbox": [
+        0.7225,
+        0.51348,
+        0.94437,
+        0.54308
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_01.motion_code",
+      "bbox": [
+        0.50125,
+        0.51348,
+        0.7225,
+        0.54308
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_01.pattern_code",
+      "bbox": [
+        0.28,
+        0.51348,
+        0.50125,
+        0.54308
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_02.localized_code",
+      "bbox": [
+        0.7225,
+        0.54308,
+        0.94437,
+        0.57269
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_02.motion_code",
+      "bbox": [
+        0.50125,
+        0.54308,
+        0.7225,
+        0.57269
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_02.pattern_code",
+      "bbox": [
+        0.28,
+        0.54308,
+        0.50125,
+        0.57269
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_03.localized_code",
+      "bbox": [
+        0.7225,
+        0.57269,
+        0.94437,
+        0.6023
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_03.motion_code",
+      "bbox": [
+        0.50125,
+        0.57269,
+        0.7225,
+        0.6023
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "observations.rows.row_03.pattern_code",
+      "bbox": [
+        0.28,
+        0.57269,
+        0.50125,
+        0.6023
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_01.position",
+      "bbox": [
+        0.50125,
+        0.15245,
+        0.94437,
+        0.18206
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_02.position",
+      "bbox": [
+        0.50125,
+        0.18206,
+        0.94437,
+        0.21167
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_03.position",
+      "bbox": [
+        0.50125,
+        0.21167,
+        0.94437,
+        0.24127
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_04.position",
+      "bbox": [
+        0.50125,
+        0.24127,
+        0.94437,
+        0.27088
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_05.position",
+      "bbox": [
+        0.50125,
+        0.27088,
+        0.94437,
+        0.30049
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_06.position",
+      "bbox": [
+        0.50125,
+        0.30049,
+        0.94437,
+        0.33009
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_07.position",
+      "bbox": [
+        0.50125,
+        0.33009,
+        0.94437,
+        0.3597
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_08.position",
+      "bbox": [
+        0.50125,
+        0.3597,
+        0.94437,
+        0.38931
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_09.position",
+      "bbox": [
+        0.50125,
+        0.38931,
+        0.94437,
+        0.41891
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "wavelength.rows.row_10.position",
+      "bbox": [
+        0.50125,
+        0.41891,
+        0.94437,
+        0.44852
+      ],
+      "page": 1,
+      "confidence": 0.9
+    }
+  ],
+  "registration": {
+    "anchors": [
+      [
+        0.05875,
+        0.07026,
+        0.94437,
+        0.1224
+      ],
+      [
+        0.05875,
+        0.1224,
+        0.94437,
+        0.44852
+      ],
+      [
+        0.05875,
+        0.48387,
+        0.94437,
+        0.6023
+      ]
+    ],
+    "lattice": {
+      "x": [
+        0.05847,
+        0.2799,
+        0.50133,
+        0.72276,
+        0.94419
+      ],
+      "y": [
+        0.0701,
+        0.09636,
+        0.12262,
+        0.15225,
+        0.18188,
+        0.21151,
+        0.24114,
+        0.27077,
+        0.3004,
+        0.33003,
+        0.35966,
+        0.38929,
+        0.41892,
+        0.44855,
+        0.4839,
+        0.51353,
+        0.54316,
+        0.57279,
+        0.60242
+      ]
+    }
+  }
+}

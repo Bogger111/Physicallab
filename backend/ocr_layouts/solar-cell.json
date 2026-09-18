@@ -1,0 +1,330 @@
+{
+  "schema_version": "1.0",
+  "experiment": "solar-cell",
+  "experiment_id": "solar-cell",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "source": {
+    "kind": "calibrated_record_sheet",
+    "calibration": "ocr_dataset/layouts/solar-cell.json",
+    "capture_scope": "calibrated_page_1"
+  },
+  "cells": [
+    {
+      "field_id": "iv.rows.row_01.current",
+      "bbox": [
+        0.50125,
+        0.14892,
+        0.94437,
+        0.17499
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_02.current",
+      "bbox": [
+        0.50125,
+        0.17499,
+        0.94437,
+        0.2015
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_03.current",
+      "bbox": [
+        0.50125,
+        0.2015,
+        0.94437,
+        0.22757
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_04.current",
+      "bbox": [
+        0.50125,
+        0.22757,
+        0.94437,
+        0.25409
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_05.current",
+      "bbox": [
+        0.50125,
+        0.25409,
+        0.94437,
+        0.28016
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_06.current",
+      "bbox": [
+        0.50125,
+        0.28016,
+        0.94437,
+        0.30667
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_07.current",
+      "bbox": [
+        0.50125,
+        0.30667,
+        0.94437,
+        0.33274
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_08.current",
+      "bbox": [
+        0.50125,
+        0.33274,
+        0.94437,
+        0.35882
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_09.current",
+      "bbox": [
+        0.50125,
+        0.35882,
+        0.94437,
+        0.38533
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_10.current",
+      "bbox": [
+        0.50125,
+        0.38533,
+        0.94437,
+        0.4114
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_11.current",
+      "bbox": [
+        0.50125,
+        0.4114,
+        0.94437,
+        0.43791
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_12.current",
+      "bbox": [
+        0.50125,
+        0.43791,
+        0.94437,
+        0.46399
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_13.current",
+      "bbox": [
+        0.50125,
+        0.46399,
+        0.94437,
+        0.4905
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_14.current",
+      "bbox": [
+        0.50125,
+        0.4905,
+        0.94437,
+        0.51657
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_15.current",
+      "bbox": [
+        0.50125,
+        0.51657,
+        0.94437,
+        0.54264
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "iv.rows.row_16.current",
+      "bbox": [
+        0.50125,
+        0.54264,
+        0.94437,
+        0.56916
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "shading.rows.row_01.isc",
+      "bbox": [
+        0.50125,
+        0.63411,
+        0.94437,
+        0.66372
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "shading.rows.row_02.isc",
+      "bbox": [
+        0.50125,
+        0.66372,
+        0.94437,
+        0.69333
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "shading.rows.row_03.isc",
+      "bbox": [
+        0.50125,
+        0.69333,
+        0.94437,
+        0.72293
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "shading.rows.row_04.isc",
+      "bbox": [
+        0.50125,
+        0.72293,
+        0.94437,
+        0.75254
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "shading.rows.row_05.isc",
+      "bbox": [
+        0.50125,
+        0.75254,
+        0.94437,
+        0.78215
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "shading.rows.row_06.isc",
+      "bbox": [
+        0.50125,
+        0.78215,
+        0.94437,
+        0.81175
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "shading.rows.row_07.isc",
+      "bbox": [
+        0.50125,
+        0.81175,
+        0.94437,
+        0.84136
+      ],
+      "page": 1,
+      "confidence": 0.9
+    }
+  ],
+  "registration": {
+    "anchors": [
+      [
+        0.05875,
+        0.07026,
+        0.94437,
+        0.1224
+      ],
+      [
+        0.05875,
+        0.1224,
+        0.94437,
+        0.56916
+      ],
+      [
+        0.05875,
+        0.60451,
+        0.94437,
+        0.84136
+      ]
+    ],
+    "lattice": {
+      "x": [
+        0.05847,
+        0.50133,
+        0.94419
+      ],
+      "y": [
+        0.0701,
+        0.09636,
+        0.12262,
+        0.14889,
+        0.17515,
+        0.20141,
+        0.22767,
+        0.25394,
+        0.2802,
+        0.30646,
+        0.33273,
+        0.35899,
+        0.38525,
+        0.41151,
+        0.43778,
+        0.46404,
+        0.4903,
+        0.51656,
+        0.54283,
+        0.56909,
+        0.60444,
+        0.63407,
+        0.6637,
+        0.69333,
+        0.72296,
+        0.75259,
+        0.78222,
+        0.81185,
+        0.84148
+      ]
+    }
+  }
+}

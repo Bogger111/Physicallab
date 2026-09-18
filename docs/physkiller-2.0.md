@@ -37,6 +37,28 @@
 - `backend/tests/test_data_reference.py` 会重新推导这些数值（马吕斯定律、声速、光速、Cu50 斜率、太阳能电池填充因子与充电截止电压、GMR 单支灵敏度、核磁旋磁比、粘滞系数、表面张力、迈克尔逊波长、普朗克常量、弗兰克-赫兹峰间距），公式不符即测试失败。
 - `field` 指向采集层的稳定字段 ID（`method.rows.*.key`），与 `valid_stable_field_id` 校验一致；派生量填 `null`。
 
+## 数据采集 → OCR 训练集流水线
+
+两个仓库职责分离：PhysLab 负责采集与切分，PhysLab_OCR 负责数据集与 CRNN 训练。
+
+```
+学生拍照上传（明确同意，可撤回）
+      → 私有存储 sessions/<uuid>/raw.jpg + metadata.json   （默认关闭，ENABLE_DATA_COLLECTION）
+      → 实验数据页填写 → 报告下载成功 → commit（revision+1，confirmed）
+      → POST /api/data-collection/sessions/{id}/build-ocr
+      → 模板驱动 OpenCV：EXIF/透视归一化 → 按 field_id 取 ROI → 只留一个手写数值
+      → 质量门（空/过小/过暗/过白/charset/边界）
+      → datasets/ocr_export/{images/*.png, labels.csv}   labels.csv 只有 image,text
+```
+
+- `backend/ocr_layouts/<experiment>.json`：每个公开实验的模板（field_id → 单元格 bbox），由 `backend/ocr_dataset/layouts/` 的标定结果生成，`templates --check` 保证两者不漂移。
+- 标签来自用户最终确认的字段，按稳定 field id 映射，**绝不按字段顺序猜**；`"22.090"` 原样保留，不会变成 `22.09`。
+- charset 来自 `ocr_dataset/charset.json`（`0123456789.`），与 PhysLab_OCR 的 `datasets/charsets.py` 一致；charset 之外的标签（负号、单位、空格）一律拒收，因为 OCR 的 `encode()` 会直接抛错。
+- 拒收/复核原因写入 `rejected.csv`，样本身份写入 `samples.csv`（sha256(session|field|revision)），两者都不进 `labels.csv`。
+- 隐私：原始页面只存在私有存储，导出目录只含单个数裁剪；`CollectionStorage` 提供 `local_storage()`（开发）与将来的 GCS 实现（生产）。
+- 端到端验收：把导出目录复制到 `PhysLab_OCR/data/` 后，直接运行该仓库的 `train.py` 可正常训练（loss 2.19 → 0.62，GT 保留 `26.590` 尾零）。
+
+## 验证边界
 ## 验证边界
 
 自动化测试验证 schema 合法性、数值校验、OCR 反馈同意门槛、指标计算、API 合约和原有实验回归。合成 fixture 不能证明真实实验结果或真实手写识别准确率；正式 benchmark 需要按书写者隔离的真实标注单元格数据，并重点报告 Cell Exact Match Accuracy。

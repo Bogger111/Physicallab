@@ -1,0 +1,364 @@
+{
+  "schema_version": "1.0",
+  "experiment": "nmr",
+  "experiment_id": "nmr",
+  "template_version": "2.0",
+  "reference_size": [
+    1600,
+    2263
+  ],
+  "source": {
+    "kind": "calibrated_record_sheet",
+    "calibration": "ocr_dataset/layouts/nmr.json",
+    "capture_scope": "calibrated_page_1"
+  },
+  "cells": [
+    {
+      "field_id": "fluorine.rows.row_01.field",
+      "bbox": [
+        0.50125,
+        0.58506,
+        0.94437,
+        0.61467
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_02.field",
+      "bbox": [
+        0.50125,
+        0.61467,
+        0.94437,
+        0.64472
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_03.field",
+      "bbox": [
+        0.50125,
+        0.64472,
+        0.94437,
+        0.67433
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_04.field",
+      "bbox": [
+        0.50125,
+        0.67433,
+        0.94437,
+        0.70393
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_05.field",
+      "bbox": [
+        0.50125,
+        0.70393,
+        0.94437,
+        0.73354
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_06.field",
+      "bbox": [
+        0.50125,
+        0.73354,
+        0.94437,
+        0.76315
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_07.field",
+      "bbox": [
+        0.50125,
+        0.76315,
+        0.94437,
+        0.79275
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_08.field",
+      "bbox": [
+        0.50125,
+        0.79275,
+        0.94437,
+        0.82236
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_09.field",
+      "bbox": [
+        0.50125,
+        0.82236,
+        0.94437,
+        0.85197
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "fluorine.rows.row_10.field",
+      "bbox": [
+        0.50125,
+        0.85197,
+        0.94437,
+        0.88157
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_01.field",
+      "bbox": [
+        0.50125,
+        0.22404,
+        0.94437,
+        0.25365
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_02.field",
+      "bbox": [
+        0.50125,
+        0.25365,
+        0.94437,
+        0.28325
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_03.field",
+      "bbox": [
+        0.50125,
+        0.28325,
+        0.94437,
+        0.31286
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_04.field",
+      "bbox": [
+        0.50125,
+        0.31286,
+        0.94437,
+        0.34247
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_05.field",
+      "bbox": [
+        0.50125,
+        0.34247,
+        0.94437,
+        0.37207
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_06.field",
+      "bbox": [
+        0.50125,
+        0.37207,
+        0.94437,
+        0.40168
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_07.field",
+      "bbox": [
+        0.50125,
+        0.40168,
+        0.94437,
+        0.43129
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_08.field",
+      "bbox": [
+        0.50125,
+        0.43129,
+        0.94437,
+        0.46089
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_09.field",
+      "bbox": [
+        0.50125,
+        0.46089,
+        0.94437,
+        0.4905
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "hydrogen.rows.row_10.field",
+      "bbox": [
+        0.50125,
+        0.4905,
+        0.94437,
+        0.52011
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "waveform.rows.row_01.t1",
+      "bbox": [
+        0.50125,
+        0.09987,
+        0.7225,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "waveform.rows.row_01.t2",
+      "bbox": [
+        0.7225,
+        0.09987,
+        0.94437,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "waveform.rows.row_01.tail_count",
+      "bbox": [
+        0.28,
+        0.09987,
+        0.50125,
+        0.12947
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "waveform.rows.row_02.t1",
+      "bbox": [
+        0.50125,
+        0.12947,
+        0.7225,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "waveform.rows.row_02.t2",
+      "bbox": [
+        0.7225,
+        0.12947,
+        0.94437,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "waveform.rows.row_02.tail_count",
+      "bbox": [
+        0.28,
+        0.12947,
+        0.50125,
+        0.15908
+      ],
+      "page": 1,
+      "confidence": 0.9
+    }
+  ],
+  "registration": {
+    "anchors": [
+      [
+        0.05875,
+        0.07026,
+        0.94437,
+        0.15908
+      ],
+      [
+        0.05875,
+        0.19443,
+        0.94437,
+        0.52011
+      ],
+      [
+        0.05875,
+        0.55546,
+        0.94437,
+        0.88157
+      ]
+    ],
+    "lattice": {
+      "x": [
+        0.05847,
+        0.2799,
+        0.50133,
+        0.72276,
+        0.94419
+      ],
+      "y": [
+        0.0701,
+        0.09973,
+        0.12936,
+        0.15899,
+        0.19434,
+        0.22397,
+        0.2536,
+        0.28323,
+        0.31286,
+        0.34249,
+        0.37212,
+        0.40175,
+        0.43138,
+        0.46101,
+        0.49064,
+        0.52027,
+        0.55562,
+        0.58525,
+        0.61488,
+        0.64451,
+        0.67414,
+        0.70377,
+        0.7334,
+        0.76302,
+        0.79265,
+        0.82228,
+        0.85191,
+        0.88154
+      ]
+    }
+  }
+}
