@@ -117,7 +117,12 @@ def fixtures():
             "inverter": _payload([{"input_voltage":11,"input_current":400,"lit_code":1}]),
         },
         "gmr": {
-            "transfer": _payload([{"excitation":i,"output":25+.2*(.31416*i),"direction":1} for i in np.linspace(-200,200,21)]),
+            # 讲义：励磁电流递增、递减各一支；平方回线两支斜率相反，零场输出相差约 26 mV（磁滞）
+            "transfer": _payload(
+                [{"excitation": i, "output": 25 + .2 * (.31416 * i), "direction": 1}
+                 for i in np.linspace(-200, 200, 21)]
+                + [{"excitation": i, "output": 51.39 - .2 * (.31416 * i), "direction": -1}
+                   for i in np.linspace(200, -200, 21)]),
             "resistance": _payload(gmr_res,supply=2),
             "current_sensor": _payload([{"current":i,"output25":25+.03*i,"output100":100+.05*i} for i in range(-1000,1001,200)]),
         },
@@ -204,6 +209,36 @@ def test_bridge_uses_the_lecture_balance_equations():
     thermistor = run["results"]["thermistor"]
     assert thermistor["b_constant"] == pytest.approx(3235, rel=0.05)
     assert thermistor["r25"] == pytest.approx(2700, rel=0.05)
+
+
+def test_gmr_transfer_splits_the_hysteresis_branches():
+    """讲义：增磁/减磁两支要分开看，两支的差异就是磁滞；单一直线拟合会把两支抵消掉。"""
+    result = process_experiment("gmr", fixtures()["gmr"])["results"]["transfer"]
+    assert result["sensitivity"] == pytest.approx(0.2, rel=0.02)
+    assert result["sensitivity_up"] == pytest.approx(0.2, rel=0.02)
+    assert result["sensitivity_down"] == pytest.approx(-0.2, rel=0.02)
+    assert result["hysteresis"] == pytest.approx(26.39, rel=0.02)
+    assert result["r_squared"] == pytest.approx(1.0, abs=1e-9)
+    assert result["b_max"] == pytest.approx(0.31416 * 200, rel=1e-6)
+
+
+def test_gmr_transfer_names_a_lost_field_sign_instead_of_reporting_k_zero():
+    """励磁电流丢了符号就再也恢复不了 B 的符号：要点名，不能默默给出 k≈0。"""
+    data = fixtures()["gmr"]
+    data["transfer"]["rows"] = [dict(row, excitation=abs(row["excitation"]))
+                                for row in data["transfer"]["rows"]]
+    run = process_experiment("gmr", data)
+    assert any("非负值" in warning and "符号" in warning for warning in run["warnings"]), run["warnings"]
+    # 报告正文也要带上这条提醒，别只在网页上弹一次
+    text = "\n".join(block.get("text", "") for block in docs.report_blocks(registry.get("gmr"), data))
+    assert "数据合理性提醒" in text and "非负值" in text
+
+
+def test_gmr_transfer_warns_when_only_one_branch_is_measured():
+    data = fixtures()["gmr"]
+    data["transfer"]["rows"] = [row for row in data["transfer"]["rows"] if row["direction"] == 1]
+    run = process_experiment("gmr", data)
+    assert any("单一支路" in warning for warning in run["warnings"]), run["warnings"]
 
 
 def test_bridge_flags_a_bridge_arm_rn_in_the_pre_balance_field():

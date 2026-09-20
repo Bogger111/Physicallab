@@ -14,7 +14,7 @@
       "id": "transfer",
       "name": "磁电转换特性",
       "required": true,
-      "description": "增磁、减磁各 21 点，绘制 Vout-B 回线",
+      "description": "按方向列分增磁/减磁两支各自拟合（两支差异＝磁滞），灵敏度取两支 |斜率| 平均",
       "rowCount": 42,
       "columns": [
         {
@@ -126,12 +126,27 @@
       "results": [
         {
           "key": "sensitivity",
-          "label": "线性灵敏度",
+          "label": "灵敏度 k",
           "unit": "mV/Gs"
         },
         {
+          "key": "sensitivity_up",
+          "label": "增磁支斜率",
+          "unit": "mV/Gs"
+        },
+        {
+          "key": "sensitivity_down",
+          "label": "减磁支斜率",
+          "unit": "mV/Gs"
+        },
+        {
+          "key": "hysteresis",
+          "label": "零场磁滞",
+          "unit": "mV"
+        },
+        {
           "key": "r_squared",
-          "label": "R²",
+          "label": "R²（两支模型）",
           "unit": ""
         },
         {

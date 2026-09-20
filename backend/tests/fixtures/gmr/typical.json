@@ -506,6 +506,9 @@
   "expected_result_fields": {
     "transfer": [
       "sensitivity",
+      "sensitivity_up",
+      "sensitivity_down",
+      "hysteresis",
       "r_squared",
       "b_max"
     ],

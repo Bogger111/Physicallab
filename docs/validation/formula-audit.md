@@ -39,7 +39,7 @@
 - **与测试/脚本共用的数值常量（逐条判断出处）**：
   - `tests/test_api_contract.py`：`0.0`, `0.85`, `0.9`, `12`, `20`, `200`, `30`, `30.0`, `360`, `5`, `50`
   - `tests/test_data_collection.py`：`20`, `200`, `80`
-  - `tests/test_data_reference.py`：`0.3`, `0.9`, `2.0`, `20`, `30`, `5`, `50`, `6`, `90`
+  - `tests/test_data_reference.py`：`0.3`, `0.9`, `2.0`, `20`, `30`, `40`, `5`, `50`, `6`, `90`
   - `tests/test_documents.py`：`12`, `20`, `30.0`, `360`, `6`, `7`, `8`, `9`, `90`
   - `tests/test_polarization.py`：`0.0`, `2.0`, `20`, `30`, `360`, `5`, `7`, `90`
   - `tests/test_public_experiment_usability.py`：`12`, `200`
@@ -210,20 +210,24 @@
 - adapter：`experiments/gmr/adapter.py`
 - 风险标记：fit、circular_fixture
 - **与测试/脚本共用的数值常量（逐条判断出处）**：
-  - `tests/test_general_experiments.py`：`.31416`
+  - `tests/test_data_reference.py`：`1.0`
+  - `tests/test_general_experiments.py`：`.31416`, `1.0`
+  - `tests/test_ocr_builder.py`：`1.0`
 - fixture `boundary.json`：source=structure-derived、verified=False、validation=structure-derived boundary coverage; replace with lab-confirmed ranges when available
 - fixture `invalid.json`：source=synthetic、verified=False、validation=intentionally incomplete required measurement
 - fixture `typical.json`：source=synthetic、verified=False、validation=synthetic-only
-- `calculate` 中的数值常量：`.31416`（逐条核对出处）
+- `calculate` 中的数值常量：`1.0`, `.31416`（逐条核对出处）
 
 | 方法 | 必做 | 参数（含单位/默认/是否实测） | 数据列 | 结果量 |
 |---|---|---|---|---|
-| 磁电转换特性 | 是 | — | 励磁电流(mA)；Vout(mV)；方向(1增/-1减) | 线性灵敏度；R²；最大磁场 |
+| 磁电转换特性 | 是 | — | 励磁电流(mA)；Vout(mV)；方向(1增/-1减) | 灵敏度 k；增磁支斜率；减磁支斜率；零场磁滞；R²（两支模型）；最大磁场 |
 | 内部磁阻特性 | 是 | 工作电压 U(V)=2 | 励磁电流(mA)；状态 A 回路电流(mA)；状态 B 回路电流(mA) | 状态 A GMR；状态 B GMR；敏感状态(A=1/B=2) |
 | 无接触电流测量（选做） | 选做 | — | 导线电流(mA)；25mV偏置输出(mV)；100mV偏置输出(mV) | 25mV 灵敏度；100mV 灵敏度 |
 
 - **磁电转换特性** 公式（实现自述）：
-  - `B({\rm Gs})=0.31416I({\rm mA}),\quad V_{out}=kB+b`
+  - `B({\rm Gs})=0.31416I({\rm mA})`
+  - `V_{out}=k_\pm B+b_\pm`
+  - `k=\frac{|k_+|+|k_-|}{2},\quad \Delta V_{hys}=|b_+-b_-|`
 - **内部磁阻特性** 公式（实现自述）：
   - `R=\frac{2U}{I_R}`
   - `GMR=\frac{R_{\max}-R_{\min}}{R_{\min}}\times100\%`

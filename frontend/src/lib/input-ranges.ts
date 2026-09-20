@@ -67,7 +67,7 @@ const RANGE_CATALOG: Record<string, MethodRanges> = {
     inverter: { input_voltage: r(0, 30), input_current: r(0, 5000), lit_code: r(0, 1, "0 表示否，1 表示是") },
   },
   gmr: {
-    transfer: { excitation: r(-1000, 1000), output: r(-5000, 5000), direction: r(-1, 1, "按页面约定填写方向编码") },
+    transfer: { excitation: r(-250, 250), output: r(-100, 200), direction: r(-1, 1, "按页面约定填写方向编码") },
     resistance: { supply: r(0, 30), excitation: r(-1000, 1000), ir_a: r(-1000, 1000), ir_b: r(-1000, 1000) },
     current_sensor: { current: r(-5000, 5000), output25: r(-5000, 5000), output100: r(-5000, 5000) },
   },

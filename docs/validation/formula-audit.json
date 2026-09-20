@@ -139,6 +139,7 @@
             "2.0",
             "20",
             "30",
+            "40",
             "5",
             "50",
             "6",
@@ -1439,12 +1440,27 @@
           "results": [
             {
               "key": "sensitivity",
-              "label": "线性灵敏度",
+              "label": "灵敏度 k",
               "unit": "mV/Gs"
             },
             {
+              "key": "sensitivity_up",
+              "label": "增磁支斜率",
+              "unit": "mV/Gs"
+            },
+            {
+              "key": "sensitivity_down",
+              "label": "减磁支斜率",
+              "unit": "mV/Gs"
+            },
+            {
+              "key": "hysteresis",
+              "label": "零场磁滞",
+              "unit": "mV"
+            },
+            {
               "key": "r_squared",
-              "label": "R²",
+              "label": "R²（两支模型）",
               "unit": ""
             },
             {
@@ -1454,7 +1470,9 @@
             }
           ],
           "formulas": [
-            "B({\\rm Gs})=0.31416I({\\rm mA}),\\quad V_{out}=kB+b"
+            "B({\\rm Gs})=0.31416I({\\rm mA})",
+            "V_{out}=k_\\pm B+b_\\pm",
+            "k=\\frac{|k_+|+|k_-|}{2},\\quad \\Delta V_{hys}=|b_+-b_-|"
           ]
         },
         {
@@ -1550,6 +1568,7 @@
         }
       ],
       "literals_in_calculate": [
+        "1.0",
         ".31416"
       ],
       "risk_flags": [
@@ -1579,9 +1598,22 @@
       "circular_test_modules": [],
       "shared_literals": [
         {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "1.0"
+          ]
+        },
+        {
           "file": "tests/test_general_experiments.py",
           "shared_literals": [
-            ".31416"
+            ".31416",
+            "1.0"
+          ]
+        },
+        {
+          "file": "tests/test_ocr_builder.py",
+          "shared_literals": [
+            "1.0"
           ]
         }
       ]

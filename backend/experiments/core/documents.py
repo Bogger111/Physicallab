@@ -157,8 +157,13 @@ def report_blocks(experiment, data: dict) -> list[dict]:
             {"kind":"h3","text":"改进建议"},{"kind":"para","text":safe_text(discussion["suggestions"])},
             {"kind":"h3","text":"误差分析"},{"kind":"para","text":safe_text(discussion["errors"])},
             {"kind":"h3","text":"总结"},{"kind":"para","text":"以上结果来自本次提交数据的公式计算与拟合。算法单元测试与合成 fixture 可验证计算链和文档结构，但不能据此断言完整真实实验数据一定正确；真实结论仍需结合原始记录、仪器条件和讲义判据审核。"}]
-    if run.get("errors"): fourth.insert(-2,{"kind":"para","text":"未纳入计算的数据："+"；".join(run["errors"])})
-    return four_section_report(tables,figures,analysis,fourth)
+    if run.get("errors"):
+        fourth.insert(-2, {"kind": "para", "text": "未纳入计算的数据：" + "；".join(run["errors"])})
+    # 录入层面的提醒（部分支路缺失、符号丢失、参数填错量纲）必须跟着报告走：
+    # 只在网页上弹一次提醒不够，下载下来的报告同样是判据。
+    if run.get("warnings"):
+        fourth.insert(-2, {"kind": "para", "text": safe_text("数据合理性提醒：" + "；".join(run["warnings"]))})
+    return four_section_report(tables, figures, analysis, fourth)
 
 
 def report_bytes(experiment, data: dict, fmt: str) -> bytes:

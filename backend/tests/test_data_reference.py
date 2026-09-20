@@ -274,15 +274,17 @@ def test_solar_cell_charge_stays_within_the_safety_limit():
     assert numbers(dcdc[-1])[1] == numbers(direct[-1])[1], "both branches charge to the same cutoff"
 
 
-def test_gmr_single_branch_sensitivity_is_physical():
+def test_gmr_transfer_branches_and_hysteresis_are_physical():
+    """零场两支输出之差＝磁滞；单支灵敏度应在 0.2 mV/Gs 量级（讲义 3250 匝/130 mm）。"""
     example = entry("gmr", "励磁电流与输出电压")["example"]
-    zero = next(value for value in example if value.startswith("0 mA"))
+    zero_up = next(value for value in example if value.startswith("0 mA"))
+    zero_down = next(value for value in example if value.startswith("减磁"))
     positive = next(value for value in example if value.startswith("200 mA"))
-    output_zero = numbers(zero)[-1]
-    excitation, output_positive = numbers(positive)[:2]
-    field_gs = 0.31416 * excitation
-    sensitivity = (output_positive - output_zero) / field_gs
-    assert 0.1 <= sensitivity <= 0.5, sensitivity
+    field_gs = 0.31416 * numbers(positive)[0]
+    sensitivity = (numbers(positive)[-1] - numbers(zero_up)[-1]) / field_gs
+    assert sensitivity == pytest.approx(0.2, abs=0.05), sensitivity
+    hysteresis = abs(numbers(zero_down)[-1] - numbers(zero_up)[-1])
+    assert 15 <= hysteresis <= 40, hysteresis
 
 
 def test_nmr_gyromagnetic_ratio():

@@ -109,7 +109,7 @@ _RANGES: dict[tuple[str, str, str], tuple[float, float]] = {
     ("solar-cell", "inverter", "lit_code"): (0, 1),
     ("gmr", "transfer", "excitation"): (-250, 250),
     ("gmr", "transfer", "direction"): (-1, 1),
-    ("gmr", "transfer", "output"): (0, 100),
+    ("gmr", "transfer", "output"): (-100, 200),
     ("gmr", "resistance", "supply"): (0, 15),
     ("gmr", "resistance", "excitation"): (-250, 250),
     ("gmr", "resistance", "ir_a"): (0, 20),
