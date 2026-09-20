@@ -63,6 +63,12 @@ class ErrorGuardMiddleware(BaseHTTPMiddleware):
 
 APP_VERSION = "2.0.0-beta.1"
 
+#: Deployed build identity: `GIT_COMMIT` is passed at deploy time and Cloud Run
+#: injects `K_REVISION`; `/health` echoes both so a smoke test can prove which
+#: code is answering instead of trusting a URL.
+BUILD_COMMIT = os.environ.get("GIT_COMMIT", "unknown")
+BUILD_REVISION = os.environ.get("K_REVISION", "local")
+
 app = FastAPI(
     title="PhysicsLab API",
     version=APP_VERSION,
@@ -103,4 +109,6 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "physicslab-api", "version": APP_VERSION}
+    return {"status": "ok", "service": "physicslab-api", "version": APP_VERSION,
+            "commit": BUILD_COMMIT, "revision": BUILD_REVISION,
+            "experiments": len(PUBLIC_EXPERIMENT_IDS)}

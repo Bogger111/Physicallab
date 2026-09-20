@@ -49,6 +49,18 @@ def test_expected_range_is_a_warning_not_a_blocking_error():
     assert any(item["code"] == "expected_range" for item in body["warnings"])
 
 
+def test_health_reports_the_deployed_build_identity():
+    """部署后必须能从 /health 看出「哪一份代码在应答」，而不是只信 URL。"""
+    response = client.get("/health")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["service"] == "physicslab-api"
+    assert isinstance(body["commit"], str) and body["commit"]
+    assert isinstance(body["revision"], str) and body["revision"]
+    assert body["experiments"] == 12
+
+
 def _bridge_data(**cu50_params):
     return {"data": {
         "balanced": {"rows": [{"rn": 271.4}] * 3,
