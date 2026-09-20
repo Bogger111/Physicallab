@@ -49,6 +49,31 @@ def test_expected_range_is_a_warning_not_a_blocking_error():
     assert any(item["code"] == "expected_range" for item in body["warnings"])
 
 
+def _bridge_data(**cu50_params):
+    return {"data": {
+        "balanced": {"rows": [{"rn": 271.4}] * 3,
+                     "params": {"ra": 1000, "rb": 5000, "us": 3.0, "t_room": 20.9}},
+        "cu50": {"rows": [{"temperature": 20 + 3 * index, "u0": 8.8 * index} for index in range(10)],
+                 "params": {"us": 3, **cu50_params}},
+        "capacitor": {"rows": [{"cn": 0.833, "rn": 14.4}] * 3,
+                      "params": {"ra": 100, "rb": 120, "f": 1000}},
+        "inductor": {"rows": [{"cn": 0.5, "rn": 1250}] * 3,
+                     "params": {"ra": 100, "rb": 100, "f": 1000}},
+    }}
+
+
+def test_report_gate_requires_the_measured_pre_balance_reading():
+    """预平衡 Rn 是现场实测值：绕过前端直接调 API 也不能缺（否则公式无法反解）。"""
+    blocked = client.post("/api/experiments/bridge/report", json=_bridge_data(), params={"fmt": "pdf"})
+    assert blocked.status_code == 400
+    assert "卧式电桥测 Cu50" in blocked.json()["detail"]
+
+    allowed = client.post("/api/experiments/bridge/report",
+                          json=_bridge_data(rn=54.6), params={"fmt": "pdf"})
+    assert allowed.status_code == 200
+    assert allowed.content[:4] == b"%PDF"
+
+
 def test_merged_modern_physics_entry_and_legacy_routes_coexist():
     listing = client.get("/api/experiments").json()["experiments"]
     ids = {item["id"] for item in listing}

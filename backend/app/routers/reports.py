@@ -56,10 +56,15 @@ def _validate_required_data(config: dict, data: Dict[str, Dict[str, Any]]) -> No
         rows = submitted.get("rows", []) if submitted else []
         columns = [column["key"] for column in method.get("columns", [])]
         expected_rows = method.get("rowCount", 0)
+        params = submitted.get("params", {}) if submitted else {}
+        required_params = [parameter["key"] for parameter in method.get("params", [])
+                           if parameter.get("required")]
         complete = (
             len(rows) >= expected_rows
             and all(row.get(key) not in (None, "")
                     for row in rows[:expected_rows] for key in columns)
+            # 现场实测的参数（如卧式电桥的预平衡 Rn）缺一不可，否则该方法的公式根本无法反解
+            and all(params.get(key) not in (None, "") for key in required_params)
         )
         if not complete:
             missing.append(method["name"])
