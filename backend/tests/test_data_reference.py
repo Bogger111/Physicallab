@@ -70,7 +70,7 @@ def params(experiment_id: str, method_id: str) -> dict:
     cfg = config(experiment_id)
     for method in (cfg if isinstance(cfg, list) else cfg.get("methods", [])):
         if method["id"] == method_id:
-            return {p["key"]: p["default"] for p in method.get("params", []) or []}
+            return {p["key"]: p.get("default") for p in method.get("params", []) or []}
     raise AssertionError(f"{experiment_id}: unknown method {method_id}")
 
 
@@ -231,12 +231,14 @@ def test_bridge_thermistor_falls_with_temperature():
     example = entry("bridge", "温度 t 与输出 U0（热敏电阻）")["example"]
     values = [numbers(value) for value in example]
     method = params("bridge", "thermistor")
-    spread = method["rn"] + method["r_prime"]
+    # 预平衡 Rn 是现场实测值（config 不预填）：取讲义表1 B≈3235 K 在 20.9 °C 的量级 ≈3141 Ω
+    pre_balance = 3141.0
+    spread = pre_balance + method["r_prime"]
     resistances = []
     for temperature, voltage in ((value[0], value[-1]) for value in values):
         u = -abs(voltage) / 1000
         delta = u * spread ** 2 / (method["us"] * method["r_prime"] - u * spread)
-        resistances.append((temperature, method["rn"] + delta))
+        resistances.append((temperature, pre_balance + delta))
     listed = [value for _, value in resistances]
     assert listed == sorted(listed, reverse=True), example
     assert 2000 <= listed[0] <= 3500, listed        # 讲义表1：25 °C → 2700 Ω

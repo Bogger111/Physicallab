@@ -87,7 +87,7 @@ def fixtures():
             "ac_current": _payload([{"set":x,"measured":1.002*x+.01} for x in range(0,21,2)]),
         },
         "bridge": {
-            "balanced": _payload([{"rn": 271.4} for _ in range(3)], ra=1000, rb=5000),
+            "balanced": _payload([{"rn": 271.4} for _ in range(3)], ra=1000, rb=5000, t_room=20),
             "cu50": _payload(bridge_cu, us=3, rn=round(bridge_rn, 2)),
             "capacitor": _payload([{"cn":.833333,"rn":14.4} for _ in range(3)],ra=100,rb=120,f=1000),
             "inductor": _payload([{"cn":.5,"rn":1250} for _ in range(3)],ra=100,rb=100,f=1000),
@@ -212,6 +212,26 @@ def test_bridge_flags_a_bridge_arm_rn_in_the_pre_balance_field():
     data["cu50"]["params"]["rn"] = 1000
     warnings = process_experiment("bridge", data)["warnings"]
     assert any("预平衡 Rn" in warning for warning in warnings), warnings
+
+
+def test_bridge_names_the_missing_pre_balance_reading():
+    """预平衡 Rn 是现场实测值：没填就要点名，绝不能用任何默认值偷偷代入。"""
+    for method_id in ("cu50", "thermistor"):
+        data = fixtures()["bridge"]
+        data[method_id]["params"].pop("rn", None)
+        result = process_experiment("bridge", data)
+        assert any("预平衡 Rn" in message for message in result["errors"]), (method_id, result["errors"])
+
+
+def test_bridge_withholds_the_theory_error_without_a_room_temperature():
+    """没有室温就不该给出「理论偏差」（讲义比的是室温理论值，不是 0 °C 的 50 Ω）。"""
+    data = fixtures()["bridge"]
+    data["balanced"]["params"].pop("t_room", None)
+    result = process_experiment("bridge", data)
+    balanced = result["results"]["balanced"]
+    assert "relative_error" not in balanced and "theory" not in balanced, balanced
+    assert balanced["rx_mean"] == pytest.approx(1000 / 5000 * 271.4)
+    assert any("室温" in warning for warning in result["warnings"]), result["warnings"]
 
 
 def test_surface_tension_uses_calibrated_sensitivity_and_reports_water_errors():

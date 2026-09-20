@@ -111,6 +111,45 @@ def test_blank_record_sheets_are_editable_and_printable(experiment, minimum_tabl
     _assert_pdf(record_clean.record_bytes(experiment, "pdf"), minimum_pages=2)
 
 
+def test_general_blank_sheet_leaves_measured_parameters_empty():
+    """现场实测的参数（室温 t、预平衡 Rn）不得在空白记录表上预填数字，只给浅灰填写提示。
+
+    「记录 Rn」记的是学生调平衡后的实测值，预填会让空白表看起来像在提供实验数据。
+    """
+    from experiments.core import documents
+    from experiments.core.registry import registry
+
+    experiment = registry.get("bridge")
+    blocks = documents.record_blocks(experiment)
+    params_tables = [block for block in blocks if block["kind"] == "table" and len(block["rows"]) == 2]
+    notes = [block["text"] for block in blocks if block["kind"] == "note"]
+
+    measured = 0
+    for method in experiment.config["methods"]:
+        parameters = method.get("params") or []
+        if not parameters:
+            continue
+        header = [documents.safe_text(f"{p['label']} ({p['unit']})" if p.get("unit") else p["label"])
+                  for p in parameters]
+        table = next(block for block in params_tables
+                     if [cell["text"] for cell in block["rows"][0]] == header)
+        cells = [cell["text"] for cell in table["rows"][1]]
+        for index, parameter in enumerate(parameters):
+            if parameter.get("default") is None:
+                measured += 1
+                assert cells[index] == "", (method["id"], parameter["key"], cells[index])
+                assert parameter.get("hint"), (method["id"], parameter["key"])
+                assert any(parameter["hint"] in note for note in notes), parameter["key"]
+            else:
+                assert cells[index] != "", (method["id"], parameter["key"])
+    assert measured >= 3, "bridge 至少有室温 t 与两处预平衡 Rn 属实测参数"
+
+    rendered = experiment.build_record_sheet("pdf")
+    text = "\n".join(page.get_text() for page in fitz.open(stream=rendered, filetype="pdf"))
+    assert "54.3" not in text and "3250" not in text, "实测参数被预填进空白记录表"
+    assert "请填写" in text or "填实测值" in text
+
+
 def _assert_four_section_blocks(blocks):
     assert not any(block["kind"] in ("h1", "sub") for block in blocks)
     breaks = [i for i, block in enumerate(blocks) if block["kind"] == "pagebreak"]

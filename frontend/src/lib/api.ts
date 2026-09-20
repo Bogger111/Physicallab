@@ -442,10 +442,13 @@ export interface GenericColumn {
   required?: boolean;
   expected_range?: [number, number];
   decimal_places?: number;
+  /** 现场实测参数的填写说明（空白记录表同样以浅灰小字印出） */
+  hint?: string;
 }
 
 export interface GenericParameter extends GenericColumn {
-  default: number;
+  /** 固定实验条件才会预填；实测参数（室温、预平衡 Rn）没有 default，必须学生填 */
+  default?: number;
 }
 
 export interface GenericResultField {

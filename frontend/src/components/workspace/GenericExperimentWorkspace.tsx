@@ -53,7 +53,9 @@ function makeDraft(config: GenericExperimentConfig): Draft {
       {
         params: Object.fromEntries((method.params ?? []).map((parameter) => [
           parameter.key,
-          String(parameter.default),
+          parameter.default === undefined || parameter.default === null
+            ? ""                      // 实测参数（室温、预平衡 Rn）不预填，必须学生填
+            : String(parameter.default),
         ])),
         rows: Array.from({ length: method.rowCount }, (_, rowIndex) =>
           Object.fromEntries(
@@ -115,11 +117,14 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
       .filter((method) => !included || included.has(method.id))
       .map((method) => {
       const source = draft[method.id];
+      const parameters: Record<string, number> = {};
+      for (const parameter of method.params ?? []) {
+        const value = numeric(source?.params[parameter.key] ?? "") ?? parameter.default;
+        // 实测参数（室温 t、预平衡 Rn）没有 default，学生不填就不发送，由后端点名，绝不替学生编一个值
+        if (value !== undefined && value !== null) parameters[parameter.key] = value;
+      }
       return [method.id, {
-        params: Object.fromEntries((method.params ?? []).map((parameter) => [
-          parameter.key,
-          numeric(source?.params[parameter.key] ?? "") ?? parameter.default,
-        ])),
+        params: parameters,
         rows: (source?.rows ?? []).map((row) =>
           Object.fromEntries(method.columns.map((column) => [column.key, numeric(row[column.key] ?? "")]))
         ),
@@ -275,6 +280,15 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
                 </label>
               ))}
             </div>
+          )}
+          {!!current.params?.some((parameter) => parameter.hint) && (
+            <ul className="mb-6 space-y-1 rounded-lg bg-stone-50 px-3 py-2">
+              {current.params.filter((parameter) => parameter.hint).map((parameter) => (
+                <li key={parameter.key} className="text-[10px] leading-snug text-stone-400">
+                  {parameter.label}{parameter.unit ? `（${parameter.unit}）` : ""}：{parameter.hint}
+                </li>
+              ))}
+            </ul>
           )}
           <OcrTableImporter
             experimentId={id}

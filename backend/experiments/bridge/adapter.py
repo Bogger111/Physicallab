@@ -55,20 +55,27 @@ def _thermistor_plot(t, r, x, y) -> str:
 def calculate(method, rows, p):
     if method == "balanced":
         # 讲义 (2)：Rx = (Ra/Rb)·Rn；讲义【数据处理】1 要求与「室温理论值」比较
+        # 室温是现场读数（空白记录表不预填）：没填就不给「理论偏差」，绝不拿 0 °C 的 50 Ω 当分母。
         vals = [v[0] for v in _numbers(rows, "rn")]
         ra = p.get("ra", 1000); rb = p.get("rb", 5000)
-        t_room = float(p.get("t_room", 20.0))
+        t_room = p.get("t_room")
         rx = [ra / rb * v for v in vals]
         mean = _mean(rx)
-        theory = CU50_R0 * (1 + CU50_ALPHA * t_room)
-        return {"rx_mean": mean, "theory": theory,
-                "relative_error": abs(mean - theory) / theory * 100}, \
-            [{"rn": a, "rx": b} for a, b in zip(vals, rx)], None
+        result = {"rx_mean": mean}
+        if t_room not in (None, ""):
+            theory = CU50_R0 * (1 + CU50_ALPHA * float(t_room))
+            result.update({"theory": theory,
+                           "relative_error": abs(mean - theory) / theory * 100})
+        return result, [{"rn": a, "rx": b} for a, b in zip(vals, rx)], None
     if method == "cu50":
-        # 讲义 (12)：卧式电桥 U0 = Us/4·(ΔR/R)/(1+½ΔR/R)，R=R1=R4=Rn（预平衡值）
+        # 讲义 (12)：卧式电桥 U0 = Us/4·(ΔR/R)/(1+½ΔR/R)，R=R1=R4=Rn（预平衡实测值）
         # → ΔR = 4Rn·U0/(Us-2U0)，Rx = Rn + ΔR（讲义【数据处理】2 提示）
         vals = _numbers(rows, "temperature", "u0")
-        t, u_mv = map(list, zip(*vals)); us = p.get("us", 3); rn = p.get("rn", 54.3)
+        t, u_mv = map(list, zip(*vals))
+        us = p.get("us", 3); rn = p.get("rn")
+        if rn in (None, ""):
+            raise ValueError("请填写「预平衡 Rn」——室温下预调平衡时 Rn 的实测读数（它就是严格反解式里的 R）")
+        rn = float(rn)
         u = np.asarray(u_mv) / 1000
         if np.any(us - 2 * u <= 0): raise ValueError("U0 必须满足 Us-2U0>0")
         rx = rn + 4 * rn * u / (us - 2 * u)
@@ -93,7 +100,10 @@ def calculate(method, rows, p):
     # 则用 |U0| 反解并给出提示，两种记录方式都能得到同一组阻值。
     vals = _numbers(rows, "temperature", "u0")
     t, u_mv = map(list, zip(*vals))
-    us = p.get("us", 3); rp = p.get("r_prime", 100); rn = p.get("rn", 3250)
+    us = p.get("us", 3); rp = p.get("r_prime", 100); rn = p.get("rn")
+    if rn in (None, ""):
+        raise ValueError("请填写「预平衡 Rn」——室温下预调平衡时 Rn 的实测读数")
+    rn = float(rn)
     s = rn + rp
     u = np.asarray(u_mv) / 1000
     if np.any(us * rp - u * s <= 0):
@@ -120,7 +130,14 @@ def _number(value, fallback=None):
 
 
 def _finalize(data, response):
-    """把「填错量纲/填错符号」这类会整体放大误差的录入问题当场点名，而不是静默算成怪结果。"""
+    """把「填错量纲/填错符号/漏填实测量」这类会整体放大误差的录入问题当场点名，而不是静默算成怪结果。"""
+    balanced = data.get("balanced") or {}
+    balanced_params = balanced.get("params") or {}
+    if balanced.get("rows") and balanced_params.get("t_room") in (None, ""):
+        response.setdefault("warnings", []).append(
+            "平衡直流电桥：未填室温 t，因此只给出 Rx 均值，不生成与室温理论值 R0(1+αt) 的相对误差"
+            "（讲义要求平衡测量时记录当时温度）。")
+
     cu50_params = (data.get("cu50") or {}).get("params") or {}
     bridge_rn = _number(cu50_params.get("rn"))
     if bridge_rn is not None and bridge_rn > 300:

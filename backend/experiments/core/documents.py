@@ -99,6 +99,12 @@ def record_blocks(experiment) -> list[dict]:
                                  [p.get("default","") for p in method["params"]]],
                                  len(method["params"]), row_h=.78,
                                  fixed_row_height=True))
+            # 现场实测的参数（室温、预平衡 Rn …）在空白表上留空，只给浅灰参考范围提示：
+            # 「记录 Rn」记的是学生调平衡后的实测值，预填数字会让空白表看起来像在提供实验数据。
+            for parameter in method["params"]:
+                if parameter.get("hint"):
+                    label = f"{parameter['label']}（{parameter['unit']}）" if parameter.get("unit") else parameter["label"]
+                    blocks.append({"kind":"note","text":safe_text(f"{label}：{parameter['hint']}")})
         blocks.append(_method_raw_table(method,{},True)); blocks.append({"kind":"spacer","cm":.12})
     return blocks
 
