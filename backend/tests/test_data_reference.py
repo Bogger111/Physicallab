@@ -186,20 +186,65 @@ def test_light_speed_from_delta_x_over_delta_t():
     assert 2.9e8 <= speed <= 3.1e8, speed
 
 
+def test_bridge_balanced_example_reads_the_room_temperature_value():
+    """讲义 (2)(27)：Ra=1kΩ、Rb=5kΩ 时 Rn≈271 Ω 对应 Cu50 室温 20 °C 的 54.3 Ω。"""
+    rn = single(entry("bridge", "平衡电阻 Rn")["example"][0])
+    ra, rb = params("bridge", "balanced")["ra"], params("bridge", "balanced")["rb"]
+    resistance = ra / rb * rn
+    assert resistance == pytest.approx(50 * (1 + 0.004280 * 20), rel=0.02)
+
+
 def test_bridge_cu50_series_rises_with_temperature():
+    """讲义 (12)：U0 = Us·ΔR/(4Rn+2ΔR)，Rn 取预平衡读数，ΔR 相对预平衡温度。"""
     example = entry("bridge", "温度 t 与输出 U0（Cu50）")["example"]
     values = [numbers(value) for value in example]
-    for (temperature, u0), (next_temperature, next_u0) in zip(values, values[1:]):
-        assert next_temperature > temperature and next_u0 > u0, example
-        assert (next_u0 - u0) / (next_temperature - temperature) == pytest.approx(0.16, abs=0.05)
+    temperatures = [value[0] for value in values]
+    voltages = [value[-1] for value in values]
+    assert temperatures == sorted(temperatures), example
+    assert voltages == sorted(voltages), example
+
+    us = params("bridge", "cu50")["us"]
+    pre_balance = 50 * (1 + 0.004280 * temperatures[0])
+    for temperature, voltage in zip(temperatures, voltages):
+        delta = 4 * pre_balance * (voltage / 1000) / (us - 2 * voltage / 1000)
+        theory = 50 * (1 + 0.004280 * temperature)
+        assert abs(pre_balance + delta - theory) <= 0.03 * theory, (temperature, voltage)
+
+    step = (voltages[-1] - voltages[1]) / (temperatures[-1] - temperatures[1])
+    assert 2.0 <= step <= 4.0, step       # 每 1 °C 约 2.9 mV，而不是 0.16 mV
+
+
+def test_bridge_inductor_example_matches_the_maxwell_bridge():
+    """讲义 (25)(26)：rL = Ra·Rb/Rn 应小于 10 Ω，Q = ωCnRn 为个位量级。"""
+    example = entry("bridge", "交流电桥平衡参数")["example"]
+    line = next(value for value in example if "电感组" in value)
+    cn, rn = numbers(line)[0], numbers(line)[1]
+    method = params("bridge", "inductor")
+    coil_resistance = method["ra"] * method["rb"] / rn
+    assert coil_resistance <= 10, coil_resistance          # 讲义：被测电感 RX 小于 10 Ω
+    quality = 2 * math.pi * method["f"] * cn * 1e-6 * rn
+    assert 4 <= quality <= 10, quality
 
 
 def test_bridge_thermistor_falls_with_temperature():
-    example = entry("bridge", "热敏电阻阻值 R")["example"]
+    """讲义 (13)(28)：立式电桥反解出的阻值随温度下降，B 落在 MF51 2.7K 的量级。"""
+    example = entry("bridge", "温度 t 与输出 U0（热敏电阻）")["example"]
     values = [numbers(value) for value in example]
-    resistances = [value[-1] for value in values]
-    assert resistances == sorted(resistances, reverse=True), example
-    assert 2000 >= resistances[0] >= 500, example
+    method = params("bridge", "thermistor")
+    spread = method["rn"] + method["r_prime"]
+    resistances = []
+    for temperature, voltage in ((value[0], value[-1]) for value in values):
+        u = -abs(voltage) / 1000
+        delta = u * spread ** 2 / (method["us"] * method["r_prime"] - u * spread)
+        resistances.append((temperature, method["rn"] + delta))
+    listed = [value for _, value in resistances]
+    assert listed == sorted(listed, reverse=True), example
+    assert 2000 <= listed[0] <= 3500, listed        # 讲义表1：25 °C → 2700 Ω
+
+    x = [1 / (temperature + 273.15) for temperature, _ in resistances]
+    y = [math.log(value) for value in listed]
+    slope = (y[-1] - y[0]) / (x[-1] - x[0])
+    assert 2600 <= slope <= 4000, slope
 
 
 def test_solar_cell_operating_point_and_fill_factor():

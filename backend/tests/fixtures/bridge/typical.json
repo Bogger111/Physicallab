@@ -3,92 +3,93 @@
   "fixture_type": "typical",
   "source": "synthetic",
   "verified": false,
-  "notes": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "notes": "Rows re-derived from the lecture balance equations (12)(13)(25)(26) with the printed bridge-arm values; synthetic, not lab-confirmed.",
   "kind": "general",
   "case": "typical",
-  "provenance": "Materialized from the repository's pre-existing unit/report fixtures and checked against the current config shape.",
+  "provenance": "Rows re-derived from the lecture balance equations (12)(13)(25)(26) with the printed bridge-arm values; synthetic, not lab-confirmed.",
   "scientific_validation": "synthetic-only",
   "setup": {},
   "data": {
     "balanced": {
       "rows": [
         {
-          "rn": 250
+          "rn": 271.4
         },
         {
-          "rn": 250
+          "rn": 271.4
         },
         {
-          "rn": 250
+          "rn": 271.4
         }
       ],
       "params": {
         "ra": 1000,
-        "rb": 5000
+        "rb": 5000,
+        "us": 3.0,
+        "t_room": 20.0
       }
     },
     "cu50": {
       "rows": [
         {
           "temperature": 20,
-          "u0": 3.2031452691240743
+          "u0": 0.0
         },
         {
           "temperature": 23,
-          "u0": 3.682437521260178
+          "u0": 8.818519807329675
         },
         {
           "temperature": 26,
-          "u0": 4.161422921432574
+          "u0": 17.53395724846154
         },
         {
           "temperature": 29,
-          "u0": 4.640101764225608
+          "u0": 26.148109262712143
         },
         {
           "temperature": 32,
-          "u0": 5.118474343846669
+          "u0": 34.662731264847814
         },
         {
           "temperature": 35,
-          "u0": 5.5965409541267945
+          "u0": 43.07953833765771
         },
         {
           "temperature": 38,
-          "u0": 6.074301888521273
+          "u0": 51.400206383660255
         },
         {
           "temperature": 41,
-          "u0": 6.551757440110236
+          "u0": 59.626373237567975
         },
         {
           "temperature": 44,
-          "u0": 7.028907901599271
+          "u0": 67.75963974106402
         },
         {
           "temperature": 47,
-          "u0": 7.505753565320005
+          "u0": 75.8015707813676
         }
       ],
       "params": {
         "us": 3,
-        "r": 1000,
-        "rn": 50
+        "rn": 54.28
       }
     },
     "capacitor": {
       "rows": [
         {
           "cn": 0.833333,
-          "rn": 10
+          "rn": 14.4
         },
         {
           "cn": 0.833333,
-          "rn": 10
+          "rn": 14.4
         },
         {
           "cn": 0.833333,
-          "rn": 10
+          "rn": 14.4
         }
       ],
       "params": {
@@ -101,15 +102,15 @@
       "rows": [
         {
           "cn": 0.5,
-          "rn": 8
+          "rn": 1250
         },
         {
           "cn": 0.5,
-          "rn": 8
+          "rn": 1250
         },
         {
           "cn": 0.5,
-          "rn": 8
+          "rn": 1250
         }
       ],
       "params": {
@@ -122,55 +123,61 @@
       "rows": [
         {
           "temperature": 20,
-          "resistance": 1221.6748077714853
+          "u0": 0.0
         },
         {
           "temperature": 23,
-          "resistance": 1082.5049803552872
+          "u0": -10.24276497975191
         },
         {
           "temperature": 26,
-          "resistance": 961.5185939722832
+          "u0": -21.372122479756136
         },
         {
           "temperature": 29,
-          "resistance": 856.0666731620022
+          "u0": -33.43266300897652
         },
         {
           "temperature": 32,
-          "resistance": 763.9227898719408
+          "u0": -46.46784716331741
         },
         {
           "temperature": 35,
-          "resistance": 683.2102031267777
+          "u0": -60.519583513913624
         },
         {
           "temperature": 38,
-          "resistance": 612.3424490927348
+          "u0": -75.62778780892846
         },
         {
           "temperature": 41,
-          "resistance": 549.9747432025566
+          "u0": -91.8299281926543
         },
         {
           "temperature": 44,
-          "resistance": 494.9641025629799
+          "u0": -109.16056193390321
         },
         {
           "temperature": 47,
-          "resistance": 446.3365244430677
+          "u0": -127.65086990287378
         }
       ],
-      "params": {}
+      "params": {
+        "us": 3,
+        "r_prime": 100,
+        "rn": 3248.9
+      }
     }
   },
   "expected_result_fields": {
     "balanced": [
       "rx_mean",
+      "theory",
       "relative_error"
     ],
     "cu50": [
       "r0",
+      "r0_error",
       "alpha",
       "r_squared",
       "alpha_error"
@@ -187,6 +194,7 @@
     ],
     "thermistor": [
       "b_constant",
+      "r25",
       "r_squared"
     ]
   }

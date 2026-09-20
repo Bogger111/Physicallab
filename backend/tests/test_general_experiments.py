@@ -50,11 +50,20 @@ def _payload(rows, **params):
 
 
 def fixtures():
+    # 讲义 (12) 卧式电桥：反解式里的 R 就是预平衡 Rn（= Cu50 室温阻值），ΔR 相对预平衡温度
+    bridge_rn = 50 * (1 + 0.004280 * 20)
     bridge_cu = []
     for t in range(20, 50, 3):
-        dr = 50 * 0.00428 * t
-        u_v = dr * 3 / (4000 + 2 * dr)
-        bridge_cu.append({"temperature": t, "u0": u_v * 1000})
+        dr = 50 * 0.004280 * (t - 20)
+        bridge_cu.append({"temperature": t, "u0": 3 * dr / (4 * bridge_rn + 2 * dr) * 1000})
+    # 讲义 (13) 立式电桥：MF51 2.7K（B≈3235 K，讲义表1），Ra=Rb=100 Ω，Rn 取室温预平衡值
+    bridge_rn_thermistor = 2700 * math.exp(3235 * (1 / 293.15 - 1 / 298.15))
+    bridge_thermistor = []
+    for t in range(20, 50, 3):
+        spread = bridge_rn_thermistor + 100
+        dr = 2700 * math.exp(3235 * (1 / (t + 273.15) - 1 / 298.15)) - bridge_rn_thermistor
+        bridge_thermistor.append({"temperature": t,
+                                  "u0": 3 * 100 * dr / (spread * (spread + dr)) * 1000})
     photo_rows = []
     for wl in (365, 405, 436, 546, 577):
         nu = 2.99792458e8 / (wl * 1e-9)
@@ -78,11 +87,12 @@ def fixtures():
             "ac_current": _payload([{"set":x,"measured":1.002*x+.01} for x in range(0,21,2)]),
         },
         "bridge": {
-            "balanced": _payload([{"rn":250} for _ in range(3)], ra=1000, rb=5000),
-            "cu50": _payload(bridge_cu, us=3, r=1000, rn=50),
-            "capacitor": _payload([{"cn":.833333,"rn":10} for _ in range(3)],ra=100,rb=120,f=1000),
-            "inductor": _payload([{"cn":.5,"rn":8} for _ in range(3)],ra=100,rb=100,f=1000),
-            "thermistor": _payload([{"temperature":t,"resistance":1000*math.exp(3500*(1/(t+273.15)-1/298.15))} for t in range(20,50,3)]),
+            "balanced": _payload([{"rn": 271.4} for _ in range(3)], ra=1000, rb=5000),
+            "cu50": _payload(bridge_cu, us=3, rn=round(bridge_rn, 2)),
+            "capacitor": _payload([{"cn":.833333,"rn":14.4} for _ in range(3)],ra=100,rb=120,f=1000),
+            "inductor": _payload([{"cn":.5,"rn":1250} for _ in range(3)],ra=100,rb=100,f=1000),
+            "thermistor": _payload(bridge_thermistor, us=3, r_prime=100,
+                                   rn=round(bridge_rn_thermistor, 1)),
         },
         "photoelectric": {
             "planck": _payload(photo_rows),
@@ -166,6 +176,42 @@ def test_key_physical_results():
     assert process_experiment("franck-hertz", data["franck-hertz"])["results"]["peaks"]["v0"] == pytest.approx(4.9)
     assert process_experiment("nmr", data["nmr"])["results"]["hydrogen"]["g_factor"] == pytest.approx(5.5857)
     assert process_experiment("michelson", data["michelson"])["results"]["wavelength"]["wavelength"] == pytest.approx(632.8)
+
+
+def test_bridge_uses_the_lecture_balance_equations():
+    """讲义 (2)(12)(13)(25)(26)：反解式里的 R 是预平衡阻值，交流电桥的 rL/Q 按平衡条件取。"""
+    run = process_experiment("bridge", fixtures()["bridge"])
+
+    # 内容1：与「室温理论值」比较，而不是与 0 °C 的 50 Ω 比
+    balanced = run["results"]["balanced"]
+    assert balanced["rx_mean"] == pytest.approx(1000 / 5000 * 271.4)
+    assert balanced["theory"] == pytest.approx(50 * (1 + 0.004280 * 20))
+    assert balanced["relative_error"] < 0.5, balanced
+
+    # 内容2：ΔRx = 4Rn·U0/(Us-2U0)，R0/α 应回到讲义理论值
+    cu50 = run["results"]["cu50"]
+    assert cu50["r0"] == pytest.approx(50, rel=1e-3)
+    assert cu50["alpha"] == pytest.approx(0.004280, rel=1e-3)
+    assert cu50["r0_error"] < 0.5, cu50
+
+    # 内容5：rL = Ra·Rb/Rn、Q = ωLx/rL = ωCnRn（不能再出现 rL = Rn）
+    inductor = run["results"]["inductor"]
+    assert inductor["lx"] == pytest.approx(5.0)
+    assert inductor["rl"] == pytest.approx(100 * 100 / 1250)
+    assert inductor["q"] == pytest.approx(2 * math.pi * 1000 * 0.5e-6 * 1250)
+
+    # 选做内容3：立式电桥反解出来的 R25 应与讲义表1 的 2700 Ω 一致
+    thermistor = run["results"]["thermistor"]
+    assert thermistor["b_constant"] == pytest.approx(3235, rel=0.05)
+    assert thermistor["r25"] == pytest.approx(2700, rel=0.05)
+
+
+def test_bridge_flags_a_bridge_arm_rn_in_the_pre_balance_field():
+    """把桥臂 1000 Ω 误填进「预平衡 Rn」时要点名，而不是静默放大 18 倍误差。"""
+    data = fixtures()["bridge"]
+    data["cu50"]["params"]["rn"] = 1000
+    warnings = process_experiment("bridge", data)["warnings"]
+    assert any("预平衡 Rn" in warning for warning in warnings), warnings
 
 
 def test_surface_tension_uses_calibrated_sensitivity_and_reports_water_errors():

@@ -15,7 +15,7 @@
       841.89
     ],
     "renderer": "docbuild.render_pdf(landscape=False, cn_pref='msyh')",
-    "raster_match_ratio": 0.8947,
+    "raster_match_ratio": 0.8966,
     "raster_offset_px": [
       -14.0,
       0.0
@@ -302,9 +302,11 @@
   "lattice": {
     "x": [
       0.05847,
+      0.2799,
       0.35371,
       0.50133,
       0.64895,
+      0.72276,
       0.94419
     ],
     "y": [

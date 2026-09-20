@@ -14,7 +14,7 @@
       "id": "balanced",
       "name": "平衡直流电桥",
       "required": true,
-      "description": "测 Cu50 室温电阻",
+      "description": "测 Cu50 室温电阻，与室温理论值 50(1+0.004280t) 比较算相对误差",
       "rowCount": 3,
       "params": [
         {
@@ -28,6 +28,18 @@
           "label": "Rb",
           "unit": "Ω",
           "default": 5000
+        },
+        {
+          "key": "us",
+          "label": "电源电压 Us",
+          "unit": "V",
+          "default": 3.0
+        },
+        {
+          "key": "t_room",
+          "label": "室温 t",
+          "unit": "°C",
+          "default": 20.0
         }
       ],
       "columns": [
@@ -44,8 +56,13 @@
           "unit": "Ω"
         },
         {
+          "key": "theory",
+          "label": "室温理论值",
+          "unit": "Ω"
+        },
+        {
           "key": "relative_error",
-          "label": "相对 Cu50 理论偏差",
+          "label": "相对误差",
           "unit": "%"
         }
       ]
@@ -54,8 +71,12 @@
       "id": "cu50",
       "name": "卧式电桥测 Cu50",
       "required": true,
-      "description": "严格非线性反解并拟合 R-t",
+      "description": "卧式电桥严格反解 ΔRx=4Rn·U0/(Us-2U0) 后拟合 R-t 求 R0 与 α",
       "rowCount": 10,
+      "monotonic": {
+        "field": "temperature",
+        "direction": "increasing"
+      },
       "params": [
         {
           "key": "us",
@@ -64,16 +85,10 @@
           "default": 3
         },
         {
-          "key": "r",
-          "label": "桥臂 R",
-          "unit": "Ω",
-          "default": 1000
-        },
-        {
           "key": "rn",
           "label": "预平衡 Rn",
           "unit": "Ω",
-          "default": 50
+          "default": 54.3
         }
       ],
       "columns": [
@@ -93,6 +108,11 @@
           "key": "r0",
           "label": "拟合 R0",
           "unit": "Ω"
+        },
+        {
+          "key": "r0_error",
+          "label": "R0 相对误差",
+          "unit": "%"
         },
         {
           "key": "alpha",
@@ -115,7 +135,7 @@
       "id": "capacitor",
       "name": "交流电桥测电容",
       "required": true,
-      "description": "计算 Cx、损耗电阻与 tanδ",
+      "description": "维恩电桥平衡式反算 Cx、损耗电阻 rC 与 tanδ",
       "rowCount": 3,
       "params": [
         {
@@ -171,7 +191,7 @@
       "id": "inductor",
       "name": "交流电桥测电感",
       "required": true,
-      "description": "计算 Lx、线圈电阻与品质因数",
+      "description": "麦克斯韦电桥平衡式反算 Lx、线圈电阻 rL 与品质因数 Q",
       "rowCount": 3,
       "params": [
         {
@@ -227,8 +247,32 @@
       "id": "thermistor",
       "name": "热敏电阻（选做）",
       "required": false,
-      "description": "拟合 lnR-1/T 求材料常数 B",
+      "description": "立式电桥反解阻值，做 R-t 与 lnR-1/T 曲线并拟合材料常数 B",
       "rowCount": 10,
+      "monotonic": {
+        "field": "temperature",
+        "direction": "increasing"
+      },
+      "params": [
+        {
+          "key": "us",
+          "label": "电源 Us",
+          "unit": "V",
+          "default": 3
+        },
+        {
+          "key": "r_prime",
+          "label": "桥臂 Ra=Rb",
+          "unit": "Ω",
+          "default": 100
+        },
+        {
+          "key": "rn",
+          "label": "预平衡 Rn",
+          "unit": "Ω",
+          "default": 3250
+        }
+      ],
       "columns": [
         {
           "key": "temperature",
@@ -236,9 +280,9 @@
           "unit": "°C"
         },
         {
-          "key": "resistance",
-          "label": "R",
-          "unit": "Ω"
+          "key": "u0",
+          "label": "输出 U0",
+          "unit": "mV"
         }
       ],
       "results": [
@@ -246,6 +290,11 @@
           "key": "b_constant",
           "label": "材料常数 B",
           "unit": "K"
+        },
+        {
+          "key": "r25",
+          "label": "R25",
+          "unit": "Ω"
         },
         {
           "key": "r_squared",
@@ -256,8 +305,8 @@
     }
   ],
   "discussion": {
-    "errors": "检流计零漂、桥臂标称误差、接线与接触电阻、温度滞后及 U0 单位换算。",
-    "suggestions": "温度稳定后读数；Cu50 全程使用严格反解式，避免高温段采用小信号近似。",
-    "extensions": "可比较严格反解与线性近似的偏差，并分析热敏电阻自热效应。"
+    "errors": "检流计零漂、桥臂标称误差与接触电阻；升温过快导致的热滞后（后段 U0 明显偏小）；交流电桥幅平衡与相平衡耦合，Cn 与 Rn 需交替逼近。",
+    "suggestions": "温度稳定后读数；卧式电桥的 Rn 填预调平衡时的实测读数（它同时是反解式里的 R）；交流电桥交替调节 Cn 与 Rn，逐步提高检流计灵敏度直到示数趋近于零。",
+    "extensions": "比较卧式电桥严格反解与线性近似的偏差；用同一组数据讨论剔除热滞后点后 α 的变化；分析热敏电阻自热效应及其对材料常数 B 的影响。"
   }
 }

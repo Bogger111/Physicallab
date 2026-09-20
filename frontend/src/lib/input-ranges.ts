@@ -38,11 +38,11 @@ const RANGE_CATALOG: Record<string, MethodRanges> = {
     ac_current: { set: r(0, 1000), measured: r(0, 1000) },
   },
   bridge: {
-    balanced: { ra: r(1, 100000), rb: r(1, 100000), rn: r(0, 100000) },
-    cu50: { us: r(0, 30), r: r(1, 100000), rn: r(0, 100000), temperature: r(0, 150), u0: r(-5000, 5000) },
-    capacitor: { ra: r(1, 100000), rb: r(1, 100000), f: r(10, 100000), cn: r(0, 1000), rn: r(0, 100000) },
-    inductor: { ra: r(1, 100000), rb: r(1, 100000), f: r(10, 100000), cn: r(0, 1000), rn: r(0, 100000) },
-    thermistor: { temperature: r(0, 150), resistance: r(0, 1000000) },
+    balanced: { ra: r(0, 20000), rb: r(0, 20000), us: r(0, 15), t_room: r(0, 60), rn: r(0, 2000) },
+    cu50: { us: r(0, 15), rn: r(0, 200), temperature: r(0, 120), u0: r(-500, 500) },
+    capacitor: { ra: r(0, 20000), rb: r(0, 20000), f: r(500, 2000), cn: r(0, 10), rn: r(0, 200) },
+    inductor: { ra: r(0, 20000), rb: r(0, 20000), f: r(500, 2000), cn: r(0, 10), rn: r(0, 20000) },
+    thermistor: { us: r(0, 15), r_prime: r(0, 2000), rn: r(500, 20000), temperature: r(0, 120), u0: r(-500, 500) },
   },
   photoelectric: {
     planck: { wavelength: r(300, 800), us1: r(-5, 5), us2: r(-5, 5), us3: r(-5, 5), us4: r(-5, 5) },
