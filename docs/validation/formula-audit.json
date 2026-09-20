@@ -1,0 +1,3476 @@
+{
+  "experiments": [
+    {
+      "experiment_id": "polarization",
+      "name": "偏振光与双折射",
+      "adapter": "experiments/polarization/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "malus",
+          "name": "马吕斯定律",
+          "required": true,
+          "params": [],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "halfwave",
+          "name": "半波片",
+          "required": true,
+          "params": [],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "quarterwave",
+          "name": "四分之一波片",
+          "required": true,
+          "params": [],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "circular",
+          "name": "圆偏振光",
+          "required": false,
+          "params": [],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        }
+      ],
+      "literals_in_calculate": [
+        "0.0",
+        "150",
+        "200",
+        "0.3",
+        "30.0",
+        "6",
+        "8",
+        "5.5",
+        "80",
+        "1.6",
+        "0.85",
+        "52",
+        "5",
+        "0.6",
+        "44",
+        "2.2",
+        "12",
+        "13",
+        "9",
+        "0.9",
+        "2.0",
+        "50",
+        "14",
+        "360",
+        "361",
+        "30",
+        "90",
+        "7",
+        "40",
+        "20",
+        "1.35",
+        "1.1",
+        "1.3"
+      ],
+      "risk_flags": [
+        "fit",
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [
+        "tests/test_documents.py",
+        "tests/test_polarization.py"
+      ],
+      "shared_literals": [
+        {
+          "file": "tests/test_api_contract.py",
+          "shared_literals": [
+            "0.0",
+            "0.85",
+            "0.9",
+            "12",
+            "20",
+            "200",
+            "30",
+            "30.0",
+            "360",
+            "5",
+            "50"
+          ]
+        },
+        {
+          "file": "tests/test_data_collection.py",
+          "shared_literals": [
+            "20",
+            "200",
+            "80"
+          ]
+        },
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "0.3",
+            "0.9",
+            "2.0",
+            "20",
+            "30",
+            "5",
+            "50",
+            "6",
+            "90"
+          ]
+        },
+        {
+          "file": "tests/test_documents.py",
+          "shared_literals": [
+            "12",
+            "20",
+            "30.0",
+            "360",
+            "6",
+            "7",
+            "8",
+            "9",
+            "90"
+          ]
+        },
+        {
+          "file": "tests/test_polarization.py",
+          "shared_literals": [
+            "0.0",
+            "2.0",
+            "20",
+            "30",
+            "360",
+            "5",
+            "7",
+            "90"
+          ]
+        },
+        {
+          "file": "tests/test_public_experiment_usability.py",
+          "shared_literals": [
+            "12",
+            "200"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "sound-light",
+      "name": "sound-light",
+      "adapter": "experiments/soundlight/engine.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "air_resonance",
+          "name": "空气中共振法测声速",
+          "required": false,
+          "params": [
+            {
+              "key": "temperature_degC",
+              "label": "环境温度 t",
+              "unit": "°C",
+              "default": 25.0,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "f_khz",
+              "label": "共振频率 f",
+              "unit": "kHz",
+              "default": 38.0,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "water_phase",
+          "name": "水中相位法测声速",
+          "required": false,
+          "params": [
+            {
+              "key": "f_mhz",
+              "label": "水中超声波频率 f",
+              "unit": "MHz",
+              "default": 1.0,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "tof",
+          "name": "飞行时间法测声速",
+          "required": false,
+          "params": [],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "light_sine",
+          "name": "光速测量（正弦法）",
+          "required": false,
+          "params": [
+            {
+              "key": "f_mhz",
+              "label": "调制频率 f",
+              "unit": "MHz",
+              "default": 150.0,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "c_ref",
+              "label": "光速参考值 c_ref",
+              "unit": "m/s",
+              "default": 299800000,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "light_square",
+          "name": "光速测量（方波）",
+          "required": false,
+          "params": [
+            {
+              "key": "f_mhz",
+              "label": "调制频率 f",
+              "unit": "MHz",
+              "default": 150.0,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "c_ref",
+              "label": "光速参考值 c_ref",
+              "unit": "m/s",
+              "default": 299800000,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        },
+        {
+          "id": "light_lissajous",
+          "name": "光速测量（李萨如法）",
+          "required": false,
+          "params": [
+            {
+              "key": "f_mhz",
+              "label": "调制频率 f",
+              "unit": "MHz",
+              "default": 150.0,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "c_ref",
+              "label": "光速参考值 c_ref",
+              "unit": "m/s",
+              "default": 299800000,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [],
+          "results": [],
+          "formulas": []
+        }
+      ],
+      "literals_in_calculate": [
+        "6"
+      ],
+      "risk_flags": [
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "6"
+          ]
+        },
+        {
+          "file": "tests/test_documents.py",
+          "shared_literals": [
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "multimeter",
+      "name": "万用表的组装与校准",
+      "adapter": "experiments/multimeter/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "voltage",
+          "name": "直流电压档校准",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "set",
+              "label": "U设",
+              "unit": "mV"
+            },
+            {
+              "key": "measured",
+              "label": "U测",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "slope",
+              "label": "校准斜率",
+              "unit": ""
+            },
+            {
+              "key": "intercept",
+              "label": "截距",
+              "unit": "mV"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "max_abs_error",
+              "label": "最大绝对误差",
+              "unit": "mV"
+            }
+          ],
+          "formulas": [
+            "\\Delta U_i=U_{{\\rm meas},i}-U_{{\\rm set},i}",
+            "U_{\\rm meas}=kU_{\\rm set}+b"
+          ]
+        },
+        {
+          "id": "current",
+          "name": "直流电流档校准",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "set",
+              "label": "I设",
+              "unit": "mA"
+            },
+            {
+              "key": "measured",
+              "label": "I测",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "slope",
+              "label": "校准斜率",
+              "unit": ""
+            },
+            {
+              "key": "intercept",
+              "label": "截距",
+              "unit": "mA"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "max_abs_error",
+              "label": "最大绝对误差",
+              "unit": "mA"
+            }
+          ],
+          "formulas": [
+            "\\Delta I_i=I_{{\\rm meas},i}-I_{{\\rm set},i}",
+            "I_{\\rm meas}=kI_{\\rm set}+b"
+          ]
+        },
+        {
+          "id": "resistance",
+          "name": "电阻档校准",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "set",
+              "label": "R设",
+              "unit": "kΩ"
+            },
+            {
+              "key": "measured",
+              "label": "R测",
+              "unit": "kΩ"
+            }
+          ],
+          "results": [
+            {
+              "key": "slope",
+              "label": "校准斜率",
+              "unit": ""
+            },
+            {
+              "key": "intercept",
+              "label": "截距",
+              "unit": "kΩ"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "max_abs_error",
+              "label": "最大绝对误差",
+              "unit": "kΩ"
+            }
+          ],
+          "formulas": [
+            "\\Delta R_i=R_{{\\rm meas},i}-R_{{\\rm set},i}",
+            "R_{\\rm meas}=kR_{\\rm set}+b"
+          ]
+        },
+        {
+          "id": "unknown",
+          "name": "未知电阻测量",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "reference",
+              "label": "标准表读数",
+              "unit": "kΩ"
+            },
+            {
+              "key": "measured",
+              "label": "组装表读数",
+              "unit": "kΩ"
+            }
+          ],
+          "results": [
+            {
+              "key": "mean_reference",
+              "label": "标准值均值",
+              "unit": "kΩ"
+            },
+            {
+              "key": "mean_measured",
+              "label": "测量值均值",
+              "unit": "kΩ"
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差",
+              "unit": "%"
+            }
+          ],
+          "formulas": [
+            "\\varepsilon_r=\\frac{|\\overline{R}_{\\rm meas}-\\overline{R}_{\\rm ref}|}{\\overline{R}_{\\rm ref}}\\times100\\%"
+          ]
+        },
+        {
+          "id": "ac_voltage",
+          "name": "交流电压档校准（选做）",
+          "required": false,
+          "params": [],
+          "columns": [
+            {
+              "key": "set",
+              "label": "U设",
+              "unit": "mV"
+            },
+            {
+              "key": "measured",
+              "label": "U测",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "slope",
+              "label": "校准斜率",
+              "unit": ""
+            },
+            {
+              "key": "intercept",
+              "label": "截距",
+              "unit": "mV"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "max_abs_error",
+              "label": "最大绝对误差",
+              "unit": "mV"
+            }
+          ],
+          "formulas": [
+            "\\Delta U_i=U_{{\\rm meas},i}-U_{{\\rm set},i}",
+            "U_{\\rm meas}=kU_{\\rm set}+b"
+          ]
+        },
+        {
+          "id": "ac_current",
+          "name": "交流电流档校准（选做）",
+          "required": false,
+          "params": [],
+          "columns": [
+            {
+              "key": "set",
+              "label": "I设",
+              "unit": "mA"
+            },
+            {
+              "key": "measured",
+              "label": "I测",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "slope",
+              "label": "校准斜率",
+              "unit": ""
+            },
+            {
+              "key": "intercept",
+              "label": "截距",
+              "unit": "mA"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "max_abs_error",
+              "label": "最大绝对误差",
+              "unit": "mA"
+            }
+          ],
+          "formulas": [
+            "\\Delta I_i=I_{{\\rm meas},i}-I_{{\\rm set},i}",
+            "I_{\\rm meas}=kI_{\\rm set}+b"
+          ]
+        }
+      ],
+      "literals_in_calculate": [],
+      "risk_flags": [],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": []
+    },
+    {
+      "experiment_id": "bridge",
+      "name": "交直流电桥的原理及应用",
+      "adapter": "experiments/bridge/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "balanced",
+          "name": "平衡直流电桥",
+          "required": true,
+          "params": [
+            {
+              "key": "ra",
+              "label": "Ra",
+              "unit": "Ω",
+              "default": 1000,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rb",
+              "label": "Rb",
+              "unit": "Ω",
+              "default": 5000,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "us",
+              "label": "电源电压 Us",
+              "unit": "V",
+              "default": 3.0,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "t_room",
+              "label": "室温 t",
+              "unit": "°C",
+              "default": null,
+              "required": false,
+              "hint": true
+            }
+          ],
+          "columns": [
+            {
+              "key": "rn",
+              "label": "平衡电阻 Rn",
+              "unit": "Ω"
+            }
+          ],
+          "results": [
+            {
+              "key": "rx_mean",
+              "label": "Rx 均值",
+              "unit": "Ω"
+            },
+            {
+              "key": "theory",
+              "label": "室温理论值",
+              "unit": "Ω"
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差",
+              "unit": "%"
+            }
+          ],
+          "formulas": [
+            "R_x=\\frac{R_a}{R_b}R_n",
+            "R_x(t)=R_0(1+\\alpha t),\\quad R_0=50.0\\,\\Omega,\\ \\alpha=0.004280\\,\\mathrm{^{o}C^{-1}}",
+            "E_r=\\frac{|R_x-R_x(t)|}{R_x(t)}\\times100\\%"
+          ]
+        },
+        {
+          "id": "cu50",
+          "name": "卧式电桥测 Cu50",
+          "required": true,
+          "params": [
+            {
+              "key": "us",
+              "label": "电源 Us",
+              "unit": "V",
+              "default": 3,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rn",
+              "label": "预平衡 Rn",
+              "unit": "Ω",
+              "default": null,
+              "required": true,
+              "hint": true
+            }
+          ],
+          "columns": [
+            {
+              "key": "temperature",
+              "label": "温度 t",
+              "unit": "°C"
+            },
+            {
+              "key": "u0",
+              "label": "输出 U0",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "r0",
+              "label": "拟合 R0",
+              "unit": "Ω"
+            },
+            {
+              "key": "r0_error",
+              "label": "R0 相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "alpha",
+              "label": "温度系数 α",
+              "unit": "1/°C"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "alpha_error",
+              "label": "α 相对误差",
+              "unit": "%"
+            }
+          ],
+          "formulas": [
+            "\\Delta R_x=\\frac{4R_nU_0}{U_s-2U_0},\\quad R_x=R_n+\\Delta R_x",
+            "R_x=R_0(1+\\alpha t),\\quad \\alpha=\\frac{k}{R_0}"
+          ]
+        },
+        {
+          "id": "capacitor",
+          "name": "交流电桥测电容",
+          "required": true,
+          "params": [
+            {
+              "key": "ra",
+              "label": "Ra",
+              "unit": "Ω",
+              "default": 100,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rb",
+              "label": "Rb",
+              "unit": "Ω",
+              "default": 120,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "f",
+              "label": "频率 f",
+              "unit": "Hz",
+              "default": 1000,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "cn",
+              "label": "Cn",
+              "unit": "μF"
+            },
+            {
+              "key": "rn",
+              "label": "Rn",
+              "unit": "Ω"
+            }
+          ],
+          "results": [
+            {
+              "key": "cx",
+              "label": "Cx 均值",
+              "unit": "μF"
+            },
+            {
+              "key": "rc",
+              "label": "rC 均值",
+              "unit": "Ω"
+            },
+            {
+              "key": "tan_delta",
+              "label": "tanδ 均值",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "C_x=\\frac{R_b}{R_a}C_n,\\quad r_C=\\frac{R_a}{R_b}R_n",
+            "\\tan\\delta=2\\pi fC_nR_n"
+          ]
+        },
+        {
+          "id": "inductor",
+          "name": "交流电桥测电感",
+          "required": true,
+          "params": [
+            {
+              "key": "ra",
+              "label": "Ra",
+              "unit": "Ω",
+              "default": 100,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rb",
+              "label": "Rb",
+              "unit": "Ω",
+              "default": 100,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "f",
+              "label": "频率 f",
+              "unit": "Hz",
+              "default": 1000,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "cn",
+              "label": "Cn",
+              "unit": "μF"
+            },
+            {
+              "key": "rn",
+              "label": "Rn",
+              "unit": "Ω"
+            }
+          ],
+          "results": [
+            {
+              "key": "lx",
+              "label": "Lx 均值",
+              "unit": "mH"
+            },
+            {
+              "key": "rl",
+              "label": "rL 均值",
+              "unit": "Ω"
+            },
+            {
+              "key": "q",
+              "label": "Q 均值",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "L_x=R_aR_bC_n,\\quad r_L=\\frac{R_aR_b}{R_n}",
+            "Q=\\frac{\\omega L_x}{r_L}=\\omega C_nR_n"
+          ]
+        },
+        {
+          "id": "thermistor",
+          "name": "热敏电阻（选做）",
+          "required": false,
+          "params": [
+            {
+              "key": "us",
+              "label": "电源 Us",
+              "unit": "V",
+              "default": 3,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "r_prime",
+              "label": "桥臂 Ra=Rb",
+              "unit": "Ω",
+              "default": 100,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rn",
+              "label": "预平衡 Rn",
+              "unit": "Ω",
+              "default": null,
+              "required": false,
+              "hint": true
+            }
+          ],
+          "columns": [
+            {
+              "key": "temperature",
+              "label": "温度 t",
+              "unit": "°C"
+            },
+            {
+              "key": "u0",
+              "label": "输出 U0",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "b_constant",
+              "label": "材料常数 B",
+              "unit": "K"
+            },
+            {
+              "key": "r25",
+              "label": "R25",
+              "unit": "Ω"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "\\Delta R_x=\\frac{U_0(R_n+R^\\prime)^2}{U_sR^\\prime-U_0(R_n+R^\\prime)},\\quad R_x=R_n+\\Delta R_x",
+            "\\ln R=\\ln R_{25}+B\\left(\\frac{1}{T}-\\frac{1}{298.15}\\right)"
+          ]
+        }
+      ],
+      "literals_in_calculate": [
+        "5000",
+        "120",
+        "1e-6",
+        "1e-3",
+        "273.15",
+        "298.15"
+      ],
+      "risk_flags": [
+        "fit",
+        "unit_factor",
+        "inverse_solve",
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_api_contract.py",
+          "shared_literals": [
+            "120",
+            "5000"
+          ]
+        },
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "1e-3",
+            "1e-6",
+            "273.15"
+          ]
+        },
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            "120",
+            "1e-3",
+            "1e-6",
+            "273.15",
+            "298.15",
+            "5000"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "solar-cell",
+      "name": "太阳能电池特性",
+      "adapter": "experiments/solar_cell/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "iv",
+          "name": "伏安与功率特性",
+          "required": true,
+          "params": [
+            {
+              "key": "isc",
+              "label": "短路电流 Isc",
+              "unit": "mA",
+              "default": 80,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "uoc",
+              "label": "开路电压 Uoc",
+              "unit": "V",
+              "default": 12,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "voltage",
+              "label": "U",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "I",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "p_max",
+              "label": "最大功率 Pmax",
+              "unit": "mW"
+            },
+            {
+              "key": "u_opt",
+              "label": "最佳电压",
+              "unit": "V"
+            },
+            {
+              "key": "i_opt",
+              "label": "最佳电流",
+              "unit": "mA"
+            },
+            {
+              "key": "fill_factor",
+              "label": "填充因子 FF",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "P_i=U_iI_i,\\quad P_{\\max}=\\max(P_i)",
+            "FF=\\frac{P_{\\max}}{U_{oc}I_{sc}}"
+          ]
+        },
+        {
+          "id": "shading",
+          "name": "遮挡影响",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "condition",
+              "label": "工况编号",
+              "unit": ""
+            },
+            {
+              "key": "isc",
+              "label": "短路电流",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "unshaded_isc",
+              "label": "无遮挡 Isc",
+              "unit": "mA"
+            },
+            {
+              "key": "minimum_ratio",
+              "label": "最小保留比例",
+              "unit": "%"
+            }
+          ],
+          "formulas": [
+            "r_i=\\frac{I_{sc,i}}{I_{sc,0}}\\times100\\%"
+          ]
+        },
+        {
+          "id": "charge_direct",
+          "name": "超级电容直接充电",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "time",
+              "label": "t",
+              "unit": "min"
+            },
+            {
+              "key": "voltage",
+              "label": "U",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "I",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "energy",
+              "label": "输入能量",
+              "unit": "J"
+            },
+            {
+              "key": "final_voltage",
+              "label": "末电压",
+              "unit": "V"
+            },
+            {
+              "key": "duration",
+              "label": "充电时长",
+              "unit": "min"
+            }
+          ],
+          "formulas": [
+            "P(t)=U(t)I(t),\\quad E=\\int P(t)\\,dt"
+          ]
+        },
+        {
+          "id": "charge_dcdc",
+          "name": "DC-DC 恒功率充电",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "time",
+              "label": "t",
+              "unit": "min"
+            },
+            {
+              "key": "voltage",
+              "label": "U",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "I",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "energy",
+              "label": "输入能量",
+              "unit": "J"
+            },
+            {
+              "key": "final_voltage",
+              "label": "末电压",
+              "unit": "V"
+            },
+            {
+              "key": "duration",
+              "label": "充电时长",
+              "unit": "min"
+            }
+          ],
+          "formulas": [
+            "P(t)=U(t)I(t),\\quad E=\\int P(t)\\,dt"
+          ]
+        },
+        {
+          "id": "fan",
+          "name": "直流风扇负载",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "voltage",
+              "label": "U",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "I",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "power_before",
+              "label": "并联前功率",
+              "unit": "mW"
+            },
+            {
+              "key": "power_after",
+              "label": "并联后功率",
+              "unit": "mW"
+            }
+          ],
+          "formulas": [
+            "P=UI"
+          ]
+        },
+        {
+          "id": "load_dcdc",
+          "name": "DC-DC 匹配直流负载（选做）",
+          "required": false,
+          "params": [],
+          "columns": [
+            {
+              "key": "voltage_before",
+              "label": "接入前 U1",
+              "unit": "V"
+            },
+            {
+              "key": "current_before",
+              "label": "接入前 I1",
+              "unit": "mA"
+            },
+            {
+              "key": "voltage_after",
+              "label": "接入后 U2",
+              "unit": "V"
+            },
+            {
+              "key": "current_after",
+              "label": "接入后 I2",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "power_before",
+              "label": "接入前功率",
+              "unit": "mW"
+            },
+            {
+              "key": "power_after",
+              "label": "接入后功率",
+              "unit": "mW"
+            },
+            {
+              "key": "power_gain",
+              "label": "功率增量",
+              "unit": "mW"
+            }
+          ],
+          "formulas": [
+            "P_1=U_1I_1,\\quad P_2=U_2I_2,\\quad \\Delta P=P_2-P_1"
+          ]
+        },
+        {
+          "id": "inverter",
+          "name": "DC-AC 逆变与交流负载（选做）",
+          "required": false,
+          "params": [],
+          "columns": [
+            {
+              "key": "input_voltage",
+              "label": "直流侧电压",
+              "unit": "V"
+            },
+            {
+              "key": "input_current",
+              "label": "直流侧电流",
+              "unit": "mA"
+            },
+            {
+              "key": "lit_code",
+              "label": "节能灯点亮(1是/0否)",
+              "unit": ""
+            }
+          ],
+          "results": [
+            {
+              "key": "input_power",
+              "label": "直流侧输入功率",
+              "unit": "mW"
+            },
+            {
+              "key": "lit_code",
+              "label": "点亮记录",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "P_{\\rm in}=U_{\\rm dc}I_{\\rm dc}"
+          ]
+        }
+      ],
+      "literals_in_calculate": [
+        "12",
+        "80",
+        "7.2",
+        "4.5",
+        ".25",
+        ".06"
+      ],
+      "risk_flags": [
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_data_collection.py",
+          "shared_literals": [
+            "80"
+          ]
+        },
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "4.5"
+          ]
+        },
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            "12",
+            "80"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "gmr",
+      "name": "巨磁电阻效应及应用",
+      "adapter": "experiments/gmr/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "transfer",
+          "name": "磁电转换特性",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "excitation",
+              "label": "励磁电流",
+              "unit": "mA"
+            },
+            {
+              "key": "output",
+              "label": "Vout",
+              "unit": "mV"
+            },
+            {
+              "key": "direction",
+              "label": "方向(1增/-1减)",
+              "unit": ""
+            }
+          ],
+          "results": [
+            {
+              "key": "sensitivity",
+              "label": "线性灵敏度",
+              "unit": "mV/Gs"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "b_max",
+              "label": "最大磁场",
+              "unit": "Gs"
+            }
+          ],
+          "formulas": [
+            "B({\\rm Gs})=0.31416I({\\rm mA}),\\quad V_{out}=kB+b"
+          ]
+        },
+        {
+          "id": "resistance",
+          "name": "内部磁阻特性",
+          "required": true,
+          "params": [
+            {
+              "key": "supply",
+              "label": "工作电压 U",
+              "unit": "V",
+              "default": 2,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "excitation",
+              "label": "励磁电流",
+              "unit": "mA"
+            },
+            {
+              "key": "ir_a",
+              "label": "状态 A 回路电流",
+              "unit": "mA"
+            },
+            {
+              "key": "ir_b",
+              "label": "状态 B 回路电流",
+              "unit": "mA"
+            }
+          ],
+          "results": [
+            {
+              "key": "gmr_a",
+              "label": "状态 A GMR",
+              "unit": "%"
+            },
+            {
+              "key": "gmr_b",
+              "label": "状态 B GMR",
+              "unit": "%"
+            },
+            {
+              "key": "sensitive_state",
+              "label": "敏感状态(A=1/B=2)",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "R=\\frac{2U}{I_R}",
+            "GMR=\\frac{R_{\\max}-R_{\\min}}{R_{\\min}}\\times100\\%"
+          ]
+        },
+        {
+          "id": "current_sensor",
+          "name": "无接触电流测量（选做）",
+          "required": false,
+          "params": [],
+          "columns": [
+            {
+              "key": "current",
+              "label": "导线电流",
+              "unit": "mA"
+            },
+            {
+              "key": "output25",
+              "label": "25mV偏置输出",
+              "unit": "mV"
+            },
+            {
+              "key": "output100",
+              "label": "100mV偏置输出",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "sensitivity25",
+              "label": "25mV 灵敏度",
+              "unit": "mV/A"
+            },
+            {
+              "key": "sensitivity100",
+              "label": "100mV 灵敏度",
+              "unit": "mV/A"
+            }
+          ],
+          "formulas": [
+            "V_{out}=kI+b"
+          ]
+        }
+      ],
+      "literals_in_calculate": [
+        ".31416"
+      ],
+      "risk_flags": [
+        "fit",
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            ".31416"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "nmr",
+      "name": "核磁共振实验",
+      "adapter": "experiments/nmr/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "waveform",
+          "name": "共振信号与尾波观察",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "sample_code",
+              "label": "样品(1水/2聚四氟乙烯)",
+              "unit": ""
+            },
+            {
+              "key": "tail_count",
+              "label": "尾波振荡次数",
+              "unit": "次"
+            },
+            {
+              "key": "t1",
+              "label": "T1",
+              "unit": "ms"
+            },
+            {
+              "key": "t2",
+              "label": "T2",
+              "unit": "ms"
+            }
+          ],
+          "results": [
+            {
+              "key": "observed_rows",
+              "label": "已记录样品数",
+              "unit": ""
+            },
+            {
+              "key": "max_symmetry_error",
+              "label": "最大 |T1-T2|",
+              "unit": "ms"
+            }
+          ],
+          "formulas": [
+            "\\Delta T=|T_1-T_2|"
+          ]
+        },
+        {
+          "id": "hydrogen",
+          "name": "1H 核磁共振",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "frequency",
+              "label": "ν",
+              "unit": "MHz"
+            },
+            {
+              "key": "field",
+              "label": "B0",
+              "unit": "mT"
+            }
+          ],
+          "results": [
+            {
+              "key": "gamma",
+              "label": "γ/2π",
+              "unit": "MHz/T"
+            },
+            {
+              "key": "g_factor",
+              "label": "g 因子",
+              "unit": ""
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "r_squared",
+              "label": "R^2",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "\\nu=kB_0+b,\\quad \\frac{\\gamma}{2\\pi}=10^3k",
+            "g=\\frac{\\gamma/(2\\pi)}{\\mu_N/h}"
+          ]
+        },
+        {
+          "id": "fluorine",
+          "name": "19F 核磁共振",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "frequency",
+              "label": "ν",
+              "unit": "MHz"
+            },
+            {
+              "key": "field",
+              "label": "B0",
+              "unit": "mT"
+            }
+          ],
+          "results": [
+            {
+              "key": "gamma",
+              "label": "γ/2π",
+              "unit": "MHz/T"
+            },
+            {
+              "key": "g_factor",
+              "label": "g 因子",
+              "unit": ""
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "r_squared",
+              "label": "R^2",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "\\nu=kB_0+b,\\quad \\frac{\\gamma}{2\\pi}=10^3k",
+            "g=\\frac{\\gamma/(2\\pi)}{\\mu_N/h}"
+          ]
+        },
+        {
+          "id": "pure_water",
+          "name": "纯水样品 g 因子（选做）",
+          "required": false,
+          "params": [],
+          "columns": [
+            {
+              "key": "frequency",
+              "label": "ν",
+              "unit": "MHz"
+            },
+            {
+              "key": "field",
+              "label": "B0",
+              "unit": "mT"
+            }
+          ],
+          "results": [
+            {
+              "key": "gamma",
+              "label": "γ/2π",
+              "unit": "MHz/T"
+            },
+            {
+              "key": "g_factor",
+              "label": "g 因子",
+              "unit": ""
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "r_squared",
+              "label": "R^2",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "\\nu=kB_0+b,\\quad \\frac{\\gamma}{2\\pi}=10^3k",
+            "g=\\frac{\\gamma/(2\\pi)}{\\mu_N/h}"
+          ]
+        }
+      ],
+      "literals_in_calculate": [
+        "7.6225914",
+        "5.5857",
+        "5.2567"
+      ],
+      "risk_flags": [
+        "fit",
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "5.5857",
+            "7.6225914"
+          ]
+        },
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            "5.2567",
+            "5.5857",
+            "7.6225914"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "viscosity",
+      "name": "落球法测液体粘滞系数",
+      "adapter": "experiments/viscosity/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "diameter",
+          "name": "钢球直径测量",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "x1",
+              "label": "边缘坐标 x1",
+              "unit": "mm"
+            },
+            {
+              "key": "x2",
+              "label": "边缘坐标 x2",
+              "unit": "mm"
+            }
+          ],
+          "results": [
+            {
+              "key": "diameter",
+              "label": "平均直径 d",
+              "unit": "mm"
+            },
+            {
+              "key": "diameter_std",
+              "label": "标准差",
+              "unit": "mm"
+            }
+          ],
+          "formulas": [
+            "d_i=|x_{2,i}-x_{1,i}|,\\quad \\overline{d}=\\frac{1}{n}\\sum_i d_i"
+          ]
+        },
+        {
+          "id": "viscosity",
+          "name": "不同温度粘滞系数",
+          "required": true,
+          "params": [
+            {
+              "key": "distance",
+              "label": "下落距离 L",
+              "unit": "cm",
+              "default": 20,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "diameter",
+              "label": "钢球直径 d",
+              "unit": "mm",
+              "default": 1.5,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rho_ball",
+              "label": "钢球密度",
+              "unit": "kg/m³",
+              "default": 7800,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rho_oil",
+              "label": "油密度",
+              "unit": "kg/m³",
+              "default": 950,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "tube_diameter",
+              "label": "管内径 D",
+              "unit": "cm",
+              "default": 2,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "g",
+              "label": "重力加速度",
+              "unit": "m/s²",
+              "default": 9.794,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "temperature",
+              "label": "温度 T",
+              "unit": "°C"
+            },
+            {
+              "key": "t1",
+              "label": "t1",
+              "unit": "s"
+            },
+            {
+              "key": "t2",
+              "label": "t2",
+              "unit": "s"
+            },
+            {
+              "key": "t3",
+              "label": "t3",
+              "unit": "s"
+            },
+            {
+              "key": "t4",
+              "label": "t4",
+              "unit": "s"
+            }
+          ],
+          "results": [
+            {
+              "key": "eta_20",
+              "label": "首温度 η′",
+              "unit": "Pa·s"
+            },
+            {
+              "key": "re_min",
+              "label": "Re 最小值",
+              "unit": ""
+            },
+            {
+              "key": "re_max",
+              "label": "Re 最大值",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "v_0=\\frac{L}{\\overline{t}}",
+            "\\eta_0=\\frac{gd^2(\\rho-\\rho_0)}{18v_0(1+2.4d/D)}",
+            "Re=\\frac{\\rho_0v_0d}{\\eta_0},\\quad \\eta'=\\eta_0\\left(1-\\frac{3}{16}Re\\right)"
+          ]
+        },
+        {
+          "id": "diameter_effect",
+          "name": "不同球径对比（拓展）",
+          "required": false,
+          "params": [
+            {
+              "key": "distance",
+              "label": "下落距离 L",
+              "unit": "cm",
+              "default": 20,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "temperature",
+              "label": "液体温度 T",
+              "unit": "°C",
+              "default": 40,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rho_ball",
+              "label": "钢球密度",
+              "unit": "kg/m³",
+              "default": 7800,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "rho_oil",
+              "label": "油密度",
+              "unit": "kg/m³",
+              "default": 950,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "tube_diameter",
+              "label": "管内径 D",
+              "unit": "cm",
+              "default": 2,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "g",
+              "label": "重力加速度",
+              "unit": "m/s²",
+              "default": 9.794,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "diameter",
+              "label": "小球直径 d",
+              "unit": "mm"
+            },
+            {
+              "key": "t1",
+              "label": "t1",
+              "unit": "s"
+            },
+            {
+              "key": "t2",
+              "label": "t2",
+              "unit": "s"
+            },
+            {
+              "key": "t3",
+              "label": "t3",
+              "unit": "s"
+            },
+            {
+              "key": "t4",
+              "label": "t4",
+              "unit": "s"
+            }
+          ],
+          "results": [
+            {
+              "key": "sample_count",
+              "label": "有效小球数",
+              "unit": ""
+            },
+            {
+              "key": "eta_mean",
+              "label": "平均修正粘度",
+              "unit": "Pa·s"
+            },
+            {
+              "key": "re_max",
+              "label": "最大 Re",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "v_0=\\frac{L}{\\overline{t}}",
+            "Re=\\frac{\\rho_0v_0d}{\\eta_0}"
+          ]
+        }
+      ],
+      "literals_in_calculate": [
+        "20",
+        "7800",
+        "950",
+        "9.794",
+        "18",
+        "2.4",
+        ".1",
+        "16",
+        "1.5"
+      ],
+      "risk_flags": [
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_data_collection.py",
+          "shared_literals": [
+            "20"
+          ]
+        },
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "20"
+          ]
+        },
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            ".1",
+            "1.5",
+            "16",
+            "18",
+            "2.4",
+            "20",
+            "7800",
+            "9.794",
+            "950"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "surface-tension",
+      "name": "液体表面张力系数测量",
+      "adapter": "experiments/surface_tension/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "calibration",
+          "name": "力敏传感器定标",
+          "required": true,
+          "params": [
+            {
+              "key": "g",
+              "label": "重力加速度",
+              "unit": "m/s²",
+              "default": 9.79338,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "mass",
+              "label": "砝码质量",
+              "unit": "g"
+            },
+            {
+              "key": "u_up",
+              "label": "加载 U",
+              "unit": "mV"
+            },
+            {
+              "key": "u_down",
+              "label": "卸载 U",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "sensitivity",
+              "label": "灵敏度 K",
+              "unit": "mV/N"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            },
+            {
+              "key": "hysteresis",
+              "label": "最大回程差",
+              "unit": "mV"
+            }
+          ],
+          "formulas": [
+            "F=mg,\\quad U=KF+b"
+          ]
+        },
+        {
+          "id": "pull_off",
+          "name": "拉脱法",
+          "required": true,
+          "params": [
+            {
+              "key": "d1",
+              "label": "吊环直径 D1",
+              "unit": "cm",
+              "default": 3.31,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "d2",
+              "label": "吊环直径 D2",
+              "unit": "cm",
+              "default": 3.496,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "sigma_reference",
+              "label": "纯水标准值 σ0",
+              "unit": "N/m",
+              "default": 0.07275,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "u1",
+              "label": "破膜前 U1",
+              "unit": "mV"
+            },
+            {
+              "key": "u2",
+              "label": "破膜后 U2",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "sensitivity_used",
+              "label": "采用的定标 K",
+              "unit": "mV/N"
+            },
+            {
+              "key": "sigma",
+              "label": "表面张力 σ",
+              "unit": "N/m"
+            },
+            {
+              "key": "sigma_std",
+              "label": "重复测量标准差",
+              "unit": "N/m"
+            },
+            {
+              "key": "sigma_reference",
+              "label": "纯水标准值 σ0",
+              "unit": "N/m"
+            },
+            {
+              "key": "absolute_error",
+              "label": "绝对误差 Δσ",
+              "unit": "N/m"
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差 Er",
+              "unit": "%"
+            }
+          ],
+          "formulas": [
+            "\\sigma=\\frac{|U_1-U_2|}{\\pi(D_1+D_2)K}",
+            "\\Delta\\sigma=|\\sigma-\\sigma_0|,\\quad E_r=\\frac{|\\sigma-\\sigma_0|}{\\sigma_0}\\times100\\%"
+          ]
+        },
+        {
+          "id": "capillary",
+          "name": "毛细管法",
+          "required": true,
+          "params": [
+            {
+              "key": "density",
+              "label": "液体密度 ρ",
+              "unit": "kg/m³",
+              "default": 998,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "g",
+              "label": "重力加速度",
+              "unit": "m/s²",
+              "default": 9.79338,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "sigma_reference",
+              "label": "纯水标准值 σ0",
+              "unit": "N/m",
+              "default": 0.07275,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "y1",
+              "label": "凹液面 y1",
+              "unit": "mm"
+            },
+            {
+              "key": "y2",
+              "label": "烧杯液面 y2",
+              "unit": "mm"
+            },
+            {
+              "key": "x1",
+              "label": "内壁 x1",
+              "unit": "mm"
+            },
+            {
+              "key": "x2",
+              "label": "内壁 x2",
+              "unit": "mm"
+            }
+          ],
+          "results": [
+            {
+              "key": "sigma",
+              "label": "表面张力 σ",
+              "unit": "N/m"
+            },
+            {
+              "key": "height",
+              "label": "平均液柱高",
+              "unit": "mm"
+            },
+            {
+              "key": "diameter",
+              "label": "平均内径",
+              "unit": "mm"
+            },
+            {
+              "key": "sigma_reference",
+              "label": "纯水标准值 σ0",
+              "unit": "N/m"
+            },
+            {
+              "key": "absolute_error",
+              "label": "绝对误差 Δσ",
+              "unit": "N/m"
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差 Er",
+              "unit": "%"
+            }
+          ],
+          "formulas": [
+            "h=|y_1-y_2|,\\quad d=|x_1-x_2|",
+            "\\sigma=\\frac{1}{4}\\rho gd\\left(h+\\frac{d}{6}\\right)",
+            "\\Delta\\sigma=|\\sigma-\\sigma_0|,\\quad E_r=\\frac{|\\sigma-\\sigma_0|}{\\sigma_0}\\times100\\%"
+          ]
+        },
+        {
+          "id": "salt_pull_off",
+          "name": "盐水表面张力·拉脱法（拓展选做）",
+          "required": false,
+          "params": [
+            {
+              "key": "concentration",
+              "label": "盐水浓度",
+              "unit": "%",
+              "default": 5,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "sensitivity",
+              "label": "传感器 K",
+              "unit": "mV/N",
+              "default": 1000,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "d1",
+              "label": "吊环直径 D1",
+              "unit": "cm",
+              "default": 3.31,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "d2",
+              "label": "吊环直径 D2",
+              "unit": "cm",
+              "default": 3.496,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "u1",
+              "label": "破膜前 U1",
+              "unit": "mV"
+            },
+            {
+              "key": "u2",
+              "label": "破膜后 U2",
+              "unit": "mV"
+            }
+          ],
+          "results": [
+            {
+              "key": "sigma",
+              "label": "表面张力 σ",
+              "unit": "N/m"
+            },
+            {
+              "key": "sigma_std",
+              "label": "标准差",
+              "unit": "N/m"
+            }
+          ],
+          "formulas": [
+            "\\sigma=\\frac{|U_1-U_2|}{\\pi(D_1+D_2)K}"
+          ]
+        },
+        {
+          "id": "salt_capillary",
+          "name": "盐水表面张力·毛细管法（拓展选做）",
+          "required": false,
+          "params": [
+            {
+              "key": "concentration",
+              "label": "盐水浓度",
+              "unit": "%",
+              "default": 5,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "density",
+              "label": "盐水密度 ρ",
+              "unit": "kg/m³",
+              "default": 1035,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "g",
+              "label": "重力加速度",
+              "unit": "m/s²",
+              "default": 9.79338,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "y1",
+              "label": "凹液面 y1",
+              "unit": "mm"
+            },
+            {
+              "key": "y2",
+              "label": "烧杯液面 y2",
+              "unit": "mm"
+            },
+            {
+              "key": "x1",
+              "label": "内壁 x1",
+              "unit": "mm"
+            },
+            {
+              "key": "x2",
+              "label": "内壁 x2",
+              "unit": "mm"
+            }
+          ],
+          "results": [
+            {
+              "key": "sigma",
+              "label": "表面张力 σ",
+              "unit": "N/m"
+            },
+            {
+              "key": "height",
+              "label": "平均液柱高",
+              "unit": "mm"
+            },
+            {
+              "key": "diameter",
+              "label": "平均内径",
+              "unit": "mm"
+            }
+          ],
+          "formulas": [
+            "\\sigma=\\frac{1}{4}\\rho gd\\left(h+\\frac{d}{6}\\right)"
+          ]
+        }
+      ],
+      "literals_in_calculate": [
+        "9.79338",
+        "3.31",
+        "3.496",
+        ".07275",
+        ".25",
+        "998",
+        "6000"
+      ],
+      "risk_flags": [
+        "fit",
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            "3.31",
+            "3.496",
+            "9.79338",
+            "998"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "thermal-conductivity",
+      "name": "稳态法测固体导热系数",
+      "adapter": "experiments/thermal_conductivity/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "geometry",
+          "name": "几何参数",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "dc",
+              "label": "铜盘直径 DC",
+              "unit": "mm"
+            },
+            {
+              "key": "hc",
+              "label": "铜盘厚度 hC",
+              "unit": "mm"
+            },
+            {
+              "key": "db",
+              "label": "样品直径 DB",
+              "unit": "mm"
+            },
+            {
+              "key": "hb",
+              "label": "样品厚度 hB",
+              "unit": "mm"
+            }
+          ],
+          "results": [
+            {
+              "key": "dc_mean",
+              "label": "DC 均值",
+              "unit": "mm"
+            },
+            {
+              "key": "hc_mean",
+              "label": "hC 均值",
+              "unit": "mm"
+            },
+            {
+              "key": "db_mean",
+              "label": "DB 均值",
+              "unit": "mm"
+            },
+            {
+              "key": "hb_mean",
+              "label": "hB 均值",
+              "unit": "mm"
+            }
+          ],
+          "formulas": [
+            "\\overline{x}=\\frac{1}{n}\\sum_i x_i"
+          ]
+        },
+        {
+          "id": "heating",
+          "name": "升温与稳态记录",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "time",
+              "label": "t",
+              "unit": "min"
+            },
+            {
+              "key": "ta",
+              "label": "TA",
+              "unit": "°C"
+            },
+            {
+              "key": "tc",
+              "label": "TC",
+              "unit": "°C"
+            }
+          ],
+          "results": [
+            {
+              "key": "t1",
+              "label": "稳态 T1",
+              "unit": "°C"
+            },
+            {
+              "key": "t2",
+              "label": "稳态 T2",
+              "unit": "°C"
+            },
+            {
+              "key": "steady_drift",
+              "label": "末五点最大漂移",
+              "unit": "°C"
+            }
+          ],
+          "formulas": [
+            "T_1=\\overline{T_A},\\quad T_2=\\overline{T_C}"
+          ]
+        },
+        {
+          "id": "cooling",
+          "name": "自然冷却曲线",
+          "required": true,
+          "params": [
+            {
+              "key": "mass",
+              "label": "铜盘质量 m",
+              "unit": "g",
+              "default": 500,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "specific_heat",
+              "label": "紫铜比热 c",
+              "unit": "J/(kg·K)",
+              "default": 394,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "t1",
+              "label": "稳态 T1",
+              "unit": "°C",
+              "default": 50,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "t2",
+              "label": "稳态 T2",
+              "unit": "°C",
+              "default": 35,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "dc",
+              "label": "铜盘直径 DC",
+              "unit": "mm",
+              "default": 100,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "hc",
+              "label": "铜盘厚度 hC",
+              "unit": "mm",
+              "default": 10,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "db",
+              "label": "样品直径 DB",
+              "unit": "mm",
+              "default": 100,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "hb",
+              "label": "样品厚度 hB",
+              "unit": "mm",
+              "default": 8,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "time",
+              "label": "t",
+              "unit": "s"
+            },
+            {
+              "key": "temperature",
+              "label": "TC",
+              "unit": "°C"
+            }
+          ],
+          "results": [
+            {
+              "key": "cooling_rate",
+              "label": "|dT/dt|",
+              "unit": "K/s"
+            },
+            {
+              "key": "lambda",
+              "label": "导热系数 λ",
+              "unit": "W/(m·K)"
+            },
+            {
+              "key": "geometry_factor",
+              "label": "几何修正 ξ",
+              "unit": ""
+            },
+            {
+              "key": "r_squared",
+              "label": "局部拟合 R²",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "\\xi=\\frac{2R_C+h_C}{2R_C+2h_C}",
+            "\\lambda=\\frac{mc|dT/dt|_{T_2}h_B}{\\pi R_B^2(T_1-T_2)}\\xi"
+          ]
+        }
+      ],
+      "literals_in_calculate": [
+        "5",
+        "35",
+        "500",
+        "394",
+        "2000",
+        "8",
+        "50"
+      ],
+      "risk_flags": [
+        "fit",
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "2000",
+            "5",
+            "50"
+          ]
+        },
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            "35",
+            "394",
+            "5",
+            "50",
+            "500",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "michelson",
+      "name": "迈克尔逊干涉实验",
+      "adapter": "experiments/michelson/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "wavelength",
+          "name": "He-Ne 激光波长测量",
+          "required": true,
+          "params": [
+            {
+              "key": "fringes_per_step",
+              "label": "每档环数",
+              "unit": "环",
+              "default": 50,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "fringe_count",
+              "label": "累计圈数 N",
+              "unit": "环"
+            },
+            {
+              "key": "position",
+              "label": "反射镜位置 d",
+              "unit": "mm"
+            }
+          ],
+          "results": [
+            {
+              "key": "wavelength",
+              "label": "实验波长 λ",
+              "unit": "nm"
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "delta_d_mean",
+              "label": "逐差平均 Δd",
+              "unit": "mm"
+            },
+            {
+              "key": "delta_d_std",
+              "label": "逐差标准差",
+              "unit": "mm"
+            }
+          ],
+          "formulas": [
+            "\\Delta d_i=|d_{i+5}-d_i|",
+            "\\lambda=\\frac{2\\overline{\\Delta d}}{250}=\\frac{\\overline{\\Delta d}}{125}"
+          ]
+        },
+        {
+          "id": "observations",
+          "name": "点光源与扩展光源干涉现象",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "setup_code",
+              "label": "光路(1未扩束/2扩束/3钠灯)",
+              "unit": ""
+            },
+            {
+              "key": "pattern_code",
+              "label": "形态(1圆环/2直纹)",
+              "unit": ""
+            },
+            {
+              "key": "motion_code",
+              "label": "移动(1涌出/-1淹没/0不适用)",
+              "unit": ""
+            },
+            {
+              "key": "localized_code",
+              "label": "定域(1是/0否)",
+              "unit": ""
+            }
+          ],
+          "results": [
+            {
+              "key": "observed_rows",
+              "label": "已记录现象数",
+              "unit": ""
+            }
+          ],
+          "formulas": []
+        }
+      ],
+      "literals_in_calculate": [
+        "5",
+        "50",
+        "1e6",
+        "632.8",
+        "6"
+      ],
+      "risk_flags": [
+        "unit_factor",
+        "circular_fixture"
+      ],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": [
+        {
+          "file": "tests/test_api_contract.py",
+          "shared_literals": [
+            "5",
+            "50"
+          ]
+        },
+        {
+          "file": "tests/test_data_reference.py",
+          "shared_literals": [
+            "1e6",
+            "5",
+            "50",
+            "6",
+            "632.8"
+          ]
+        },
+        {
+          "file": "tests/test_general_experiments.py",
+          "shared_literals": [
+            "5",
+            "50",
+            "6",
+            "632.8"
+          ]
+        }
+      ]
+    },
+    {
+      "experiment_id": "photoelectric-franck-hertz",
+      "name": "光电效应与弗兰克-赫兹实验",
+      "adapter": "experiments/photoelectric_franck_hertz/adapter.py",
+      "adapter_exists": true,
+      "methods": [
+        {
+          "id": "planck",
+          "name": "零电流法测普朗克常数",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "wavelength",
+              "label": "波长 λ",
+              "unit": "nm"
+            },
+            {
+              "key": "us1",
+              "label": "US1",
+              "unit": "V"
+            },
+            {
+              "key": "us2",
+              "label": "US2",
+              "unit": "V"
+            },
+            {
+              "key": "us3",
+              "label": "US3",
+              "unit": "V"
+            },
+            {
+              "key": "us4",
+              "label": "US4",
+              "unit": "V"
+            }
+          ],
+          "results": [
+            {
+              "key": "h",
+              "label": "普朗克常数 h",
+              "unit": "J·s"
+            },
+            {
+              "key": "h_error",
+              "label": "h 相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "nu0",
+              "label": "红限频率 ν0",
+              "unit": "Hz"
+            },
+            {
+              "key": "work_function",
+              "label": "逸出功",
+              "unit": "eV"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "\\nu=\\frac{c}{\\lambda},\\quad U_S=k\\nu+b",
+            "h=ek,\\quad \\nu_0=-\\frac{b}{k},\\quad W=-eb"
+          ]
+        },
+        {
+          "id": "iv_436",
+          "name": "436 nm 伏安特性",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "voltage",
+              "label": "UAK",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "I",
+              "unit": "10⁻¹³ A"
+            }
+          ],
+          "results": [
+            {
+              "key": "max_current",
+              "label": "最大光电流",
+              "unit": "10⁻¹³ A"
+            },
+            {
+              "key": "min_current",
+              "label": "最小光电流",
+              "unit": "10⁻¹³ A"
+            }
+          ],
+          "formulas": [
+            "I=I(U_{AK})"
+          ]
+        },
+        {
+          "id": "iv_546",
+          "name": "546 nm 伏安特性",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "voltage",
+              "label": "UAK",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "I",
+              "unit": "10⁻¹³ A"
+            }
+          ],
+          "results": [
+            {
+              "key": "max_current",
+              "label": "最大光电流",
+              "unit": "10⁻¹³ A"
+            },
+            {
+              "key": "min_current",
+              "label": "最小光电流",
+              "unit": "10⁻¹³ A"
+            }
+          ],
+          "formulas": [
+            "I=I(U_{AK})"
+          ]
+        },
+        {
+          "id": "saturation",
+          "name": "饱和电流与光强",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "wavelength",
+              "label": "波长",
+              "unit": "nm"
+            },
+            {
+              "key": "diameter",
+              "label": "光阑 Φ",
+              "unit": "mm"
+            },
+            {
+              "key": "i1",
+              "label": "I1",
+              "unit": "10⁻¹⁰ A"
+            },
+            {
+              "key": "i2",
+              "label": "I2",
+              "unit": "10⁻¹⁰ A"
+            },
+            {
+              "key": "i3",
+              "label": "I3",
+              "unit": "10⁻¹⁰ A"
+            }
+          ],
+          "results": [
+            {
+              "key": "r_squared_436",
+              "label": "436 nm R²",
+              "unit": ""
+            },
+            {
+              "key": "r_squared_546",
+              "label": "546 nm R²",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "P_{\\rm rel}\\propto\\Phi^2,\\quad I_m=a\\Phi^2+b"
+          ]
+        },
+        {
+          "id": "compensation",
+          "name": "补偿法测普朗克常数（选做）",
+          "required": false,
+          "params": [
+            {
+              "key": "aperture",
+              "label": "光阑 Φ",
+              "unit": "mm",
+              "default": 4,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "wavelength",
+              "label": "波长 λ",
+              "unit": "nm"
+            },
+            {
+              "key": "us1",
+              "label": "US1",
+              "unit": "V"
+            },
+            {
+              "key": "us2",
+              "label": "US2",
+              "unit": "V"
+            },
+            {
+              "key": "us3",
+              "label": "US3",
+              "unit": "V"
+            }
+          ],
+          "results": [
+            {
+              "key": "h",
+              "label": "普朗克常数 h",
+              "unit": "J·s"
+            },
+            {
+              "key": "h_error",
+              "label": "h 相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "nu0",
+              "label": "红限频率 ν0",
+              "unit": "Hz"
+            },
+            {
+              "key": "work_function",
+              "label": "逸出功",
+              "unit": "eV"
+            },
+            {
+              "key": "r_squared",
+              "label": "R²",
+              "unit": ""
+            }
+          ],
+          "formulas": [
+            "\\nu=\\frac{c}{\\lambda},\\quad U_S=k\\nu+b",
+            "h=ek,\\quad \\nu_0=-\\frac{b}{k}"
+          ]
+        },
+        {
+          "id": "curve",
+          "name": "IP-VG2K 特性",
+          "required": true,
+          "params": [
+            {
+              "key": "temperature",
+              "label": "炉温",
+              "unit": "°C",
+              "default": 220,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vf",
+              "label": "VF",
+              "unit": "V",
+              "default": 0.9,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vg1k",
+              "label": "VG1K",
+              "unit": "V",
+              "default": 1.5,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vg2p",
+              "label": "VG2P",
+              "unit": "V",
+              "default": 1.3,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "voltage",
+              "label": "VG2K",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "IP",
+              "unit": "nA"
+            }
+          ],
+          "results": [
+            {
+              "key": "data_points",
+              "label": "有效点数",
+              "unit": ""
+            },
+            {
+              "key": "current_max",
+              "label": "最大板极电流",
+              "unit": "nA"
+            }
+          ],
+          "formulas": [
+            "I_P=f(V_{G2K})"
+          ]
+        },
+        {
+          "id": "peaks",
+          "name": "峰值位置与逐差",
+          "required": true,
+          "params": [],
+          "columns": [
+            {
+              "key": "peak_voltage",
+              "label": "峰值电压 Up",
+              "unit": "V"
+            }
+          ],
+          "results": [
+            {
+              "key": "v0",
+              "label": "第一激发电位 V0",
+              "unit": "V"
+            },
+            {
+              "key": "relative_error",
+              "label": "相对误差",
+              "unit": "%"
+            },
+            {
+              "key": "spacing_std",
+              "label": "峰间距标准差",
+              "unit": "V"
+            }
+          ],
+          "formulas": [
+            "\\Delta U_i=\\frac{U_{p(i+3)}-U_{pi}}{3}",
+            "V_0=\\overline{\\Delta U},\\quad E_r=\\frac{|V_0-4.90|}{4.90}\\times100\\%"
+          ]
+        },
+        {
+          "id": "parameter_curve",
+          "name": "改变工作参数的对比曲线（选做）",
+          "required": false,
+          "params": [
+            {
+              "key": "temperature",
+              "label": "炉温",
+              "unit": "°C",
+              "default": 220,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vf",
+              "label": "VF",
+              "unit": "V",
+              "default": 0.9,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vg1k",
+              "label": "VG1K",
+              "unit": "V",
+              "default": 1.5,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vg2p",
+              "label": "VG2P",
+              "unit": "V",
+              "default": 1.3,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "voltage",
+              "label": "VG2K",
+              "unit": "V"
+            },
+            {
+              "key": "current_reference",
+              "label": "IP 基准",
+              "unit": "nA"
+            },
+            {
+              "key": "current_variant",
+              "label": "IP 改参后",
+              "unit": "nA"
+            }
+          ],
+          "results": [
+            {
+              "key": "data_points",
+              "label": "有效对比点数",
+              "unit": ""
+            },
+            {
+              "key": "max_difference",
+              "label": "最大电流差",
+              "unit": "nA"
+            }
+          ],
+          "formulas": [
+            "\\Delta I_i=I_{{\\rm variant},i}-I_{{\\rm reference},i}"
+          ]
+        },
+        {
+          "id": "higher_curve",
+          "name": "较高激发能级（选做）",
+          "required": false,
+          "params": [
+            {
+              "key": "temperature",
+              "label": "炉温",
+              "unit": "°C",
+              "default": 120,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vf",
+              "label": "VF",
+              "unit": "V",
+              "default": 0.9,
+              "required": false,
+              "hint": false
+            },
+            {
+              "key": "vg2p",
+              "label": "VG2P",
+              "unit": "V",
+              "default": 1.3,
+              "required": false,
+              "hint": false
+            }
+          ],
+          "columns": [
+            {
+              "key": "voltage",
+              "label": "UKG1",
+              "unit": "V"
+            },
+            {
+              "key": "current",
+              "label": "IP",
+              "unit": "nA"
+            }
+          ],
+          "results": [
+            {
+              "key": "data_points",
+              "label": "有效点数",
+              "unit": ""
+            },
+            {
+              "key": "current_max",
+              "label": "最大板极电流",
+              "unit": "nA"
+            }
+          ],
+          "formulas": [
+            "I_P=f(U_{KG1})"
+          ]
+        }
+      ],
+      "literals_in_calculate": [],
+      "risk_flags": [],
+      "fixture_provenance": [
+        {
+          "file": "boundary.json",
+          "source": "structure-derived",
+          "verified": false,
+          "scientific_validation": "structure-derived boundary coverage; replace with lab-confirmed ranges when available"
+        },
+        {
+          "file": "invalid.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "intentionally incomplete required measurement"
+        },
+        {
+          "file": "typical.json",
+          "source": "synthetic",
+          "verified": false,
+          "scientific_validation": "synthetic-only"
+        }
+      ],
+      "circular_test_modules": [],
+      "shared_literals": []
+    }
+  ]
+}
