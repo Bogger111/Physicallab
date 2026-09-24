@@ -211,6 +211,18 @@ def test_bridge_uses_the_lecture_balance_equations():
     assert thermistor["r25"] == pytest.approx(2700, rel=0.05)
 
 
+def test_partial_submission_still_reports_the_finished_sub_experiments():
+    """只填完一部分（另一半的预填列还没填）时，已填完的子实验要照常出结果，状态仍是 validation_error。"""
+    data = fixtures()["gmr"]
+    data["resistance"]["rows"] = [{"excitation": row["excitation"]} for row in data["resistance"]["rows"]]
+    run = process_experiment("gmr", data)
+    assert run["status"] == "validation_error"
+    # 填完的 transfer 与选做的 current_sensor 照常出结果，未填完的 resistance 不进结果
+    assert set(run["results"]) == {"transfer", "current_sensor"}, run["results"]
+    assert run["results"]["transfer"]["sensitivity"] == pytest.approx(0.2, rel=0.02)
+    assert any("共 21 行" in message for message in run["errors"]), run["errors"]
+
+
 def test_row_level_validation_errors_are_grouped_into_one_message():
     """只填了一半（有预填列）时，逐行报错要合并成一条，不能刷几十条。"""
     data = fixtures()["gmr"]

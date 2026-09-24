@@ -48,26 +48,24 @@ class ConfiguredExperiment:
 
     def process(self, payload: dict[str, Any]) -> dict[str, Any]:
         validation = self.validate(payload)
-        if validation["errors"]:
-            return {
-                "status": "validation_error",
-                "results": {}, "plots": {}, "derived": {},
-                "errors": summarize_messages(validation["errors"]),
-                "warnings": summarize_messages(validation["warnings"]),
-                "validation": validation,
-            }
+        # 有校验错误的子实验跳过，但**不整份丢弃**：记录表预填了部分列时（例如 gmr 的励磁电流），
+        # 学生一边测一边填，另一半还没填就会命中校验错误；这时把已经填完的子实验算出来给他们看。
+        # 状态仍是 validation_error（报告门禁与 invalid fixture 的判据不变）。
+        blocked = {issue.get("method_id") for issue in validation["errors"]}
         results: dict[str, dict] = {}
         plots: dict[str, str] = {}
         derived: dict[str, list[dict]] = {}
-        errors: list[str] = []
+        errors: list[str] = summarize_messages(validation["errors"])
         for method in self.config["methods"]:
+            if method["id"] in blocked:
+                continue
             submitted = payload.get(method["id"], {})
             rows = submitted.get("rows", [])
             params = dict(submitted.get("params", {}))
             if not rows or not any(
                 any(value not in (None, "") for value in row.values()) for row in rows
             ):
-                if method.get("required"):
+                if method.get("required") and not validation["errors"]:
                     errors.append(f"{method['name']}：未提供数据")
                 continue
             try:
@@ -80,7 +78,7 @@ class ConfiguredExperiment:
                     plots[method["id"]] = chart
             except Exception as exc:
                 errors.append(f"{method['name']}：{exc}")
-        status = "success" if results else "validation_error"
+        status = "validation_error" if (validation["errors"] or not results) else "success"
         response = {
             "status": status, "results": results, "plots": plots,
             "derived": derived, "errors": errors,

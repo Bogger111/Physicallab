@@ -383,17 +383,17 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
         </div>
       ) : null}
 
-      {result?.status === "success" && (
+      {result && Object.keys(result.results).length > 0 && (
         <div className="mt-8 space-y-6">
-          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 sm:flex-row sm:items-center">
+          <div className={cn("flex flex-col justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center", result.status === "success" ? "border-emerald-200 bg-emerald-50/60" : "border-amber-200 bg-amber-50/60")}>
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+              {result.status === "success" ? <CheckCircle2 className="h-6 w-6 text-emerald-600" /> : <AlertCircle className="h-6 w-6 text-amber-600" />}
               <div>
-                <p className="font-bold text-stone-900">计算完成</p>
-                <p className="text-xs text-stone-500">{Object.keys(result.results).length} 个子实验已生成结果</p>
+                <p className="font-bold text-stone-900">{result.status === "success" ? "计算完成" : "部分计算完成"}</p>
+                <p className="text-xs text-stone-500">{Object.keys(result.results).length} 个子实验已生成结果{result.status !== "success" ? "；请补齐提示的数据后再生成完整报告" : ""}</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            {result.status === "success" && <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => act("docx", () => downloadFinalReport("docx"))}
                 disabled={!!busy || !basicReady}
@@ -406,7 +406,7 @@ export default function GenericExperimentWorkspace({ id }: { id: string }) {
                 title={basicReady ? "下载完整报告 PDF" : "填写完全部必做实验后才能生成报告"}
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
               ><Download className="h-4 w-4" />完整报告 PDF</button>
-            </div>
+            </div>}
           </div>
           {!basicReady && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
