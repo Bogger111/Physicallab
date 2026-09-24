@@ -150,6 +150,23 @@ def test_general_blank_sheet_leaves_measured_parameters_empty():
     assert "请填写" in text or "填实测值" in text
 
 
+def test_report_reminder_is_capped_instead_of_dumping_every_row():
+    """逐行范围提示可能有几十条，报告正文只应保留前几条 + 总数。"""
+    from experiments.core import documents
+    from experiments.core.registry import registry
+
+    experiment = registry.get("gmr")
+    rows = [{"excitation": current, "output": 5000, "direction": 1}
+            for current in range(200, 240, 2)]
+    data = {"transfer": {"rows": rows, "params": {}},
+            "resistance": {"rows": [{"excitation": 0, "ir_a": 10.0, "ir_b": 9.9}] * 42,
+                           "params": {"supply": 2}}}
+    text = "\n".join(block.get("text", "") for block in documents.report_blocks(experiment, data))
+    assert "数据合理性提醒" in text
+    assert "条提醒" in text and "共 " in text
+    assert text.count("超出常见范围") <= 3
+
+
 def _assert_four_section_blocks(blocks):
     assert not any(block["kind"] in ("h1", "sub") for block in blocks)
     breaks = [i for i, block in enumerate(blocks) if block["kind"] == "pagebreak"]

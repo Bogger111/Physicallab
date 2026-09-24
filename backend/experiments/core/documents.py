@@ -161,8 +161,13 @@ def report_blocks(experiment, data: dict) -> list[dict]:
         fourth.insert(-2, {"kind": "para", "text": "未纳入计算的数据：" + "；".join(run["errors"])})
     # 录入层面的提醒（部分支路缺失、符号丢失、参数填错量纲）必须跟着报告走：
     # 只在网页上弹一次提醒不够，下载下来的报告同样是判据。
+    # 但范围提示这类逐行提醒可能有几十条，报告里只保留前几条 + 总数，避免正文被刷屏。
     if run.get("warnings"):
-        fourth.insert(-2, {"kind": "para", "text": safe_text("数据合理性提醒：" + "；".join(run["warnings"]))})
+        warnings = [str(item) for item in run["warnings"]]
+        shown = "；".join(warnings[:3])
+        if len(warnings) > 3:
+            shown += f"；……共 {len(warnings)} 条提醒（其余见网页端）"
+        fourth.insert(-2, {"kind": "para", "text": safe_text("数据合理性提醒：" + shown)})
     return four_section_report(tables, figures, analysis, fourth)
 
 
