@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from experiments.schema import definition_from_config, validate_payload
+from experiments.schema import definition_from_config, summarize_messages, validate_payload
 
 
 Calculator = Callable[[str, list[dict], dict[str, Any]], tuple[dict, list[dict], str | None]]
@@ -52,8 +52,8 @@ class ConfiguredExperiment:
             return {
                 "status": "validation_error",
                 "results": {}, "plots": {}, "derived": {},
-                "errors": [item["message"] for item in validation["errors"]],
-                "warnings": [item["message"] for item in validation["warnings"]],
+                "errors": summarize_messages(validation["errors"]),
+                "warnings": summarize_messages(validation["warnings"]),
                 "validation": validation,
             }
         results: dict[str, dict] = {}
@@ -84,7 +84,7 @@ class ConfiguredExperiment:
         response = {
             "status": status, "results": results, "plots": plots,
             "derived": derived, "errors": errors,
-            "warnings": [item["message"] for item in validation["warnings"]],
+            "warnings": summarize_messages(validation["warnings"]),
             "validation": validation,
         }
         return self._finalize_result(payload, response) if self._finalize_result else response

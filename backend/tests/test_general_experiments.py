@@ -211,6 +211,19 @@ def test_bridge_uses_the_lecture_balance_equations():
     assert thermistor["r25"] == pytest.approx(2700, rel=0.05)
 
 
+def test_row_level_validation_errors_are_grouped_into_one_message():
+    """只填了一半（有预填列）时，逐行报错要合并成一条，不能刷几十条。"""
+    data = fixtures()["gmr"]
+    data["resistance"]["rows"] = [{"excitation": row["excitation"]} for row in data["resistance"]["rows"]]
+    run = process_experiment("gmr", data)
+    assert run["status"] == "validation_error"
+    assert len(run["errors"]) <= 3, run["errors"]
+    assert any("共 21 行" in message for message in run["errors"]), run["errors"]
+    # 结构化 issues 仍保留逐行行号，供前端高亮
+    rows = [issue.get("row") for issue in run["validation"]["errors"] if issue.get("code") == "required"]
+    assert len(rows) == 42 and min(rows) == 0 and max(rows) == 20
+
+
 def test_gmr_transfer_splits_the_hysteresis_branches():
     """讲义：增磁/减磁两支要分开看，两支的差异就是磁滞；单一直线拟合会把两支抵消掉。"""
     result = process_experiment("gmr", fixtures()["gmr"])["results"]["transfer"]

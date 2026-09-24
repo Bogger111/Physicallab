@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import math
+import re
 from dataclasses import asdict, dataclass
 from typing import Any, Iterable
 
@@ -287,6 +288,41 @@ def _iter_values(value: Any) -> Iterable[Any]:
         yield from value.values()
     elif isinstance(value, list):
         yield from value
+
+
+_ROW_MESSAGE = re.compile(r"^(?P<head>.+?：)第 (?P<row>\d+) 行(?P<tail>.*)$")
+
+
+def summarize_messages(issues: list[dict[str, Any]], *, threshold: int = 3) -> list[str]:
+    """把「同一方法同一列」的逐行问题合并成一条，避免几十条刷屏。
+
+    结构化 issues 本身保持逐行原样（前端高亮/OCR 采集要用行号），只压缩给学生看的文案：
+    例如 42 行「状态 A 回路电流为空」合并为「……共 42 行状态 A 回路电流为空（如第 1、2 行）」。
+    """
+    groups: dict[tuple, list[dict[str, Any]]] = {}
+    order: list[tuple] = []
+    for index, issue in enumerate(issues):
+        message = str(issue.get("message", ""))
+        match = _ROW_MESSAGE.match(message)
+        key = ((issue.get("method_id"), issue.get("field_id"), issue.get("code"))
+               if match else ("__single__", message, index))
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(issue)
+
+    out: list[str] = []
+    for key in order:
+        items = groups[key]
+        if len(items) < threshold:
+            out.extend(str(item.get("message", "")) for item in items)
+            continue
+        match = _ROW_MESSAGE.match(str(items[0].get("message", "")))
+        rows = [_ROW_MESSAGE.match(str(item.get("message", ""))).group("row")
+                for item in items if _ROW_MESSAGE.match(str(item.get("message", "")))]
+        out.append(f"{match.group('head')}共 {len(items)} 行{match.group('tail')}"
+                   f"（如第 {rows[0]}、{rows[1]} 行）")
+    return out
 
 
 def _number(value: Any) -> float | None:
