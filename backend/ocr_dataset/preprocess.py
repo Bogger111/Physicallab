@@ -94,6 +94,13 @@ def perspective_correct(
 
 def _page_from_grayscale(image: np.ndarray, reference_size: tuple[int, int]) -> PreprocessedPage:
     height, width = image.shape
+    target_width, target_height = reference_size
+    # Rendered sheets already use calibrated coordinates. Without this guard,
+    # the dense 21-row table can be mistaken for the page boundary.
+    if (width, height) == (target_width, target_height):
+        full = ((0.0, 0.0), (float(width - 1), 0.0),
+                (float(width - 1), float(height - 1)), (0.0, float(height - 1)))
+        return PreprocessedPage(image, 1.0, "full_frame_exact", (width, height), full)
     corners, confidence = detect_page_boundary(image)
     if corners is not None:
         corrected = perspective_correct(image, corners, reference_size)
@@ -101,7 +108,6 @@ def _page_from_grayscale(image: np.ndarray, reference_size: tuple[int, int]) -> 
             corrected, confidence, "page_quadrilateral", (width, height),
             tuple((float(x), float(y)) for x, y in corners),
         )
-    target_width, target_height = reference_size
     corrected = cv2.resize(image, (target_width, target_height), interpolation=cv2.INTER_AREA)
     source_ratio = width / max(height, 1)
     target_ratio = target_width / max(target_height, 1)

@@ -117,17 +117,37 @@ def test_field_references_match_the_collection_schema(experiment_id):
             f"{experiment_id}: {field} is not a stable field id"
 
 
-def test_multimeter_calibration_tables_have_twenty_rows_per_lecture():
-    """万用表讲义的每个校准量程都应给 20 组记录行；未知电阻仍是 3 次重复。"""
+def test_multimeter_calibration_tables_have_twenty_one_points_per_lecture():
+    """万用表讲义的每个校准量程都应给 21 个数据点；未知电阻仍是 3 次重复。"""
     cfg = config("multimeter")
     rows = {method["id"]: method["rowCount"] for method in cfg["methods"]}
-    assert rows == {"voltage": 20, "current": 20, "resistance": 20, "unknown": 3,
-                    "ac_voltage": 20, "ac_current": 20}
+    assert rows == {"voltage": 21, "current": 21, "resistance": 21, "unknown": 3,
+                    "ac_voltage": 21, "ac_current": 21}
+
+    expected = {
+        "voltage": (199.9, 3),
+        "current": (19.99, 4),
+        "resistance": (1.999, 5),
+        "ac_voltage": (199.9, 3),
+        "ac_current": (19.99, 4),
+    }
+    for method in cfg["methods"]:
+        if method["id"] not in expected:
+            continue
+        maximum, decimals = expected[method["id"]]
+        points = method["prefill"]["set"]
+        assert len(points) == 21
+        assert points[0] == 0
+        assert points[-1] == maximum
+        step = maximum / 20
+        assert all(abs(float(value) - index * step) <= 10 ** (-(decimals + 1))
+                   for index, value in enumerate(points))
 
 
-def test_multimeter_reference_mentions_twenty_calibration_groups():
+def test_multimeter_reference_mentions_twenty_one_calibration_points():
     entry_data = entry("multimeter", "设定值 U设")
-    assert any("20 组" in pattern for pattern in entry_data["pattern"])
+    assert any("21 个" in pattern and "首点 0" in pattern and "满量程点" in pattern
+               for pattern in entry_data["pattern"])
 
 
 # ------------------------------------------------------- formula re-derivation
