@@ -68,7 +68,7 @@ def _method_raw_table(method: dict, payload: dict, blank: bool = False) -> dict:
         # Blank sheets are written on by hand.  Use visibly taller rows while
         # keeping even the longest lecture-prescribed tables on portrait A4.
         body_rows = len(rows) - 1
-        row_h = .88 if body_rows <= 12 else .78 if body_rows <= 22 else .68
+        row_h = .88 if body_rows <= 22 else .68
     else:
         row_h = .52
     return _table(rows,len(rows[0]),7.2 if len(rows[0])>6 else 8.2,

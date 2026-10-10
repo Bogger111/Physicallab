@@ -14,127 +14,6 @@
   },
   "cells": [
     {
-      "field_id": "current.rows.row_01.measured",
-      "bbox": [
-        0.50125,
-        0.4905,
-        0.94437,
-        0.52011
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_02.measured",
-      "bbox": [
-        0.50125,
-        0.52011,
-        0.94437,
-        0.54971
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_03.measured",
-      "bbox": [
-        0.50125,
-        0.54971,
-        0.94437,
-        0.57932
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_04.measured",
-      "bbox": [
-        0.50125,
-        0.57932,
-        0.94437,
-        0.60937
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_05.measured",
-      "bbox": [
-        0.50125,
-        0.60937,
-        0.94437,
-        0.63897
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_06.measured",
-      "bbox": [
-        0.50125,
-        0.63897,
-        0.94437,
-        0.66858
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_07.measured",
-      "bbox": [
-        0.50125,
-        0.66858,
-        0.94437,
-        0.69819
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_08.measured",
-      "bbox": [
-        0.50125,
-        0.69819,
-        0.94437,
-        0.72779
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_09.measured",
-      "bbox": [
-        0.50125,
-        0.72779,
-        0.94437,
-        0.7574
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_10.measured",
-      "bbox": [
-        0.50125,
-        0.7574,
-        0.94437,
-        0.78701
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
-      "field_id": "current.rows.row_11.measured",
-      "bbox": [
-        0.50125,
-        0.78701,
-        0.94437,
-        0.81662
-      ],
-      "page": 1,
-      "confidence": 0.9
-    },
-    {
       "field_id": "voltage.rows.row_01.measured",
       "bbox": [
         0.50125,
@@ -254,6 +133,105 @@
       ],
       "page": 1,
       "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_12.measured",
+      "bbox": [
+        0.50125,
+        0.42554,
+        0.94437,
+        0.45515
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_13.measured",
+      "bbox": [
+        0.50125,
+        0.45515,
+        0.94437,
+        0.48475
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_14.measured",
+      "bbox": [
+        0.50125,
+        0.48475,
+        0.94437,
+        0.51436
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_15.measured",
+      "bbox": [
+        0.50125,
+        0.51436,
+        0.94437,
+        0.54397
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_16.measured",
+      "bbox": [
+        0.50125,
+        0.54397,
+        0.94437,
+        0.57402
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_17.measured",
+      "bbox": [
+        0.50125,
+        0.57402,
+        0.94437,
+        0.60362
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_18.measured",
+      "bbox": [
+        0.50125,
+        0.60362,
+        0.94437,
+        0.63323
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_19.measured",
+      "bbox": [
+        0.50125,
+        0.63323,
+        0.94437,
+        0.66284
+      ],
+      "page": 1,
+      "confidence": 0.9
+    },
+    {
+      "field_id": "voltage.rows.row_20.measured",
+      "bbox": [
+        0.50125,
+        0.66284,
+        0.94437,
+        0.69244
+      ],
+      "page": 1,
+      "confidence": 0.9
     }
   ],
   "registration": {
@@ -262,13 +240,7 @@
         0.05875,
         0.07026,
         0.94437,
-        0.42554
-      ],
-      [
-        0.05875,
-        0.46089,
-        0.94437,
-        0.81662
+        0.69244
       ]
     ],
     "lattice": {
@@ -291,19 +263,15 @@
         0.3664,
         0.39603,
         0.42565,
-        0.46101,
-        0.49064,
-        0.52027,
-        0.5499,
-        0.57952,
-        0.60915,
-        0.63878,
-        0.66841,
-        0.69804,
-        0.72767,
-        0.7573,
-        0.78693,
-        0.81656
+        0.45528,
+        0.48491,
+        0.51454,
+        0.54417,
+        0.5738,
+        0.60343,
+        0.63306,
+        0.66269,
+        0.69232
       ]
     }
   }

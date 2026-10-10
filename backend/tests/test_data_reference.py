@@ -117,6 +117,19 @@ def test_field_references_match_the_collection_schema(experiment_id):
             f"{experiment_id}: {field} is not a stable field id"
 
 
+def test_multimeter_calibration_tables_have_twenty_rows_per_lecture():
+    """万用表讲义的每个校准量程都应给 20 组记录行；未知电阻仍是 3 次重复。"""
+    cfg = config("multimeter")
+    rows = {method["id"]: method["rowCount"] for method in cfg["methods"]}
+    assert rows == {"voltage": 20, "current": 20, "resistance": 20, "unknown": 3,
+                    "ac_voltage": 20, "ac_current": 20}
+
+
+def test_multimeter_reference_mentions_twenty_calibration_groups():
+    entry_data = entry("multimeter", "设定值 U设")
+    assert any("20 组" in pattern for pattern in entry_data["pattern"])
+
+
 # ------------------------------------------------------- formula re-derivation
 
 def test_multimeter_reads_back_the_set_value():
